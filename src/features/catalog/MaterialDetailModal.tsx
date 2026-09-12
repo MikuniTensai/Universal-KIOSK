@@ -131,43 +131,11 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
             </div>
           </div>
 
-          {/* Lokasi Rak & Rincian Persediaan (Tabel & Spesifikasi SPLN) */}
-          <div className="space-y-4 pt-2">
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
-                <MapPin className="h-4 w-4 text-amber-600" />
-                <span>Lokasi Rak & Rincian Persediaan</span>
-              </h4>
+          {/* Lokasi Rak & Rincian Persediaan (Dihapus sesuai instruksi client karena sudah ada di kartu ringkasan atas) */}
+          <span className="sr-only">Lokasi Rak & Rincian Persediaan</span>
 
-              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                <table className="w-full text-left text-xs sm:text-sm">
-                  <thead className="bg-slate-50 text-[11px] font-bold uppercase text-slate-500 border-b border-slate-200">
-                    <tr>
-                      <th className="p-3">Zona / Blok</th>
-                      <th className="p-3">Kode Rak</th>
-                      <th className="p-3 text-right">Stok Fisik</th>
-                      <th className="p-3 text-right">Siap Pakai</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    <tr className="hover:bg-slate-50/50">
-                      <td className="p-3 font-semibold text-slate-900">
-                        {cleanBlok}
-                      </td>
-                      <td className="p-3 font-mono font-bold text-amber-900">
-                        {cleanRack}
-                      </td>
-                      <td className="p-3 text-right font-black text-slate-900">
-                        {stockDisplay}
-                      </td>
-                      <td className="p-3 text-right font-bold text-emerald-700">
-                        {material.totalAvailable !== null ? `${material.totalAvailable} ${material.unit}` : stockDisplay}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          {/* Spesifikasi Teknis SPLN & Visual Mini Map */}
+          <div className="space-y-4 pt-2">
 
             {/* Spesifikasi Teknis SPLN */}
             {material.specification && (
