@@ -3,13 +3,13 @@
 */
 
 :root {
-  /* PLN Electric Blue & Amber Palette (WCAG AA Compliant) */
-  --adms-primary: #0284c7;
-  --adms-primary-hover: #0369a1;
+  /* PLN Electric Blue & Amber Palette (WCAG AA Compliant - Contrast 5.93:1 on white text) */
+  --adms-primary: #0369a1;
+  --adms-primary-hover: #0284c7;
   --adms-primary-active: #075985;
   --adms-primary-soft: #f0f9ff;
   --adms-primary-border: #bae6fd;
-  --adms-primary-shadow: rgba(2, 132, 199, 0.25);
+  --adms-primary-shadow: rgba(3, 105, 161, 0.25);
 
   --adms-accent: #f59e0b;
   --adms-accent-hover: #d97706;
@@ -903,43 +903,81 @@
     flex-direction: column;
     max-width: 480px;
     min-height: auto;
+    width: 95%;
+  }
+  .adms-login-form-panel {
+    order: 1;
+    width: 100%;
+    min-width: 100%;
+    padding: 24px 20px;
   }
   .adms-login-showcase-panel {
+    order: 2;
     width: 100%;
     min-width: 100%;
     border-right: none;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 24px 20px;
+    border-top: 1px solid #f1f5f9;
+    padding: 20px 18px;
   }
-  .adms-login-form-panel {
+  .adms-station-card-wrapper {
+    margin: 14px 0;
+  }
+  .adms-login-notice-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .adms-banner-direct-btn {
     width: 100%;
-    min-width: 100%;
-    padding: 28px 24px;
+    justify-content: center;
+    padding: 9px 14px;
+    min-height: 42px;
   }
   .adms-backdrop-left, .adms-backdrop-right {
     display: none;
   }
   .adms-login-page-wrapper {
     background: #f1f5f9;
+    padding: 16px 12px;
+    align-items: flex-start;
+    overflow-y: auto;
   }
 }
 
 @media (max-width: 480px) {
   .adms-login-page-wrapper {
-    padding: 10px;
-    align-items: flex-start;
-    overflow-y: auto;
+    padding: 8px 6px;
   }
   .adms-login-card-container {
-    margin: 10px 0;
-    border-radius: 18px;
+    margin: 4px 0 24px;
+    border-radius: 16px;
     width: 100%;
   }
   .adms-login-form-panel {
-    padding: 20px 16px;
+    padding: 18px 14px;
+  }
+  .adms-welcome-title {
+    font-size: 19px;
+  }
+  .adms-welcome-subtitle {
+    font-size: 11.5px;
+  }
+  .adms-keypad-btn {
+    height: 48px;
+    font-size: 18px;
+  }
+  .adms-auth-tab {
+    padding: 8px 10px;
+    font-size: 11.5px;
   }
   .adms-login-showcase-panel {
-    padding: 18px 16px;
+    padding: 16px 12px;
+  }
+  .adms-showcase-watermark {
+    display: none;
+  }
+  .adms-carousel-arrow {
+    display: none;
   }
 }
 
@@ -1209,10 +1247,13 @@
 }
 
 /* Top Bar */
+/* Top Bar */
 .adms-top-bar {
   background: var(--adms-surface);
   border-bottom: 1px solid var(--adms-surface-border);
-  padding: 12px 28px;
+  padding: 10px 24px;
+  min-height: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1221,11 +1262,15 @@
   top: 0;
   z-index: 20;
   box-shadow: var(--adms-shadow-sm);
+  box-sizing: border-box;
+  flex-wrap: nowrap;
 }
 
 @media (max-width: 768px) {
   .adms-top-bar {
-    padding: 10px 16px;
+    padding: 8px 14px;
+    min-height: 56px;
+    height: 56px;
   }
 }
 
@@ -1234,6 +1279,8 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .adms-mobile-menu-btn {
@@ -1244,6 +1291,7 @@
   padding: 6px;
   color: var(--adms-text-body);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 @media (max-width: 1024px) {
@@ -1263,27 +1311,42 @@
 
 .adms-top-title-group {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   min-width: 0;
-  flex-wrap: wrap;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .adms-top-title {
-  font-size: 15.5px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--adms-text-main);
   margin: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .adms-top-sep {
   color: var(--adms-text-subtle);
+  flex-shrink: 0;
 }
 
 .adms-top-subtitle {
   font-size: 12px;
   color: var(--adms-text-muted);
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+@media (max-width: 1360px) {
+  .adms-top-subtitle,
+  .adms-top-sep {
+    display: none;
+  }
 }
 
 .adms-top-right {
@@ -1291,6 +1354,7 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Connection status pill */
