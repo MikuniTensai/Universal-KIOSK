@@ -11,8 +11,8 @@ const storage = vi.hoisted(() => ({
 }));
 const layout = vi.hoisted(() => ({ saveBlocks: vi.fn(), getBlocks: vi.fn(() => []) }));
 
-vi.mock('../../src/adapters/storage/kioskStorage', () => ({ kioskStorage: storage }));
-vi.mock('../../src/features/layout/warehouseLayoutService', () => ({ WarehouseLayoutService: layout }));
+vi.mock('@/adapters/storage/kioskStorage', () => ({ kioskStorage: storage }));
+vi.mock('@/features/layout/warehouseLayoutService', () => ({ WarehouseLayoutService: layout }));
 
 class TestBroadcastChannel {
   static instances: TestBroadcastChannel[] = [];
