@@ -25,10 +25,11 @@ import {
   Settings,
   Download,
   FileSpreadsheet,
+  ShieldCheck,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
-import { CsvImportService, CsvImportStats } from './csvImportService';
+import { CsvImportService, CsvImportStats, CsvImportScope } from './csvImportService';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import { SyncService } from '../../adapters/storage/syncService';
@@ -96,6 +97,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [csvText, setCsvText] = useState<string>('');
   const [csvFileName, setCsvFileName] = useState<string>('');
   const [csvImportMode, setCsvImportMode] = useState<'replace' | 'merge'>('replace');
+  const [csvImportScope, setCsvImportScope] = useState<CsvImportScope>('auto');
   const [csvImportStats, setCsvImportStats] = useState<CsvImportStats | null>(null);
   const [csvParsedPackage, setCsvParsedPackage] = useState<ImportPackage | null>(null);
   const [csvImportError, setCsvImportError] = useState<string | null>(null);
@@ -318,31 +320,43 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   };
 
   const handleExportCsv = () => {
-    if (!activePkg) return;
-    const rows = activePkg.materials.map((m, idx) => {
-      const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+    const isRet = stockConditionTab === 'return';
+    const targetPkg = isRet ? kioskStorage.getPackageReturn() : kioskStorage.getPackageBaru();
+    if (!targetPkg || targetPkg.materials.length === 0) {
+      setStockError(`Database material ${isRet ? 'Return' : 'Baru'} masih kosong.`);
+      return;
+    }
+
+    const rows = targetPkg.materials.map((m, idx) => {
+      const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, targetPkg);
       const safeName = m.name.includes(',') || m.name.includes('"')
         ? `"${m.name.replace(/"/g, '""')}"`
         : m.name;
       const normCode = m.code || m.sapCode || '';
       const subRakCol = subRakDisplay !== '-' ? subRakDisplay : '';
+      if (isRet) {
+        return `${idx + 1},${safeName},${normCode},${m.unit},${totalQty},${blokDisplay},${rakDisplay},${subRakCol},${m.status || 'STANDBY'}`;
+      }
       return `${idx + 1},${safeName},${normCode},${m.unit},${totalQty},${blokDisplay},${rakDisplay},${subRakCol}`;
     });
 
-    const csvContent = 'No,Nama Material,Kode Normalisasi,Satuan,Stok,BLOK,RAK,\n' + rows.join('\n');
+    const header = isRet
+      ? 'No,Nama Material,Kode Normalisasi,Satuan,Stok,BLOK,RAK,SUB RAK,STATUS\n'
+      : 'No,Nama Material,Kode Normalisasi,Satuan,Stok,BLOK,RAK,\n';
+    const csvContent = header + rows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `export_material_gudang_aris_munandar_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `export_material_${isRet ? 'NEW_RETUR' : 'NEW'}_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    setActionSuccessMessage('Berhasil mengekspor database material ke format CSV master Excel SAP.');
+    setActionSuccessMessage(`Berhasil mengekspor Database Material ${isRet ? 'Return' : 'Baru'} (${rows.length} item) ke format CSV master Excel SAP.`);
   };
 
-  const processCsvContent = async (rawCsv: string, mode: 'replace' | 'merge') => {
+  const processCsvContent = async (rawCsv: string, mode: 'replace' | 'merge', scope: CsvImportScope = csvImportScope) => {
     if (!rawCsv.trim()) {
       setCsvImportStats(null);
       setCsvParsedPackage(null);
@@ -351,7 +365,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setIsProcessingCsv(true);
     setCsvImportError(null);
     try {
-      const { pkg, stats } = await CsvImportService.createPackageFromCsv(rawCsv, mode, activePkg);
+      const basePkg = scope === 'return-only'
+        ? kioskStorage.getPackageReturn()
+        : scope === 'baru-only'
+        ? kioskStorage.getPackageBaru()
+        : kioskStorage.getActivePackage();
+
+      const { pkg, stats } = await CsvImportService.createPackageFromCsv(rawCsv, mode, basePkg, scope);
       if (stats.validRows === 0) {
         setCsvImportError('Tidak ditemukan baris data material yang valid di dalam file CSV.');
         setCsvImportStats(null);
@@ -376,7 +396,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     try {
       const text = await file.text();
       setCsvText(text);
-      await processCsvContent(text, csvImportMode);
+      await processCsvContent(text, csvImportMode, csvImportScope);
     } catch (err: any) {
       setCsvImportError(err.message || 'Gagal membaca file CSV.');
     }
@@ -385,15 +405,34 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const handleApplyCsvImport = () => {
     if (!csvParsedPackage || !csvImportStats) return;
     try {
-      kioskStorage.activatePackage(csvParsedPackage);
-      WarehouseLayoutService.syncWithPackage(csvParsedPackage);
+      const targetScope: 'baru' | 'return' | 'all' =
+        csvImportStats.effectiveScope === 'return-only' || csvImportScope === 'return-only'
+          ? 'return'
+          : csvImportStats.effectiveScope === 'baru-only' || csvImportScope === 'baru-only'
+          ? 'baru'
+          : 'all';
+
+      kioskStorage.activatePackage(csvParsedPackage, targetScope);
+      WarehouseLayoutService.syncWithPackage(kioskStorage.getActivePackage() || csvParsedPackage);
       triggerPackageUpdated();
       setShowCsvImportModal(false);
-      setActionSuccessMessage(
-        csvImportStats.mode === 'replace'
-          ? `Sukses mengganti seluruh database material dengan ${csvImportStats.materialsCount} item dari CSV!`
-          : `Sukses memperbarui dan menggabungkan ${csvImportStats.validRows} item dari CSV ke database!`
-      );
+
+      if (targetScope === 'return') {
+        setActionSuccessMessage(
+          `Sukses memperbarui Database Material Return (${csvImportStats.validRows} item). Database Material Baru (${kioskStorage.getPackageBaru().materials.length} item) 100% aman tersimpan di database terpisah!`
+        );
+      } else if (targetScope === 'baru') {
+        setActionSuccessMessage(
+          `Sukses memperbarui Database Material Baru (${csvImportStats.validRows} item). Database Material Return (${kioskStorage.getPackageReturn().materials.length} item) 100% aman tersimpan di database terpisah!`
+        );
+      } else {
+        setActionSuccessMessage(
+          csvImportStats.mode === 'replace'
+            ? `Sukses mengganti database material dengan ${csvImportStats.materialsCount} item dari CSV!`
+            : `Sukses memperbarui dan menggabungkan ${csvImportStats.validRows} item dari CSV ke database!`
+        );
+      }
+
       setCsvText('');
       setCsvFileName('');
       setCsvImportStats(null);
@@ -591,21 +630,19 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     return { totalQty, blokDisplay, rakDisplay, subRakDisplay, locObj };
   };
 
-  const totalBaruCount = (activePkg?.materials || []).filter((m) => m.condition !== 'RETURN').length;
-  const totalReturnCount = (activePkg?.materials || []).filter((m) => m.condition === 'RETURN').length;
+  const pkgBaru = kioskStorage.getPackageBaru();
+  const pkgReturn = kioskStorage.getPackageReturn();
+  const totalBaruCount = pkgBaru.materials.length;
+  const totalReturnCount = pkgReturn.materials.length;
+  const currentTabPkg = stockConditionTab === 'return' ? pkgReturn : pkgBaru;
 
-  const filteredStockMaterials = (activePkg?.materials || []).filter((m) => {
+  const filteredStockMaterials = currentTabPkg.materials.filter((m) => {
     // 1. Pemisahan Katalog Stok: Baru vs Return
-    const isReturn = m.condition === 'RETURN';
     if (stockConditionTab === 'return') {
-      if (!isReturn) return false;
       if (stockReturnStatusFilter !== 'all') {
         const s = (m.status || 'STANDBY').toUpperCase();
         if (s !== stockReturnStatusFilter) return false;
       }
-    } else {
-      // Mode Katalog Baru
-      if (isReturn) return false;
     }
 
     // 2. Filter Kategori
@@ -616,7 +653,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     // 3. Filter Pencarian Teks
     if (!stockSearch) return true;
     const q = stockSearch.toLowerCase().trim();
-    const { blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+    const { blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, currentTabPkg);
     return (
       m.name.toLowerCase().includes(q) ||
       m.code.toLowerCase().includes(q) ||
@@ -1178,13 +1215,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       type="button"
                       onClick={() => {
                         setCsvImportError(null);
+                        setCsvImportScope(stockConditionTab === 'return' ? 'return-only' : 'baru-only');
                         setShowCsvImportModal(true);
                       }}
                       className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-sky-700 px-3.5 text-xs font-bold text-white shadow-2xs hover:bg-sky-800 active:scale-95 transition shrink-0"
                       title="Import file CSV untuk mengganti atau memperbarui database stok material"
                     >
                       <Upload className="h-4 w-4" />
-                      <span>Import CSV (Ganti/Update Stok)</span>
+                      <span>Import CSV ({stockConditionTab === 'return' ? 'Katalog Return' : 'Katalog Baru'})</span>
                     </button>
                   </div>
 
@@ -1316,8 +1354,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       </tr>
                     ) : (
                       filteredStockMaterials.map((m, idx) => {
-                        const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
-                        const category = activePkg?.categories.find(c => c.id === m.categoryId);
+                        const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, currentTabPkg);
+                        const category = currentTabPkg.categories.find(c => c.id === m.categoryId) || activePkg?.categories.find(c => c.id === m.categoryId);
                         return (
                           <tr key={m.id} className="hover:bg-slate-50 transition">
                             <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
@@ -2267,6 +2305,84 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto space-y-5">
+              {/* Target Database Selector */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Pilih Database Target Sinkronisasi:
+                  </label>
+                  <span className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1">
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                    2 Database Terpisah &amp; Terisolasi
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportScope('return-only');
+                      if (csvText) processCsvContent(csvText, csvImportMode, 'return-only');
+                    }}
+                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-1 ${
+                      csvImportScope === 'return-only'
+                        ? 'border-amber-600 bg-amber-50 text-amber-950 ring-2 ring-amber-500/20 shadow-xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>🔄 Database Return</span>
+                    <span className="text-[10px] font-normal text-emerald-600">Database Baru Aman</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportScope('baru-only');
+                      if (csvText) processCsvContent(csvText, csvImportMode, 'baru-only');
+                    }}
+                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-1 ${
+                      csvImportScope === 'baru-only'
+                        ? 'border-sky-600 bg-sky-50 text-sky-950 ring-2 ring-sky-500/20 shadow-xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>📦 Database Baru</span>
+                    <span className="text-[10px] font-normal text-emerald-600">Database Return Aman</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportScope('auto');
+                      if (csvText) processCsvContent(csvText, csvImportMode, 'auto');
+                    }}
+                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-1 ${
+                      csvImportScope === 'auto'
+                        ? 'border-sky-600 bg-sky-50 text-sky-950 ring-2 ring-sky-500/20 shadow-xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>🤖 Auto (Deteksi CSV)</span>
+                    <span className="text-[10px] font-normal text-slate-500">Otomatis Pintar</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportScope('all');
+                      if (csvText) processCsvContent(csvText, csvImportMode, 'all');
+                    }}
+                    className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-1 ${
+                      csvImportScope === 'all'
+                        ? 'border-slate-700 bg-slate-100 text-slate-950 ring-2 ring-slate-400/20 shadow-xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span>🌐 Kedua Database</span>
+                    <span className="text-[10px] font-normal text-slate-500">Master Gabungan</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Mode Selection */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
@@ -2277,7 +2393,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     type="button"
                     onClick={() => {
                       setCsvImportMode('replace');
-                      if (csvText) processCsvContent(csvText, 'replace');
+                      if (csvText) processCsvContent(csvText, 'replace', csvImportScope);
                     }}
                     className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3 ${
                       csvImportMode === 'replace'
@@ -2292,11 +2408,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </div>
                     <div>
                       <div className="text-xs font-extrabold flex items-center gap-1.5">
-                        <span>Ganti Seluruh Data (Replace All)</span>
+                        <span>Ganti Seluruh Data Database Terpilih (Replace)</span>
                         <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-200 text-amber-900">Rekomendasi</span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                        Menghapus katalog lama dan menggantikannya 100% dengan data dari file CSV baru.
+                        Hanya me-replace isi database target yang dipilih. Database pasangannya sama sekali tidak tersentuh.
                       </p>
                     </div>
                   </button>
@@ -2305,7 +2421,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     type="button"
                     onClick={() => {
                       setCsvImportMode('merge');
-                      if (csvText) processCsvContent(csvText, 'merge');
+                      if (csvText) processCsvContent(csvText, 'merge', csvImportScope);
                     }}
                     className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3 ${
                       csvImportMode === 'merge'
@@ -2321,7 +2437,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     <div>
                       <div className="text-xs font-extrabold">Perbarui & Tambah (Merge / Upsert)</div>
                       <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                        Memperbarui stok & lokasi material yang cocok, serta menambahkan material baru yang belum ada.
+                        Memperbarui stok & lokasi material yang cocok di database terpilih, serta menambahkan material baru.
                       </p>
                     </div>
                   </button>
@@ -2356,7 +2472,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <span className="text-xs text-slate-500"> atau seret file ke sini</span>
                     </div>
                     <p className="text-[11px] text-slate-400">
-                      Mendukung format: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-700">export_material NEW(1).csv</code>
+                      Mendukung format: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-700">export_material NEW(1).csv</code> atau <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-700">export_material NEW RETUR.csv</code>
                     </p>
                     {csvFileName && (
                       <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
@@ -2379,22 +2495,45 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               {/* Preview Stats */}
               {csvImportStats && (
                 <div className="space-y-3 rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                  {/* Two-Way Protection Banner */}
+                  {(csvImportStats.effectiveScope === 'return-only' || csvImportScope === 'return-only') && (
+                    <div className="flex items-center gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50/90 p-3 text-xs text-emerald-900 shadow-2xs">
+                      <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0" />
+                      <div>
+                        <span className="font-extrabold">🛡️ Terisolasi ke Database Return: </span>
+                        Mengimpor <strong>{csvImportStats.validRows}</strong> material ke <strong>Database Return</strong>.
+                        Database Material Baru (<strong>{kioskStorage.getPackageBaru().materials.length} item</strong>) berada di database terpisah dan <strong>100% aman tersimpan</strong>!
+                      </div>
+                    </div>
+                  )}
+
+                  {(csvImportStats.effectiveScope === 'baru-only' || csvImportScope === 'baru-only') && (
+                    <div className="flex items-center gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50/90 p-3 text-xs text-emerald-900 shadow-2xs">
+                      <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0" />
+                      <div>
+                        <span className="font-extrabold">🛡️ Terisolasi ke Database Baru: </span>
+                        Mengimpor <strong>{csvImportStats.validRows}</strong> material ke <strong>Database Baru</strong>.
+                        Database Material Return (<strong>{kioskStorage.getPackageReturn().materials.length} item</strong>) berada di database terpisah dan <strong>100% aman tersimpan</strong>!
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                       Pratinjau Hasil Pembacaan CSV:
                     </span>
                     <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                      {csvImportStats.validRows} Baris Terverifikasi
+                      {csvImportStats.validRows} Baris Terverifikasi ({csvImportStats.detectedCondition})
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
-                      <span className="text-[11px] text-slate-400">Total Material</span>
+                      <span className="text-[11px] text-slate-400">Total Material Akhir</span>
                       <p className="text-base font-extrabold text-slate-900">{csvImportStats.materialsCount}</p>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
-                      <span className="text-[11px] text-slate-400">Total Stok Fisik</span>
+                      <span className="text-[11px] text-slate-400">Total Stok Fisik CSV</span>
                       <p className="text-base font-extrabold text-emerald-600">{csvImportStats.totalQuantity}</p>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
@@ -2402,9 +2541,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <p className="text-base font-extrabold text-sky-600">{csvImportStats.locationsCount}</p>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
-                      <span className="text-[11px] text-slate-400">Aksi Database</span>
+                      <span className="text-[11px] text-slate-400">Target & Aksi</span>
                       <p className="text-xs font-extrabold text-amber-700 uppercase mt-0.5">
-                        {csvImportStats.mode === 'replace' ? 'Replace All' : 'Merge Stock'}
+                        {csvImportStats.effectiveScope} ({csvImportStats.mode})
                       </p>
                     </div>
                   </div>
@@ -2465,7 +2604,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               >
                 <CheckCircle2 className="h-4 w-4 text-[#FACC15]" />
                 <span>
-                  {csvImportMode === 'replace'
+                  {csvImportStats?.effectiveScope === 'return-only'
+                    ? 'Terapkan Katalog Return (Baru Tetap Aman)'
+                    : csvImportStats?.effectiveScope === 'baru-only'
+                    ? 'Terapkan Katalog Baru (Return Tetap Aman)'
+                    : csvImportMode === 'replace'
                     ? 'Terapkan & Ganti Total Database'
                     : 'Terapkan & Perbarui Stok Database'}
                 </span>

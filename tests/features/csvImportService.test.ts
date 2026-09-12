@@ -37,8 +37,9 @@ describe('CsvImportService (Import & Replace / Merge SAP Excel CSV)', () => {
     expect(rows[2].subRak).toBe('H12');
   });
 
-  it('creates an ImportPackage in REPLACE mode replacing all materials and stock', async () => {
-    const { pkg, stats } = await CsvImportService.createPackageFromCsv(sampleCsvContent, 'replace', plnUp3MalangFullPackage);
+  it('creates an ImportPackage in REPLACE mode with scope ALL replacing all materials and stock', async () => {
+    // Dengan scope 'all', seluruh data lama digantikan murni 100% oleh CSV
+    const { pkg, stats } = await CsvImportService.createPackageFromCsv(sampleCsvContent, 'replace', plnUp3MalangFullPackage, 'all');
     
     expect(stats.totalRows).toBe(5);
     expect(stats.materialsCount).toBe(5);
@@ -100,5 +101,120 @@ describe('CsvImportService (Import & Replace / Merge SAP Excel CSV)', () => {
     const matMerged = mergedPkg.materials.find(m => m.code === '3120159');
     expect(matMerged?.photoPath).toBe(customPhotoUrl);
     expect(matMerged?.specification).toBe(customSpec);
+  });
+
+  it('guarantees two-way protection: importing BARU materials does NOT erase existing RETURN materials in REPLACE mode', async () => {
+    // Siapkan base package yang sudah memiliki material Return dan Baru
+    const baseWithReturn = {
+      ...plnUp3MalangFullPackage,
+      materials: [
+        ...plnUp3MalangFullPackage.materials,
+        {
+          id: 'mat-ret-test-01',
+          code: '4120470',
+          sapCode: '4120470',
+          name: 'BOX 105 KVA RETURN TEST',
+          categoryId: 'cat-kwh',
+          unit: 'SET',
+          specification: 'Spesifikasi Return',
+          photoPath: 'https://images.unsplash.com/photo-test',
+          condition: 'RETURN' as const,
+          status: 'GARANSI',
+        },
+        {
+          id: 'mat-ret-test-02',
+          code: '9999999',
+          sapCode: '9999999',
+          name: 'TRAFO 100KVA RETURN TEST',
+          categoryId: 'cat-mdu',
+          unit: 'UNIT',
+          specification: 'Spesifikasi Trafo Return',
+          photoPath: 'https://images.unsplash.com/photo-test-trafo',
+          condition: 'RETURN' as const,
+          status: 'STANDBY',
+        },
+      ],
+      stockSnapshots: [
+        ...plnUp3MalangFullPackage.stockSnapshots,
+        {
+          materialId: 'mat-ret-test-01',
+          locationId: 'loc-c-rack-bin',
+          quantity: 4,
+          reserved: 0,
+          available: 4,
+          sourceAt: '2026-09-12T00:00:00Z',
+        },
+        {
+          materialId: 'mat-ret-test-02',
+          locationId: 'loc-c-rack-bin',
+          quantity: 1,
+          reserved: 0,
+          available: 1,
+          sourceAt: '2026-09-12T00:00:00Z',
+        },
+      ],
+      barcodeAliases: [
+        ...plnUp3MalangFullPackage.barcodeAliases,
+        {
+          value: '4120470',
+          targetType: 'material' as const,
+          targetId: 'mat-ret-test-01',
+        },
+      ],
+    };
+
+    // Impor CSV baru (sampleCsvContent adalah material Baru tanpa kolom status)
+    const { pkg, stats } = await CsvImportService.createPackageFromCsv(sampleCsvContent, 'replace', baseWithReturn);
+
+    // Verifikasi:
+    expect(stats.effectiveScope).toBe('baru-only');
+    expect(stats.detectedCondition).toBe('BARU');
+    expect(stats.preservedCount).toBe(7); // 5 material Return bawaan + 2 material Return dummy diamankan
+
+    // 5 material baru dari CSV + 7 material return yang diawetkan = 12 material total
+    expect(pkg.materials.length).toBe(12);
+
+    const returnMaterials = pkg.materials.filter(m => m.condition === 'RETURN');
+    expect(returnMaterials.length).toBe(7);
+    expect(returnMaterials.find(m => m.id === 'mat-ret-test-01')?.status).toBe('GARANSI');
+    expect(returnMaterials.find(m => m.id === 'mat-ret-test-02')?.status).toBe('STANDBY');
+
+    // Pastikan stockSnapshot material return juga tidak hilang
+    const snap1 = pkg.stockSnapshots.find(s => s.materialId === 'mat-ret-test-01');
+    expect(snap1?.quantity).toBe(4);
+    const snap2 = pkg.stockSnapshots.find(s => s.materialId === 'mat-ret-test-02');
+    expect(snap2?.quantity).toBe(1);
+  });
+
+  it('guarantees two-way protection: importing RETURN materials does NOT erase existing BARU materials in REPLACE mode', async () => {
+    // CSV khusus Return dengan kolom STATUS
+    const returnCsvContent = `No,Nama Material,Kode Normalisasi,Satuan,Stok,BLOK,RAK,SUB RAK,STATUS
+1,BOX 105 KVA RETUR GARANSI,4120470,SET,4,C,-,,GARANSI
+2,BOX 147 KVA RETUR PERBAIKAN,4120472,BH,2,C,-,,PERBAIKAN
+`;
+
+    // plnUp3MalangFullPackage berisi material Baru (sekitar 151 item)
+    const initialBaruCount = plnUp3MalangFullPackage.materials.filter(m => m.condition !== 'RETURN').length;
+    expect(initialBaruCount).toBeGreaterThan(0);
+
+    const { pkg, stats } = await CsvImportService.createPackageFromCsv(returnCsvContent, 'replace', plnUp3MalangFullPackage);
+
+    // Verifikasi:
+    expect(stats.effectiveScope).toBe('return-only');
+    expect(stats.detectedCondition).toBe('RETURN');
+    expect(stats.preservedCount).toBe(initialBaruCount); // Seluruh material baru diamankan
+
+    // Seluruh material Baru lama tetap ada di pkg
+    const baruMaterials = pkg.materials.filter(m => m.condition !== 'RETURN');
+    expect(baruMaterials.length).toBe(initialBaruCount);
+
+    // Material return terimpor
+    const returnMaterials = pkg.materials.filter(m => m.condition === 'RETURN');
+    expect(returnMaterials.length).toBe(2);
+    expect(returnMaterials[0].status).toBe('GARANSI');
+    expect(returnMaterials[1].status).toBe('PERBAIKAN');
+
+    // Total material = initialBaruCount + 2
+    expect(pkg.materials.length).toBe(initialBaruCount + 2);
   });
 });

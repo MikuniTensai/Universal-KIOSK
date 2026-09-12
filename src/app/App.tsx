@@ -564,7 +564,7 @@ export const App: React.FC = () => {
         {/* VIEW: CATALOG */}
         {currentRoute === 'catalog' && (
           <CatalogView
-            pkg={activePackage}
+            pkg={catalogMode === 'return' ? kioskStorage.getPackageReturn() : kioskStorage.getPackageBaru()}
             config={config}
             mode={catalogMode}
             onBack={() => {

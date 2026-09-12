@@ -15,6 +15,8 @@ export interface ParsedMaterialRow {
   status?: string;
 }
 
+export type CsvImportScope = 'auto' | 'baru-only' | 'return-only' | 'all';
+
 export interface CsvImportStats {
   totalRows: number;
   validRows: number;
@@ -22,6 +24,10 @@ export interface CsvImportStats {
   materialsCount: number;
   locationsCount: number;
   mode: 'replace' | 'merge';
+  scope: CsvImportScope;
+  effectiveScope: 'baru-only' | 'return-only' | 'all';
+  detectedCondition: 'BARU' | 'RETURN' | 'CAMPURAN';
+  preservedCount: number;
   sampleRows: ParsedMaterialRow[];
   warnings: string[];
 }
@@ -207,12 +213,14 @@ export class CsvImportService {
   }
 
   /**
-   * Convert parsed CSV rows into an ImportPackage
+   * Convert parsed CSV rows into an ImportPackage with two-way isolation protection:
+   * Importing BARU does NOT wipe RETURN data, and importing RETURN does NOT wipe BARU data.
    */
   public static async createPackageFromCsv(
     csvContent: string,
     mode: 'replace' | 'merge' = 'replace',
-    basePackage?: ImportPackage | null
+    basePackage?: ImportPackage | null,
+    scope: CsvImportScope = 'auto'
   ): Promise<{ pkg: ImportPackage; stats: CsvImportStats }> {
     const { rows, warnings } = this.parseCsv(csvContent);
 
@@ -223,8 +231,8 @@ export class CsvImportService {
     const stockSnapshots: StockSnapshot[] = [];
     const barcodeAliases: BarcodeAlias[] = [];
 
-    // In merge mode, start with existing locations & materials map
-    if (mode === 'merge' && basePackage) {
+    // Pre-populate locations map if basePackage exists
+    if (basePackage) {
       basePackage.locations.forEach(loc => locationsMap.set(loc.id, loc));
     }
 
@@ -254,11 +262,32 @@ export class CsvImportService {
       const { categoryId: autoCategoryId, photoPath: autoPhotoPath, spec: autoSpec } = this.categorizeMaterial(row.name);
       const normCode = row.code || `PLN-MAT-${String(idx + 1).padStart(4, '0')}`;
 
+      // Determine item condition & status
+      const rawStatus = row.status?.trim() || '';
+      const isReturnStatus = ['GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY'].includes(rawStatus.toUpperCase());
+      
+      let condition: 'BARU' | 'RETURN';
+      if (scope === 'return-only') {
+        condition = 'RETURN';
+      } else if (scope === 'baru-only') {
+        condition = 'BARU';
+      } else {
+        condition = isReturnStatus || rawStatus.toUpperCase().includes('RETUR') ? 'RETURN' : 'BARU';
+      }
+
+      const status = rawStatus ? rawStatus : (condition === 'RETURN' ? 'STANDBY' : 'Baru');
+
       // Cari apakah material dengan kode normalisasi / kode SAP / nama ini sudah terdaftar sebelumnya di sistem
+      // PENTING: Cari pada condition yang cocok agar tidak tumpang tindih antara item Baru vs Return
       const existingMat = basePackage?.materials.find(
-        m => (normCode && m.code && m.code.toLowerCase() === normCode.toLowerCase()) ||
-             (m.sapCode && normCode && m.sapCode.toLowerCase() === normCode.toLowerCase()) ||
-             (m.name.toLowerCase() === row.name.toLowerCase())
+        m => {
+          const matCond = m.condition || 'BARU';
+          return matCond === condition && (
+            (normCode && m.code && m.code.toLowerCase() === normCode.toLowerCase()) ||
+            (m.sapCode && normCode && m.sapCode.toLowerCase() === normCode.toLowerCase()) ||
+            (m.name.toLowerCase() === row.name.toLowerCase())
+          );
+        }
       );
 
       // JAMINAN KEAMANAN GAMBAR:
@@ -275,12 +304,9 @@ export class CsvImportService {
         ? existingMat.specification
         : autoSpec;
 
-      const matId = existingMat?.id || `mat-csv-${String(idx + 1).padStart(3, '0')}`;
-
-      const rawStatus = row.status?.trim() || '';
-      const isReturnStatus = ['GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY'].includes(rawStatus.toUpperCase());
-      const condition: 'BARU' | 'RETURN' = isReturnStatus || rawStatus.toUpperCase().includes('RETUR') ? 'RETURN' : 'BARU';
-      const status = rawStatus ? rawStatus : (condition === 'RETURN' ? 'STANDBY' : 'Baru');
+      // Prefix ID yang aman dan unik: mat-ret-csv-* untuk Return, mat-csv-* untuk Baru
+      const defaultIdPrefix = condition === 'RETURN' ? 'mat-ret-csv' : 'mat-csv';
+      const matId = existingMat?.id || `${defaultIdPrefix}-${String(idx + 1).padStart(3, '0')}`;
 
       materials.push({
         id: matId,
@@ -314,37 +340,150 @@ export class CsvImportService {
       });
     });
 
-    const nextVersion = (basePackage?.datasetVersion || 3) + 1;
-    const finalLocations = Array.from(locationsMap.values());
+    // Deteksi Scope Otomatis
+    const hasBaru = materials.some(m => m.condition !== 'RETURN');
+    const hasReturn = materials.some(m => m.condition === 'RETURN');
+
+    let effectiveScope: 'baru-only' | 'return-only' | 'all';
+    if (scope === 'baru-only') {
+      effectiveScope = 'baru-only';
+    } else if (scope === 'return-only') {
+      effectiveScope = 'return-only';
+    } else if (scope === 'all') {
+      effectiveScope = 'all';
+    } else {
+      // Auto-detection
+      if (hasReturn && !hasBaru) {
+        effectiveScope = 'return-only';
+      } else if (hasBaru && !hasReturn) {
+        effectiveScope = 'baru-only';
+      } else {
+        effectiveScope = 'all';
+      }
+    }
+
+    const detectedCondition: 'BARU' | 'RETURN' | 'CAMPURAN' =
+      hasBaru && hasReturn ? 'CAMPURAN' : (hasReturn ? 'RETURN' : 'BARU');
 
     let finalMaterials = materials;
     let finalSnapshots = stockSnapshots;
     let finalAliases = barcodeAliases;
+    let preservedCount = 0;
 
-    if (mode === 'merge' && basePackage) {
-      // Find existing materials not in imported CSV and preserve them
-      const importedCodes = new Set(materials.map(m => m.code.toLowerCase()));
-      const importedNames = new Set(materials.map(m => m.name.toLowerCase()));
+    // PROTEKSI DUA ARAH: Menjamin material sebaliknya tidak lenyap
+    if (basePackage) {
+      if (effectiveScope === 'baru-only') {
+        // SEDANG IMPORT MATERIAL BARU:
+        // 1. Amankan seluruh material RETURN eksisting 100%
+        const preservedReturnMaterials = basePackage.materials.filter(m => m.condition === 'RETURN');
+        const returnMatIds = new Set(preservedReturnMaterials.map(m => m.id));
+        const preservedReturnSnapshots = basePackage.stockSnapshots.filter(s => returnMatIds.has(s.materialId));
+        const preservedReturnAliases = basePackage.barcodeAliases.filter(
+          a => a.targetType === 'material' && returnMatIds.has(a.targetId)
+        );
 
-      const preservedMaterials = basePackage.materials.filter(
-        m => !importedCodes.has(m.code.toLowerCase()) && !importedNames.has(m.name.toLowerCase())
-      );
-      const preservedMatIds = new Set(preservedMaterials.map(m => m.id));
+        if (mode === 'replace') {
+          // Replace hanya berlaku untuk material BARU. Material RETURN lama tetap utuh!
+          finalMaterials = [...materials, ...preservedReturnMaterials];
+          finalSnapshots = [...stockSnapshots, ...preservedReturnSnapshots];
+          finalAliases = [...barcodeAliases, ...preservedReturnAliases];
+          preservedCount = preservedReturnMaterials.length;
+        } else {
+          // Mode merge: gabungkan material BARU eksisting yang tidak ada di CSV
+          const importedCodes = new Set(materials.map(m => m.code.toLowerCase()));
+          const importedNames = new Set(materials.map(m => m.name.toLowerCase()));
 
-      const preservedSnapshots = basePackage.stockSnapshots.filter(s => preservedMatIds.has(s.materialId));
-      const preservedAliases = basePackage.barcodeAliases.filter(
-        a => a.targetType === 'material' && preservedMatIds.has(a.targetId)
-      );
+          const preservedOtherBaru = basePackage.materials.filter(
+            m => m.condition !== 'RETURN' &&
+                 !importedCodes.has(m.code.toLowerCase()) &&
+                 !importedNames.has(m.name.toLowerCase())
+          );
+          const otherBaruIds = new Set(preservedOtherBaru.map(m => m.id));
+          const otherBaruSnapshots = basePackage.stockSnapshots.filter(s => otherBaruIds.has(s.materialId));
+          const otherBaruAliases = basePackage.barcodeAliases.filter(
+            a => a.targetType === 'material' && otherBaruIds.has(a.targetId)
+          );
 
-      finalMaterials = [...materials, ...preservedMaterials];
-      finalSnapshots = [...stockSnapshots, ...preservedSnapshots];
-      finalAliases = [...barcodeAliases, ...preservedAliases];
+          finalMaterials = [...materials, ...preservedOtherBaru, ...preservedReturnMaterials];
+          finalSnapshots = [...stockSnapshots, ...otherBaruSnapshots, ...preservedReturnSnapshots];
+          finalAliases = [...barcodeAliases, ...otherBaruAliases, ...preservedReturnAliases];
+          preservedCount = preservedReturnMaterials.length + preservedOtherBaru.length;
+        }
+      } else if (effectiveScope === 'return-only') {
+        // SEDANG IMPORT MATERIAL RETURN:
+        // 1. Amankan seluruh material BARU eksisting 100%
+        const preservedBaruMaterials = basePackage.materials.filter(m => m.condition !== 'RETURN');
+        const baruMatIds = new Set(preservedBaruMaterials.map(m => m.id));
+        const preservedBaruSnapshots = basePackage.stockSnapshots.filter(s => baruMatIds.has(s.materialId));
+        const preservedBaruAliases = basePackage.barcodeAliases.filter(
+          a => a.targetType === 'material' && baruMatIds.has(a.targetId)
+        );
+
+        if (mode === 'replace') {
+          // Replace hanya berlaku untuk material RETURN. Material BARU lama tetap utuh!
+          finalMaterials = [...preservedBaruMaterials, ...materials];
+          finalSnapshots = [...preservedBaruSnapshots, ...stockSnapshots];
+          finalAliases = [...preservedBaruAliases, ...barcodeAliases];
+          preservedCount = preservedBaruMaterials.length;
+        } else {
+          // Mode merge: gabungkan material RETURN eksisting yang tidak ada di CSV
+          const importedCodes = new Set(materials.map(m => m.code.toLowerCase()));
+          const importedNames = new Set(materials.map(m => m.name.toLowerCase()));
+
+          const preservedOtherReturn = basePackage.materials.filter(
+            m => m.condition === 'RETURN' &&
+                 !importedCodes.has(m.code.toLowerCase()) &&
+                 !importedNames.has(m.name.toLowerCase())
+          );
+          const otherReturnIds = new Set(preservedOtherReturn.map(m => m.id));
+          const otherReturnSnapshots = basePackage.stockSnapshots.filter(s => otherReturnIds.has(s.materialId));
+          const otherReturnAliases = basePackage.barcodeAliases.filter(
+            a => a.targetType === 'material' && otherReturnIds.has(a.targetId)
+          );
+
+          finalMaterials = [...preservedBaruMaterials, ...materials, ...preservedOtherReturn];
+          finalSnapshots = [...preservedBaruSnapshots, ...stockSnapshots, ...otherReturnSnapshots];
+          finalAliases = [...preservedBaruAliases, ...barcodeAliases, ...otherReturnAliases];
+          preservedCount = preservedBaruMaterials.length + preservedOtherReturn.length;
+        }
+      } else {
+        // Scope 'all' (file campuran atau full master replace)
+        if (mode === 'merge') {
+          const importedCodes = new Set(materials.map(m => m.code.toLowerCase()));
+          const importedNames = new Set(materials.map(m => m.name.toLowerCase()));
+
+          const preservedMaterials = basePackage.materials.filter(
+            m => !importedCodes.has(m.code.toLowerCase()) && !importedNames.has(m.name.toLowerCase())
+          );
+          const preservedMatIds = new Set(preservedMaterials.map(m => m.id));
+          const preservedSnapshots = basePackage.stockSnapshots.filter(s => preservedMatIds.has(s.materialId));
+          const preservedAliases = basePackage.barcodeAliases.filter(
+            a => a.targetType === 'material' && preservedMatIds.has(a.targetId)
+          );
+
+          finalMaterials = [...materials, ...preservedMaterials];
+          finalSnapshots = [...stockSnapshots, ...preservedSnapshots];
+          finalAliases = [...barcodeAliases, ...preservedAliases];
+          preservedCount = preservedMaterials.length;
+        }
+      }
+
+      // Pastikan lokasi dari material yang dipertahankan tetap ada di locationsMap
+      const activeLocationIds = new Set(finalSnapshots.map(s => s.locationId));
+      basePackage.locations.forEach(loc => {
+        if (activeLocationIds.has(loc.id) && !locationsMap.has(loc.id)) {
+          locationsMap.set(loc.id, loc);
+        }
+      });
     }
+
+    const nextVersion = (basePackage?.datasetVersion || 3) + 1;
+    const finalLocations = Array.from(locationsMap.values());
 
     const pkgWithoutHash: Omit<ImportPackage, 'packageHash'> = {
       schemaVersion: '1.0',
       datasetVersion: nextVersion,
-      sourceName: `PLN ERP SAP Logistik UP3 Malang (${mode === 'replace' ? 'Import CSV Replace' : 'Import CSV Merge'})`,
+      sourceName: `PLN ERP SAP Logistik UP3 Malang (${mode === 'replace' ? 'Import CSV Replace' : 'Import CSV Merge'} - ${effectiveScope})`,
       sourceAt: nowIso,
       categories,
       locations: finalLocations,
@@ -368,6 +507,10 @@ export class CsvImportService {
       materialsCount: finalMaterials.length,
       locationsCount: finalLocations.length,
       mode,
+      scope,
+      effectiveScope,
+      detectedCondition,
+      preservedCount,
       sampleRows: rows.slice(0, 5),
       warnings,
     };
@@ -375,3 +518,4 @@ export class CsvImportService {
     return { pkg: fullPkg, stats };
   }
 }
+
