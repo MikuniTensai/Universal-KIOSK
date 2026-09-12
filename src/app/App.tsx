@@ -288,52 +288,80 @@ export const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* 3 Main Sections Layout - Persis Kebutuhan Klien:
-                  1. Atas: Visualisasi Layout Denah Gudang (disiapkan untuk visualisasi nanti)
+              {/* 3 Main Sections Layout:
+                  1. Atas: Daftar Item & Material Gudang (Katalog Blok & Rak)
                   2. Tengah: SOP & Aturan-Aturan Pergudangan PLN
-                  3. Bawah: Katalog Material & Lokasi Rak/Blok (contoh: kWh di Rak A-001) */}
+                  3. Bawah: Visualisasi Denah & Tata Letak Gudang */}
               <div className="flex flex-col gap-4 lg:gap-5 flex-1 justify-between my-2">
-                {/* 1. BAGIAN ATAS: Visualisasi Denah & Tata Letak Gudang ("Nanti ada layout yang minta divisualisasikan tapi ini nanti saja yang atas sendiri") */}
+                {/* 1. BAGIAN ATAS: Daftar Item & Material Gudang (Katalog Blok & Rak) */}
                 <div
                   onClick={() => {
                     idleTimer.recordActivity();
-                    setCurrentRoute('layout');
+                    setCurrentRoute('catalog');
                   }}
                   role="button"
                   tabIndex={0}
-                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-6 lg:p-8 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-[#FACC15] p-6 lg:p-8 text-left shadow-2xl transition-all duration-300 ring-2 ring-[#FACC15]/40 hover:ring-[#FACC15]/70 cursor-pointer active:scale-[0.995]"
                 >
                   {/* Full Wallpaper Background Image */}
                   {isPhotoMode ? (
                     <img
-                      src={photoC}
-                      alt="Visualisasi Denah Gudang"
+                      src={photoB}
+                      alt="Katalog Material"
                       className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 pointer-events-none" />
                   )}
 
-                  {/* High Contrast Gradient Overlay for Crystal Clear Text */}
+                  {/* High Contrast Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/65 pointer-events-none" />
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
                   <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
-                    <span className="sr-only">LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI Peta Denah Blok &amp; Rak</span>
+                    <span className="sr-only">KATALOG MATERIAL &amp; LOKASI RAK Contoh: kWh di Rak A-001</span>
                     <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                      Visualisasi Denah &amp; Tata Letak Gudang
+                      Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak)
                     </h3>
                   </div>
 
-                  {/* CTA Action Button */}
-                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-6 lg:px-8 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
-                    <span className="text-sm lg:text-base font-black whitespace-nowrap">Lihat Denah Tata Letak</span>
-                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
+                  {/* Action Button: Lihat Daftar Item */}
+                  <div className="relative z-10 flex items-center gap-3 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        idleTimer.recordActivity();
+                        setCurrentRoute('catalog');
+                      }}
+                      className="active:scale-95 transition"
+                    >
+                      <div className="flex h-14 flex-shrink-0 items-center justify-center gap-3 rounded-2xl bg-[#FACC15] hover:bg-amber-400 text-[#0F172A] px-6 lg:px-8 font-black shadow-xl transition-all group-hover:scale-105 whitespace-nowrap">
+                        <span className="text-sm lg:text-base font-black">Lihat Daftar Item</span>
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
+                      </div>
+                    </button>
+
+                    {/* Preserved as sr-only for test accessibility */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        idleTimer.recordActivity();
+                        setCurrentRoute('scan');
+                      }}
+                      className="sr-only"
+                    >
+                      <div className="h-14 flex-shrink-0">
+                        <span>Scan Item (Cek Spesifikasi)</span>
+                        <span>Mulai Scan Material</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
 
-                {/* 2. BAGIAN TENGAH: SOP & Aturan-Aturan Gudang PLN ("lalu yang tengah berubah menjadi SOP aturan-aturan") */}
+                {/* 2. BAGIAN TENGAH: SOP & Aturan-Aturan Gudang PLN */}
                 <div
                   onClick={() => {
                     idleTimer.recordActivity();
@@ -373,68 +401,43 @@ export const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. BAGIAN BAWAH: Katalog Material & Lokasi Rak/Blok ("dan yang terakhir ketiga Katalog isi ada di blok apa atau di rak material apa kwh rak A-001 semisal") */}
+                {/* 3. BAGIAN DITERAKHIR: Visualisasi Denah & Tata Letak Gudang */}
                 <div
-                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-[#FACC15] p-6 lg:p-8 text-left shadow-2xl transition-all duration-300 ring-2 ring-[#FACC15]/40 hover:ring-[#FACC15]/70"
+                  onClick={() => {
+                    idleTimer.recordActivity();
+                    setCurrentRoute('layout');
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-6 lg:p-8 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
                 >
                   {/* Full Wallpaper Background Image */}
                   {isPhotoMode ? (
                     <img
-                      src={photoB}
-                      alt="Katalog Material"
+                      src={photoC}
+                      alt="Visualisasi Denah Gudang"
                       className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 pointer-events-none" />
                   )}
 
-                  {/* High Contrast Gradient Overlay */}
+                  {/* High Contrast Gradient Overlay for Crystal Clear Text */}
                   <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/65 pointer-events-none" />
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
-                  <div
-                    onClick={() => {
-                      idleTimer.recordActivity();
-                      setCurrentRoute('catalog');
-                    }}
-                    className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2 cursor-pointer"
-                  >
-                    <span className="sr-only">KATALOG MATERIAL &amp; LOKASI RAK Contoh: kWh di Rak A-001</span>
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
+                    <span className="sr-only">LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI Peta Denah Blok &amp; Rak</span>
                     <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                      Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak)
+                      Visualisasi Denah &amp; Tata Letak Gudang
                     </h3>
                   </div>
 
-                  {/* Action Button: Lihat Daftar Item */}
-                  <div className="relative z-10 flex items-center gap-3 shrink-0">
-                    <button
-                      onClick={() => {
-                        idleTimer.recordActivity();
-                        setCurrentRoute('catalog');
-                      }}
-                      className="active:scale-95 transition"
-                    >
-                      <div className="flex h-14 flex-shrink-0 items-center justify-center gap-3 rounded-2xl bg-[#FACC15] hover:bg-amber-400 text-[#0F172A] px-6 lg:px-8 font-black shadow-xl transition-all group-hover:scale-105 whitespace-nowrap">
-                        <span className="text-sm lg:text-base font-black">Lihat Daftar Item</span>
-                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
-                      </div>
-                    </button>
-
-                    {/* Preserved as sr-only for test accessibility */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        idleTimer.recordActivity();
-                        setCurrentRoute('scan');
-                      }}
-                      className="sr-only"
-                    >
-                      <div className="h-14 flex-shrink-0">
-                        <span>Scan Item (Cek Spesifikasi)</span>
-                        <span>Mulai Scan Material</span>
-                      </div>
-                    </button>
+                  {/* CTA Action Button */}
+                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-6 lg:px-8 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
+                    <span className="text-sm lg:text-base font-black whitespace-nowrap">Lihat Denah Tata Letak</span>
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
                 </div>
               </div>
