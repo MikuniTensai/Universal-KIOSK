@@ -42,23 +42,7 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
       {/* Top Banner: Danantara Kiri & PLN Kanan */}
       <div className="flex items-center justify-between z-10 w-full">
         <DanantaraLogo variant="dark" />
-        <div className="flex items-center gap-4">
-          {onOpenShutdown && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenShutdown();
-              }}
-              title="Menu Daya & Matikan Komputer"
-              aria-label="Menu Daya & Matikan Komputer"
-              className="flex h-11 items-center gap-2 rounded-xl bg-black/40 border border-white/20 px-3.5 text-xs font-bold text-red-400 backdrop-blur-md transition active:scale-95 hover:bg-black/60 hover:text-red-300"
-            >
-              <Power className="h-4 w-4 text-red-400" />
-              <span className="hidden sm:inline">Daya / Keluar</span>
-            </button>
-          )}
-          <PlnLogo variant="dark" showSubtitle={false} />
-        </div>
+        <PlnLogo variant="dark" showSubtitle={false} />
       </div>
 
       {/* Main Center Message (Centered) */}
@@ -93,6 +77,21 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Tombol Shutdown / Keluar Samar di Pojok Kanan Bawah */}
+      {onOpenShutdown && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenShutdown();
+          }}
+          title="Menu Daya & Matikan Komputer"
+          aria-label="Menu Daya & Matikan Komputer"
+          className="absolute bottom-3 right-3 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/30 text-white/30 border border-white/10 backdrop-blur-xs opacity-25 hover:opacity-100 hover:bg-slate-900/80 hover:text-red-400 hover:border-red-400/40 transition-all duration-300 active:scale-95 shadow-sm"
+        >
+          <Power className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 };

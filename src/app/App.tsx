@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Image as ImageIcon,
   LayoutGrid,
+  Power,
 } from 'lucide-react';
 import { kioskStorage } from '../adapters/storage/kioskStorage';
 import { scannerAdapter } from '../features/scanner/scannerWedgeAdapter';
@@ -214,6 +215,7 @@ export const App: React.FC = () => {
         currentRoute={currentRoute}
         lowReachMode={lowReachMode}
         showAdminButton={false}
+        showShutdownButton={false}
         onToggleLowReach={() => {
           idleTimer.recordActivity();
           setLowReachMode(prev => !prev);
@@ -658,6 +660,19 @@ export const App: React.FC = () => {
           <span>Mode Jangkauan Rendah Aktif (Ramah Kursi Roda)</span>
         </div>
       )}
+
+      {/* Tombol Shutdown / Keluar Samar di Pojok Kanan Bawah */}
+      <button
+        onClick={() => {
+          idleTimer.recordActivity();
+          setShutdownModalVisible(true);
+        }}
+        title="Menu Daya & Matikan Komputer"
+        aria-label="Menu Daya & Matikan Komputer"
+        className="fixed bottom-3 right-3 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/20 text-slate-400/40 border border-slate-300/30 backdrop-blur-xs opacity-25 hover:opacity-100 hover:bg-slate-900/80 hover:text-red-400 hover:border-red-400/40 transition-all duration-300 active:scale-95 shadow-2xs"
+      >
+        <Power className="h-4 w-4" />
+      </button>
     </div>
   );
 };

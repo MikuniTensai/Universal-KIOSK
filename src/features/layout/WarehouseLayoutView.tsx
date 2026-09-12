@@ -259,7 +259,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
         </div>
 
         {/* Floating Quick Floating Dock (Bottom Right / Center) */}
-        <div className="absolute bottom-6 right-6 z-20 flex items-center gap-2 bg-[#0F172A]/90 backdrop-blur-md border border-cyan-500/30 rounded-2xl p-1.5 shadow-2xl ring-1 ring-white/10">
+        <div className="absolute bottom-6 right-16 z-20 flex items-center gap-2 bg-[#0F172A]/90 backdrop-blur-md border border-cyan-500/30 rounded-2xl p-1.5 shadow-2xl ring-1 ring-white/10">
           <button
             onClick={handleZoomIn}
             className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 active:scale-90 transition"

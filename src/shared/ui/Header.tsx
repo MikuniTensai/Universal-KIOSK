@@ -11,6 +11,7 @@ interface HeaderProps {
   onOpenAdmin: () => void;
   onOpenNetwork?: () => void;
   onOpenShutdown?: () => void;
+  showShutdownButton?: boolean;
   lowReachMode?: boolean;
   onToggleLowReach?: () => void;
   showAdminButton?: boolean;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAdmin,
   onOpenNetwork,
   onOpenShutdown,
+  showShutdownButton = true,
   lowReachMode = false,
   onToggleLowReach,
   showAdminButton = false,
@@ -106,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {onOpenShutdown && (
+          {onOpenShutdown && showShutdownButton && (
             <button
               onClick={onOpenShutdown}
               title="Menu Daya & Matikan Komputer (Shutdown)"
