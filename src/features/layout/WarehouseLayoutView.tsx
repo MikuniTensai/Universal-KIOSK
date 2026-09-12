@@ -11,6 +11,8 @@ import {
   Plus,
   X,
   FolderTree,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { ImportPackage, KioskConfig } from '../../domain/types';
 import {
@@ -39,13 +41,17 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
   const [selectedZone, setSelectedZone] = useState<string>('blok-c');
   const [selectedSlot, setSelectedSlot] = useState<WarehouseSlot | null>(null);
 
-  // Modal states
+  // Modal & Deletion states
   const [showAddBlockModal, setShowAddBlockModal] = useState<boolean>(false);
   const [newBlockLetter, setNewBlockLetter] = useState<string>('I');
   const [newBlockName, setNewBlockName] = useState<string>('');
   const [newBlockSubCount, setNewBlockSubCount] = useState<number>(3);
   const [newBlockSlotCount, setNewBlockSlotCount] = useState<number>(5);
   const [addBlockError, setAddBlockError] = useState<string | null>(null);
+
+  const [blockToDelete, setBlockToDelete] = useState<WarehouseBlock | null>(null);
+  const [subBlockToDelete, setSubBlockToDelete] = useState<WarehouseSubBlock | null>(null);
+  const [slotToDelete, setSlotToDelete] = useState<WarehouseSlot | null>(null);
 
   useEffect(() => {
     WarehouseLayoutService.syncWithPackage(pkg);
@@ -113,6 +119,59 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
       setBlocks(updated);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleConfirmDeleteBlock = () => {
+    if (!blockToDelete) return;
+    try {
+      if (blocks.length <= 1) {
+        setBlockToDelete(null);
+        return;
+      }
+      WarehouseLayoutService.deleteBlock(blockToDelete.letter);
+      const updated = WarehouseLayoutService.getBlocks();
+      setBlocks(updated);
+      if (selectedZone === blockToDelete.id) {
+        setSelectedZone(updated[0]?.id || 'blok-a');
+        setSelectedSlot(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBlockToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteSubBlock = () => {
+    if (!subBlockToDelete) return;
+    try {
+      WarehouseLayoutService.deleteSubBlock(subBlockToDelete.code);
+      const updated = WarehouseLayoutService.getBlocks();
+      setBlocks(updated);
+      if (selectedSlot?.code.startsWith(`${subBlockToDelete.code}.`)) {
+        setSelectedSlot(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubBlockToDelete(null);
+    }
+  };
+
+  const handleConfirmDeleteSlot = () => {
+    if (!slotToDelete) return;
+    try {
+      WarehouseLayoutService.deleteSlot(slotToDelete.code);
+      const updated = WarehouseLayoutService.getBlocks();
+      setBlocks(updated);
+      if (selectedSlot?.code === slotToDelete.code) {
+        setSelectedSlot(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSlotToDelete(null);
     }
   };
 
@@ -289,6 +348,17 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                     <Plus className="h-3 w-3" />
                     <span>Tambah Baris Sub-Blok</span>
                   </button>
+                  {blocks.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setBlockToDelete(activeZoneObj)}
+                      className="flex items-center gap-1 text-[11px] font-bold text-rose-300 bg-rose-500/20 border border-rose-500/40 px-2.5 py-1 rounded-lg hover:bg-rose-500/30 transition active:scale-95"
+                      title={`Hapus Blok ${activeZoneObj.code}`}
+                    >
+                      <Trash2 className="h-3 w-3 text-rose-400" />
+                      <span>Hapus Blok</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -308,14 +378,24 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                       </span>
                     </div>
 
-                    <button
-                      onClick={() => handleAddSlot(subBlock.code)}
-                      className="min-h-[32px] text-[11px] font-bold text-slate-300 hover:text-amber-300 flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 transition"
-                      title={`Tambah slot ke baris ${subBlock.code}`}
-                    >
-                      <Plus className="h-3.5 w-3.5 text-amber-400" />
-                      <span>+ Slot ({subBlock.code}.{subBlock.slots.length + 1})</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleAddSlot(subBlock.code)}
+                        className="min-h-[32px] text-[11px] font-bold text-slate-300 hover:text-amber-300 flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 transition"
+                        title={`Tambah slot ke baris ${subBlock.code}`}
+                      >
+                        <Plus className="h-3.5 w-3.5 text-amber-400" />
+                        <span>+ Slot ({subBlock.code}.{subBlock.slots.length + 1})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSubBlockToDelete(subBlock)}
+                        className="min-h-[32px] text-[11px] font-bold text-rose-300 hover:text-rose-200 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 active:scale-95 border border-rose-700/60 transition"
+                        title={`Hapus Baris ${subBlock.code}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Slot Matrix: e.g. A.1.1 - A.1.5 or A.3.1 - A.3.5 */}
@@ -405,12 +485,23 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                       SLOT TERPILIH: {selectedSlot.code}
                     </span>
                   </div>
-                  <button
-                    onClick={() => setSelectedSlot(null)}
-                    className="text-xs text-slate-400 hover:text-slate-700"
-                  >
-                    Tutup
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSlotToDelete(selectedSlot)}
+                      className="flex items-center gap-1 text-[11px] text-rose-700 hover:text-rose-900 font-bold bg-rose-100 hover:bg-rose-200 px-2 py-1 rounded-lg border border-rose-300 transition active:scale-95"
+                      title={`Hapus Slot ${selectedSlot.code}`}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>Hapus Slot</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedSlot(null)}
+                      className="text-xs text-slate-400 hover:text-slate-700"
+                    >
+                      Tutup
+                    </button>
+                  </div>
                 </div>
                 <p className="text-xs text-slate-700 font-medium">
                   {selectedSlot.name || `Slot penyimpanan di ${activeZoneObj.code}`}
@@ -598,6 +689,166 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Hapus Blok */}
+      {blockToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 shrink-0">
+                <Trash2 className="h-6 w-6 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Blok</h3>
+                <span className="text-xs text-rose-700 font-bold">Hapus blok dari denah tata letak gudang</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                  {blockToDelete.code}
+                </span>
+                <span className="text-[11px] text-slate-500 font-semibold">
+                  {blockToDelete.subBlocks.length} Baris &bull; {blockToDelete.subBlocks.reduce((acc, sb) => acc + sb.slots.length, 0)} Slot
+                </span>
+              </div>
+              <div className="font-bold text-sm text-slate-900 leading-snug">
+                {blockToDelete.name}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Apakah Anda yakin ingin menghapus <strong>{blockToDelete.code}</strong> beserta seluruh baris sub-blok dan slot rak di dalamnya?
+            </p>
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setBlockToDelete(null)}
+                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteBlock}
+                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Ya, Hapus Blok Ini</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Hapus Sub-Blok */}
+      {subBlockToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 shrink-0">
+                <Trash2 className="h-6 w-6 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Baris Sub-Blok</h3>
+                <span className="text-xs text-rose-700 font-bold">Hapus baris dari denah tata letak</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
+              <div className="font-mono text-sm font-black text-amber-900">
+                Baris {subBlockToDelete.code}
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Total {subBlockToDelete.slots.length} slot rak terdaftar
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Apakah Anda yakin ingin menghapus baris <strong>{subBlockToDelete.code}</strong>?
+            </p>
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setSubBlockToDelete(null)}
+                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteSubBlock}
+                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Ya, Hapus Baris Ini</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Konfirmasi Hapus Slot */}
+      {slotToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 shrink-0">
+                <Trash2 className="h-6 w-6 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Slot Rak</h3>
+                <span className="text-xs text-rose-700 font-bold">Hapus slot penyimpanan dari denah</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
+              <div className="font-mono text-sm font-black text-amber-900">
+                Slot: {slotToDelete.code}
+              </div>
+              {slotToDelete.materialName ? (
+                <div className="text-xs font-bold text-slate-800">
+                  Material: <span className="text-amber-900">{slotToDelete.materialName}</span>
+                </div>
+              ) : (
+                <div className="text-[11px] text-emerald-700 font-semibold">
+                  Status: Slot kosong (tidak ada material)
+                </div>
+              )}
+            </div>
+
+            {slotToDelete.materialName ? (
+              <div className="rounded-xl bg-amber-50 border border-amber-300 p-3 text-xs text-amber-950 font-medium flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Peringatan:</strong> Slot ini sedang terisi material. Menghapusnya akan melepaskan penetapan slot pada material tersebut.
+                </div>
+              </div>
+            ) : null}
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setSlotToDelete(null)}
+                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteSlot}
+                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Ya, Hapus Slot Ini</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
