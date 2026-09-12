@@ -248,14 +248,14 @@ export const samplePlnPackage: ImportPackage = {
 
 /**
  * Paket Lengkap 151 Material Aktual PLN UP3 Malang (Gudang Aris Munandar)
- * Berdasarkan permintaan-client/export_material NEW.csv
+ * Berdasarkan permintaan-client/export_material NEW(1).csv (dengan BLOK dan RAK aktual)
  */
 export const plnUp3MalangFullPackage: ImportPackage = {
   schemaVersion: '1.0',
-  datasetVersion: 2,
-  sourceName: 'PLN ERP SAP Logistik Terpadu UP3 Malang (export_material NEW.csv)',
+  datasetVersion: 3,
+  sourceName: 'PLN ERP SAP Logistik Terpadu UP3 Malang (export_material NEW(1).csv)',
   sourceAt: '2026-09-12T08:00:00+07:00',
-  packageHash: 'pln-snapshot-v2-hash-20260912',
+  packageHash: 'pln-snapshot-v3-hash-20260912-blok-rak',
   categories: samplePlnPackage.categories,
   locations: [
     ...samplePlnPackage.locations,

@@ -73,7 +73,7 @@ describe('Dual-Port Kiosk & Admin Architecture (Port 5000 vs Port 5001)', () => 
 
     // Direct access to tabs without PIN roadblock
     expect(screen.queryByText(/Masukkan PIN Akses/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Kelola & Tambah Stok/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Kelola & Tambah Stok/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Impor Paket Baru/i)).toBeInTheDocument();
     expect(screen.getByText(/Tata Letak Blok & Rak/i)).toBeInTheDocument();
 

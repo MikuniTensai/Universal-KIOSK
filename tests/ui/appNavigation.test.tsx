@@ -128,7 +128,7 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     });
 
     // 1. Test Add Category Tab
-    fireEvent.click(screen.getByText(/Kelola Kategori/i));
+    fireEvent.click(screen.getAllByText(/Kelola Kategori/i)[0]);
     const catInput = screen.getByPlaceholderText(/Kabel Tegangan Menengah, APD/i);
     fireEvent.change(catInput, { target: { value: 'Kabel Tanah 20kV' } });
     fireEvent.click(screen.getByRole('button', { name: /Tambah Kategori/i }));
@@ -137,7 +137,7 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     expect(screen.getByText('Kabel Tanah 20kV')).toBeInTheDocument();
 
     // 2. Test Add Material & Stock Tab
-    fireEvent.click(screen.getByText(/Kelola & Tambah Stok/i));
+    fireEvent.click(screen.getAllByText(/Kelola & Tambah Stok/i)[0]);
     fireEvent.click(screen.getByRole('button', { name: /Tambah Material Baru & Barcode/i }));
 
     // Fill form

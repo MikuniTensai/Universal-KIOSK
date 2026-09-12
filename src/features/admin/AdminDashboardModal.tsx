@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import {
-  X,
-  Lock,
   Upload,
-  History,
-  Settings,
-  Activity,
   CheckCircle2,
   AlertCircle,
   AlertTriangle,
   FileText,
   RotateCcw,
-  Delete,
   Image as ImageIcon,
   LayoutGrid,
   Palette,
@@ -25,19 +19,19 @@ import {
   Plus,
   Trash2,
   ArrowRight,
+  Search,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import { SyncService } from '../../adapters/storage/syncService';
-import { AdminModeService } from './adminModeService';
-import { DanantaraLogo } from '../../shared/ui/DanantaraLogo';
-import { PlnLogo } from '../../shared/ui/PlnLogo';
 import { ImportPackage, KioskConfig, Material } from '../../domain/types';
 import { validateKioskConfig } from '../../domain/validation';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS, plnUp3MalangFullPackage } from '../../data/mockPlnPackage';
 import { WarehouseLayoutService, WarehouseBlock } from '../layout/warehouseLayoutService';
+import { AdminLoginScreen, AdminLoginUser } from './AdminLoginScreen';
+import { AdminConsoleShell, AdminModuleTab } from './AdminConsoleShell';
 
 interface AdminDashboardModalProps {
   visible: boolean;
@@ -54,12 +48,16 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   standalone = false,
   bypassPin = false,
 }) => {
-  const [pin, setPin] = useState('');
-  const [pinError, setPinError] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(
     bypassPin || standalone ? true : AdminAuth.isAuthenticated()
   );
-  const [activeTab, setActiveTab] = useState<'import' | 'history' | 'settings' | 'logs' | 'stock' | 'categories' | 'locations'>('stock');
+  const [currentUser, setCurrentUser] = useState<AdminLoginUser>({
+    name: 'Administrator',
+    role: 'Super Administrator',
+    email: 'admin@pln-kiosk.internal',
+  });
+  const [activeTab, setActiveTab] = useState<AdminModuleTab>('stock');
+  const [overviewSearch, setOverviewSearch] = useState('');
 
   const triggerPackageUpdated = () => {
     onPackageUpdated();
@@ -119,34 +117,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
   if (!visible && !standalone) return null;
 
-  const handlePinDigit = (digit: string) => {
-    if (pin.length < 6) {
-      const newPin = pin + digit;
-      setPin(newPin);
-      if (newPin.length === 6) {
-        if (AdminAuth.authenticate(newPin)) {
-          setIsAuthenticated(true);
-          setPinError(false);
-          setPin('');
-        } else {
-          setPinError(true);
-          setTimeout(() => {
-            setPin('');
-            setPinError(false);
-          }, 800);
-        }
-      }
-    }
-  };
-
-  const handlePinBackspace = () => {
-    setPin(prev => prev.slice(0, -1));
-  };
-
   const handleLogout = () => {
     AdminAuth.logout();
     setIsAuthenticated(false);
-    setPin('');
   };
 
   const handleValidatePackageWithContent = async (content: string) => {
@@ -336,231 +309,285 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     }
   };
 
-  // 1. PIN Keypad View
+  // 1. Unauthenticated Login Screen View (Universal-ADMS 2-Column Split & Keypad)
   if (!isAuthenticated && !standalone && !bypassPin) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
-        <div className="w-full max-w-sm rounded-card bg-white p-6 shadow-2xl border border-slate-200 text-center">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Otorisasi Petugas
-            </span>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-            <Lock className="h-7 w-7" />
-          </div>
-
-          <h3 className="text-xl font-bold text-[#0F172A]">Masukkan PIN Akses</h3>
-          <p className="text-xs text-slate-500 mb-6 mt-1">Default PIN: 123456</p>
-
-          {/* PIN Indicators */}
-          <div className="flex justify-center gap-3 mb-6">
-            {[0, 1, 2, 3, 4, 5].map((idx) => (
-              <div
-                key={idx}
-                className={`h-4 w-4 rounded-full border-2 transition-all ${
-                  idx < pin.length
-                    ? 'bg-[#FACC15] border-amber-500 scale-110'
-                    : 'border-slate-300 bg-slate-100'
-                } ${pinError ? 'bg-rose-500 border-rose-600 animate-shake' : ''}`}
-              />
-            ))}
-          </div>
-
-          {/* Keypad */}
-          <div className="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto">
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'DEL'].map((btn) => (
-              <button
-                key={btn}
-                onClick={() => {
-                  if (btn === 'C') setPin('');
-                  else if (btn === 'DEL') handlePinBackspace();
-                  else handlePinDigit(btn);
-                }}
-                className="flex h-14 items-center justify-center rounded-control bg-slate-100 text-xl font-bold text-slate-800 shadow-sm transition active:scale-95 active:bg-[#FACC15]"
-              >
-                {btn === 'DEL' ? (
-                  <Delete className="h-6 w-6 text-slate-700" />
-                ) : btn === 'C' ? (
-                  <span className="text-rose-600 font-extrabold text-lg">C</span>
-                ) : (
-                  btn
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AdminLoginScreen
+        onLoginSuccess={(user) => {
+          setIsAuthenticated(true);
+          setCurrentUser(user);
+        }}
+        onClose={onClose}
+        port={5000}
+      />
     );
   }
 
-  // 2. Full Admin Dashboard
+  if (!isAuthenticated) {
+    return (
+      <AdminLoginScreen
+        onLoginSuccess={(user) => {
+          setIsAuthenticated(true);
+          setCurrentUser(user);
+        }}
+        onClose={onClose}
+        port={5001}
+      />
+    );
+  }
+
+  // 2. Full Admin Dashboard (Universal-ADMS BioTime App Shell & PLN Theme)
   const history = kioskStorage.getPackageHistory();
   const logs = kioskStorage.getLogs();
   const activePkg = kioskStorage.getActivePackage();
 
   return (
-    <div className={standalone ? "min-h-screen w-full bg-slate-100 flex flex-col font-sans" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-6"}>
-      {standalone && (
-        <header className="flex h-20 w-full items-center justify-between border-b border-slate-700 bg-slate-900 px-6 lg:px-8 text-white shadow-md shrink-0">
-          <div className="flex items-center gap-4">
-            <DanantaraLogo variant="dark" />
-            <div className="h-8 w-px bg-slate-700 mx-1 hidden sm:block" />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="rounded bg-amber-400/20 px-2 py-0.5 text-[11px] font-bold text-amber-400 border border-amber-400/30">
-                  PORT 5001 &bull; DEDICATED ADMIN LAN
-                </span>
-                <span className="text-xs text-slate-400 font-mono">
-                  {kioskStorage.getConfig().warehouseCode}
-                </span>
-              </div>
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-wide">
-                Portal Administrator Gudang PLN
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden lg:flex flex-col text-right">
-              <span className="text-xs text-slate-300 font-medium">
-                Snapshot: Versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
-              </span>
-              <span className="text-[11px] text-emerald-400 font-mono flex items-center justify-end gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                Real-Time LAN Sync Aktif
-              </span>
-            </div>
-
-            <a
-              href={AdminModeService.getKioskUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-control bg-amber-400 px-3.5 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-amber-300 active:scale-95"
-            >
-              <span>Layar Kiosk (Port 5000)</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </a>
-
-            <div className="pl-3 border-l border-slate-700">
-              <PlnLogo variant="dark" />
-            </div>
-          </div>
-        </header>
-      )}
-
-      <div className={standalone ? "flex-1 flex flex-col w-full max-w-[1600px] mx-auto p-4 sm:p-6 overflow-hidden" : "flex flex-col h-[85vh] w-full max-w-5xl rounded-card bg-white shadow-2xl border border-slate-200 overflow-hidden"}>
-        <div className={standalone ? "flex flex-col flex-1 bg-white rounded-card shadow-lg border border-slate-200 overflow-hidden" : "contents"}>
-          {!standalone && (
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FACC15] text-[#0F172A]">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold">Panel Administrator Kiosk Gudang PLN</h3>
-                  <p className="text-xs text-slate-400">
-                    Snapshot Aktif: Versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleLogout}
-                  className="rounded-control bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700"
-                >
-                  Keluar Sesi
-                </button>
-                <button
-                  onClick={onClose}
-                  aria-label="Tutup Panel Administrator"
-                  title="Tutup Panel Administrator"
-                  className="flex h-9 w-9 items-center justify-center rounded-control bg-slate-800 text-slate-300 hover:text-white"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Tabs Bar */}
-          <div className="flex flex-wrap border-b border-slate-200 bg-slate-50 px-6 gap-1">
-          <button
-            onClick={() => { setActiveTab('stock'); setActionSuccessMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'stock' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Boxes className="h-4 w-4" />
-            <span>Kelola & Tambah Stok</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab('categories'); setActionSuccessMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'categories' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <FolderPlus className="h-4 w-4" />
-            <span>Kelola Kategori</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab('locations'); setActionSuccessMessage(null); setBlockActionMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'locations' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <FolderTree className="h-4 w-4" />
-            <span>Tata Letak Blok &amp; Rak (A-Z)</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab('import'); setActionSuccessMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'import' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Upload className="h-4 w-4" />
-            <span>Impor Paket Baru</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab('history'); setActionSuccessMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'history' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <History className="h-4 w-4" />
-            <span>Riwayat & Restore ({history.length})</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab('settings'); setActionSuccessMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'settings' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Settings className="h-4 w-4" />
-            <span>Pengaturan Kiosk</span>
-          </button>
-          <button
-            onClick={() => { setActiveTab('logs'); setActionSuccessMessage(null); }}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
-              activeTab === 'logs' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Activity className="h-4 w-4" />
-            <span>Log Diagnostik ({logs.length})</span>
-          </button>
-        </div>
-
-        {/* Tab Body */}
-        <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
+    <div className={standalone ? "min-h-screen w-full bg-slate-100 flex flex-col font-sans" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-2 sm:p-4"}>
+      <div className={standalone ? "w-full min-h-screen" : "w-full h-full max-w-[1600px] max-h-[96vh] rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-white"}>
+        <AdminConsoleShell
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setActionSuccessMessage(null);
+          }}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onRefresh={triggerPackageUpdated}
+          onCloseModal={!standalone ? onClose : undefined}
+          standalone={standalone}
+          historyCount={history.length}
+          logsCount={logs.length}
+          warehouseCode={kioskStorage.getConfig().warehouseCode}
+        >
           {actionSuccessMessage && (
             <div className="mb-4 flex items-center gap-2 rounded-control bg-emerald-50 p-4 text-sm font-bold text-emerald-800 border border-emerald-200">
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
               <span>{actionSuccessMessage}</span>
+            </div>
+          )}
+
+          {/* TAB: OVERVIEW */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Quick Action Pills Bar */}
+              <div className="adms-quick-actions-bar">
+                <button
+                  type="button"
+                  className="adms-action-pill"
+                  onClick={() => { setActiveTab('stock'); setStockMode('adjust'); }}
+                >
+                  <Boxes size={15} strokeWidth={2} />
+                  <span>Penyesuaian Cepat Stok</span>
+                  <ArrowRight size={13} strokeWidth={2} className="arrow" />
+                </button>
+                <button
+                  type="button"
+                  className="adms-action-pill"
+                  onClick={() => { setActiveTab('stock'); setStockMode('new-material'); }}
+                >
+                  <PlusCircle size={15} strokeWidth={2} />
+                  <span>Pendaftaran Material Baru</span>
+                  <ArrowRight size={13} strokeWidth={2} className="arrow" />
+                </button>
+                <button
+                  type="button"
+                  className="adms-action-pill"
+                  onClick={() => setActiveTab('locations')}
+                >
+                  <FolderTree size={15} strokeWidth={2} />
+                  <span>Visualisasi Denah Gudang (A-Z)</span>
+                  <ArrowRight size={13} strokeWidth={2} className="arrow" />
+                </button>
+                <button
+                  type="button"
+                  className="adms-action-pill"
+                  onClick={() => setActiveTab('import')}
+                >
+                  <Upload size={15} strokeWidth={2} />
+                  <span>Impor Paket SAP JSON</span>
+                  <ArrowRight size={13} strokeWidth={2} className="arrow" />
+                </button>
+              </div>
+
+              {/* 4 Executive KPI Cards */}
+              <div className="adms-kpi-grid">
+                <div className="adms-kpi-card">
+                  <div className="adms-kpi-info">
+                    <span className="adms-kpi-label">Total Material Terdaftar</span>
+                    <span className="adms-kpi-value">{activePkg?.materials.length || 0}</span>
+                    <span className="adms-kpi-sub">Katalog logistik PLN UP3</span>
+                  </div>
+                  <div className="adms-kpi-icon-box bg-sky-50 text-sky-600 border border-sky-200">
+                    <Boxes size={22} strokeWidth={2.2} />
+                  </div>
+                </div>
+
+                <div className="adms-kpi-card">
+                  <div className="adms-kpi-info">
+                    <span className="adms-kpi-label">Total Kuantitas Fisik</span>
+                    <span className="adms-kpi-value">
+                      {activePkg?.stockSnapshots.reduce((acc, s) => acc + (s.quantity || 0), 0) || 0}
+                    </span>
+                    <span className="adms-kpi-sub">Unit material siap pakai</span>
+                  </div>
+                  <div className="adms-kpi-icon-box bg-emerald-50 text-emerald-600 border border-emerald-200">
+                    <CheckCircle2 size={22} strokeWidth={2.2} />
+                  </div>
+                </div>
+
+                <div className="adms-kpi-card">
+                  <div className="adms-kpi-info">
+                    <span className="adms-kpi-label">Zonasi Blok Gudang</span>
+                    <span className="adms-kpi-value">{adminBlocks.length} Blok</span>
+                    <span className="adms-kpi-sub">Hierarki fleksibel A s/d Z</span>
+                  </div>
+                  <div className="adms-kpi-icon-box bg-amber-50 text-amber-600 border border-amber-200">
+                    <FolderTree size={22} strokeWidth={2.2} />
+                  </div>
+                </div>
+
+                <div className="adms-kpi-card">
+                  <div className="adms-kpi-info">
+                    <span className="adms-kpi-label">Snapshot ERP Master</span>
+                    <span className="adms-kpi-value">v{activePkg?.datasetVersion || 1}</span>
+                    <span className="adms-kpi-sub">{activePkg?.sourceName?.slice(0, 24) || 'PLN SAP ERP'}</span>
+                  </div>
+                  <div className="adms-kpi-icon-box bg-violet-50 text-violet-600 border border-violet-200">
+                    <FileText size={22} strokeWidth={2.2} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Operasional Dual-Port & LAN */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+                    <h3 className="text-sm font-extrabold text-slate-800">
+                      Status Operasional Dual-Port &amp; Sinkronisasi LAN
+                    </h3>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-slate-500">
+                    {kioskStorage.getConfig().warehouseCode}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-1">
+                    <div className="flex justify-between items-center font-bold text-slate-700">
+                      <span>Layar Kiosk (Port 5000)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px]">Aktif</span>
+                    </div>
+                    <span className="text-slate-500">Mode publik sentuh, pencarian visual denah gudang &amp; SOP PLN</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-1">
+                    <div className="flex justify-between items-center font-bold text-slate-700">
+                      <span>Konsol Admin (Port 5001)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px]">Terhubung</span>
+                    </div>
+                    <span className="text-slate-500">Kontrol mutasi stok, pendaftaran barcode &amp; manajemen blok A-Z</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-1">
+                    <div className="flex justify-between items-center font-bold text-slate-700">
+                      <span>Real-time Broadcast &amp; Storage</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px]">Idempoten</span>
+                    </div>
+                    <span className="text-slate-500">BroadcastChannel &amp; SQLite/JSON persistent offline tanpa internet</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Material Inventory Summary Table */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800">
+                      Ringkasan Inventaris Material Terkini
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Snapshot aktif versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
+                    </p>
+                  </div>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Cari kode atau nama material..."
+                      value={overviewSearch}
+                      onChange={(e) => setOverviewSearch(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs font-medium focus:border-sky-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200">
+                      <tr>
+                        <th className="p-3">Kode Material</th>
+                        <th className="p-3">Nama Material</th>
+                        <th className="p-3">Kategori</th>
+                        <th className="p-3">Lokasi Gudang</th>
+                        <th className="p-3">Stok Siap Pakai</th>
+                        <th className="p-3 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                      {activePkg?.materials
+                        .filter((m) =>
+                          overviewSearch
+                            ? m.name.toLowerCase().includes(overviewSearch.toLowerCase()) ||
+                              m.code.toLowerCase().includes(overviewSearch.toLowerCase())
+                            : true
+                        )
+                        .slice(0, 8)
+                        .map((mat) => {
+                          const cat = activePkg?.categories.find((c) => c.id === mat.categoryId);
+                          const snapshots = activePkg?.stockSnapshots.filter((s) => s.materialId === mat.id) || [];
+                          const totalQty = snapshots.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                          const locObj = snapshots[0] ? activePkg?.locations.find((l) => l.id === snapshots[0].locationId) : null;
+                          const loc = locObj
+                            ? `${locObj.zone || '-'} • ${locObj.rack || '-'} / ${locObj.bin || '-'}`
+                            : '-';
+                          return (
+                            <tr key={mat.id} className="hover:bg-slate-50 transition">
+                              <td className="p-3 font-mono font-bold text-sky-700">{mat.code}</td>
+                              <td className="p-3 font-bold text-slate-900">{mat.name}</td>
+                              <td className="p-3 text-slate-500">{cat?.name || '-'}</td>
+                              <td className="p-3 font-mono text-[11px]">{loc}</td>
+                              <td className="p-3">
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                                    totalQty > 0
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  }`}
+                                >
+                                  {totalQty} {mat.unit}
+                                </span>
+                              </td>
+                              <td className="p-3 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAdjustMatId(mat.id);
+                                    setActiveTab('stock');
+                                    setStockMode('adjust');
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
+                                >
+                                  Sesuaikan
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1615,8 +1642,6 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               </div>
             </div>
           )}
-        </div>
-      </div>
 
       {/* Modal Konfirmasi Hapus Material */}
       {materialToDelete && (
@@ -1668,6 +1693,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           </div>
         </div>
       )}
+        </AdminConsoleShell>
       </div>
     </div>
   );

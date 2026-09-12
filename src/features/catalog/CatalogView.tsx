@@ -91,10 +91,12 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
         </span>
         {[
           { label: '⚡ kWh Meter (Rak A-001)', query: 'Rak A-001' },
-          { label: '🔌 Isolator (Rak A3)', query: 'Rak A3' },
-          { label: '🏗️ Trafo (Blok B)', query: 'Blok B' },
-          { label: '🦺 APD & Helm (Rak K3-01)', query: 'Rak K3-01' },
-          { label: '📦 Kabel MVTIC', query: 'Kabel MVTIC' },
+          { label: '📦 TRF Dudukan (1060798)', query: '1060798' },
+          { label: '⚡ MCB 10A (Rak A11)', query: 'A11' },
+          { label: '🔌 Cable Shoe 150mm² (Rak H12)', query: 'H12' },
+          { label: '⚡ Box 105 kVA (4120470)', query: '4120470' },
+          { label: '📦 kWh Meter E-PR (Rak C11)', query: 'C11' },
+          { label: '⚡ Fuse Link 20kV (Rak I13)', query: 'I13' },
           { label: '📦 Kabel NFA2X (3110542)', query: '3110542' },
           { label: '🔌 Trafo 160kVA (1030075)', query: '1030075' },
           { label: '⚡ NH Fuse 125A (2240029)', query: '2240029' },

@@ -1,188 +1,174 @@
-// Generated from permintaan-client/export_material NEW.csv
+// Generated from permintaan-client/export_material NEW(1).csv
 import { Material, Location, StockSnapshot, BarcodeAlias } from '../domain/types';
 
 export const clientLocations: Location[] = [
   {
-    "id": "loc-a-01",
+    "id": "loc-c-open",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Perlengkapan Gardu & Jaringan)",
-    "rack": "Rak A1",
-    "bin": "A.1.1 (Isolator Pin Post & Tarik)"
+    "zone": "Blok C (Gudang Aris Munandar)",
+    "rack": "Area Terbuka Blok C",
+    "bin": "Luar Rak"
   },
   {
-    "id": "loc-a-02",
+    "id": "loc-b-h12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Perlengkapan Gardu & Jaringan)",
-    "rack": "Rak A2",
-    "bin": "A.2.1 (Lightning Arrester & FCO)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak H12",
+    "bin": "H12"
   },
   {
-    "id": "loc-a-03",
+    "id": "loc-b-h13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Perlengkapan Gardu & Jaringan)",
-    "rack": "Rak A3",
-    "bin": "A.3.1 (Fuse Link 20kV)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak H13",
+    "bin": "H13"
   },
   {
-    "id": "loc-a-04",
+    "id": "loc-b-h14",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Perlengkapan Gardu & Jaringan)",
-    "rack": "Rak A4",
-    "bin": "A.3.2 (NH Fuse TR 63-400A)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak H14",
+    "bin": "H14"
   },
   {
-    "id": "loc-a-05",
+    "id": "loc-gd-bululawang-open",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Perlengkapan Gardu & Jaringan)",
-    "rack": "Rak A5",
-    "bin": "A.3.3 (Konektor CCO & LLC)"
+    "zone": "Gudang Bululawang (Penyimpanan Luar)",
+    "rack": "Area Terbuka Blok GD BULULAWANG",
+    "bin": "Luar Rak"
   },
   {
-    "id": "loc-a-06",
+    "id": "loc-d-open",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Perlengkapan Gardu & Jaringan)",
-    "rack": "Rak A6",
-    "bin": "A.3.4 (PHB-TR / LVSB & Box Panel)"
+    "zone": "Blok D (Gudang Aris Munandar)",
+    "rack": "Area Terbuka Blok D",
+    "bin": "Luar Rak"
   },
   {
-    "id": "loc-b-01",
+    "id": "loc-b-g12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Trafo)",
-    "rack": "Jalur Hoist 1",
-    "bin": "B.1.1 (Pondasi Trafo 100kVA)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak G12",
+    "bin": "G12"
   },
   {
-    "id": "loc-b-02",
+    "id": "loc-e-open",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Trafo)",
-    "rack": "Jalur Hoist 2",
-    "bin": "B.2.1 (Pondasi Trafo 160kVA)"
+    "zone": "Blok E (Gudang Aris Munandar)",
+    "rack": "Area Terbuka Blok E",
+    "bin": "Luar Rak"
   },
   {
-    "id": "loc-b-03",
+    "id": "loc-b-i11",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Trafo)",
-    "rack": "Jalur Hoist 3",
-    "bin": "B.2.2 (Pondasi Trafo 250kVA)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak I11",
+    "bin": "I11"
   },
   {
-    "id": "loc-b-drum-01",
+    "id": "loc-b-open",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Kabel)",
-    "rack": "Blok Drum D-01",
-    "bin": "B.3.1 (Kabel TM 20kV)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Area Terbuka Blok B",
+    "bin": "Luar Rak"
   },
   {
-    "id": "loc-b-drum-02",
+    "id": "loc-b-i13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Kabel)",
-    "rack": "Blok Drum D-02",
-    "bin": "B.3.2 (Kabel Twisted SUTR)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak I13",
+    "bin": "I13"
   },
   {
-    "id": "loc-b-drum-03",
+    "id": "loc-a-a11",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Kabel)",
-    "rack": "Blok Drum D-03",
-    "bin": "B.3.3 (Kabel Opstig NYY)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak A11",
+    "bin": "A11"
   },
   {
-    "id": "loc-b-drum-04",
+    "id": "loc-a-a12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Heavy Material & Kabel)",
-    "rack": "Blok Drum D-04",
-    "bin": "B.3.4 (Konduktor AAAC)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak A12",
+    "bin": "A12"
   },
   {
-    "id": "loc-c-01",
+    "id": "loc-a-a13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak A-001",
-    "bin": "C.1.1 (Smart Meter AMI)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak A13",
+    "bin": "A13"
   },
   {
-    "id": "loc-c-02",
+    "id": "loc-a-a14",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak C-002",
-    "bin": "C.1.2 (kWh Meter Pascabayar)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak A14",
+    "bin": "A14"
   },
   {
-    "id": "loc-c-03",
+    "id": "loc-a-a15",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak C-003",
-    "bin": "C.1.3 (Modem 4G & Segel Putar)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak A15",
+    "bin": "A15"
   },
   {
-    "id": "loc-c-04",
+    "id": "loc-b-e12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak C-004",
-    "bin": "C.2.1 (Current Transformer CT)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak E12",
+    "bin": "E12"
   },
   {
-    "id": "loc-c-05",
+    "id": "loc-b-e13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak MCB-01",
-    "bin": "C.2.2 (MCB 1 Fasa 2-50A)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak E13",
+    "bin": "E13"
   },
   {
-    "id": "loc-c-06",
+    "id": "loc-b-e14",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak MCB-02",
-    "bin": "C.2.3 (MCB 3 Fasa & MCCB)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak E14",
+    "bin": "E14"
   },
   {
-    "id": "loc-c-07",
+    "id": "loc-b-e15",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Ruang Bersih Kalibrasi APP)",
-    "rack": "Rak Panel-01",
-    "bin": "C.3.1 (Box Panel APP kVA)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak E15",
+    "bin": "E15"
   },
   {
-    "id": "loc-d-01",
+    "id": "loc-a-c11",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok D (Gudang APD & Tool K3)",
-    "rack": "Rak K3-01",
-    "bin": "D.1.1 (Alat Kerja & Tang Inggris)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak C11",
+    "bin": "C11"
   },
   {
-    "id": "loc-d-02",
+    "id": "loc-a-c12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok D (Gudang APD & Tool K3)",
-    "rack": "Rak K3-02",
-    "bin": "D.1.2 (Cover Isolasi Satwa & Arrester)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak C12",
+    "bin": "C12"
   },
   {
-    "id": "loc-e-01",
+    "id": "loc-a-c13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok E (Aksesoris Sambungan Kabel)",
-    "rack": "Rak E1",
-    "bin": "E.1.1 (Cable Shoe AL/CU)"
+    "zone": "Blok A (Gudang Aris Munandar)",
+    "rack": "Rak C13",
+    "bin": "C13"
   },
   {
-    "id": "loc-e-02",
+    "id": "loc-b-j12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok E (Aksesoris Sambungan Kabel)",
-    "rack": "Rak E2",
-    "bin": "E.2.1 (Joint Sleeve & Ties)"
-  },
-  {
-    "id": "loc-e-03",
-    "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok E (Aksesoris Sambungan Kabel)",
-    "rack": "Rak E3",
-    "bin": "E.3.1 (Dead End & Large Angle Assy)"
-  },
-  {
-    "id": "loc-f-01",
-    "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok F (Tiang & Cross Arm Travers)",
-    "rack": "Rak F1",
-    "bin": "F.1.1 (Cross Arm UNP 2000-3000mm)"
+    "zone": "Blok B (Gudang Aris Munandar)",
+    "rack": "Rak J12",
+    "bin": "J12"
   }
 ];
 
@@ -193,8 +179,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120470",
     "name": "BOX 105 KVA - BOX;APPMCCB160A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Set",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "SET",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -203,8 +189,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120472",
     "name": "BOX 147 KVA - BOX;APPMCCB225A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -213,8 +199,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120473",
     "name": "BOX 164 KVA - BOX;APPMCCB250A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -223,8 +209,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120474",
     "name": "BOX 197 KVA - BOX;APPMCCB300A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -233,8 +219,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120467",
     "name": "BOX 53KVA - BOX;APPMCCB80A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Meter",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "M",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -243,8 +229,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120468",
     "name": "BOX 66KVA - BOX;APPMCCB100A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -253,8 +239,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120469",
     "name": "BOX 82,5 KVA - BOX;APPMCCB125A+STRIP;AL2MM;1205X420X250",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB Aluminium Plat 2mm ukuran 1205x420x250mm powder coating anti korosi.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -263,8 +249,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120538",
     "name": "BOX TR - BOX;APP PL CB;AL1.6MM;650X400X220MM",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Box Panel Distribusi / Low Voltage Main Distribution Panel (LVMDP / LVSDP) plat baja 2mm outdoor cat tahan cuaca.",
+    "unit": "BH",
+    "specification": "Panel Hubung Bagi Tegangan Rendah (PHB-TR / LVSB) dan box panel distribusi outdoor.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -273,8 +259,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120079",
     "name": "BOX;LVMDP ;ST PLATE 2mm;80X90X40cm",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Box Panel Distribusi / Low Voltage Main Distribution Panel (LVMDP / LVSDP) plat baja 2mm outdoor cat tahan cuaca.",
+    "unit": "BH",
+    "specification": "Panel Hubung Bagi Tegangan Rendah (PHB-TR / LVSB) dan box panel distribusi outdoor.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -283,8 +269,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4120453",
     "name": "BOX;LVSDP;CABANG;STPLATE 2MM;80X107X30CM",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Box Panel Distribusi / Low Voltage Main Distribution Panel (LVMDP / LVSDP) plat baja 2mm outdoor cat tahan cuaca.",
+    "unit": "BH",
+    "specification": "Panel Hubung Bagi Tegangan Rendah (PHB-TR / LVSB) dan box panel distribusi outdoor.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -293,8 +279,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120159",
     "name": "CABLE PWR ACC;CABLE SHOE AL-CU 1H 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -303,8 +289,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120154",
     "name": "CABLE PWR ACC;CABLE SHOE AL-CU 1H 35mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -313,8 +299,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120156",
     "name": "CABLE PWR ACC;CABLE SHOE AL-CU 1H 70mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -323,8 +309,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120171",
     "name": "CABLE PWR ACC;CABLE SHOE AL-CU 2H 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -333,8 +319,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120223",
     "name": "CABLE PWR ACC;CABLE SHOE CU ID 1H 10mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -343,8 +329,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120231",
     "name": "CABLE PWR ACC;CABLE SHOE CU ID 1H 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -353,8 +339,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120226",
     "name": "CABLE PWR ACC;CABLE SHOE CU ID 1H 35mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -363,8 +349,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120227",
     "name": "CABLE PWR ACC;CABLE SHOE CU ID 1H 50mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -373,8 +359,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120228",
     "name": "CABLE PWR ACC;CABLE SHOE CU ID 1H 70mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Sepatu kabel (cable lug / bimetal AL-CU) kompresi presisi tinggi untuk terminasi kabel distribusi TR/TM.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -383,8 +369,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120038",
     "name": "CABLE PWR ACC;DEAD END ASSY FIXED 70mm",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris penarik dan pengikat kabel saluran udara (Dead End Assembly / Large Angle Assembly). Standar PLN.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -393,8 +379,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3120058",
     "name": "CABLE PWR ACC;LARGE ANGLE ASSY  70mm",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris penarik dan pengikat kabel saluran udara (Dead End Assembly / Large Angle Assembly). Standar PLN.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -403,8 +389,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110014",
     "name": "CABLE PWR;NA2XSEYBY;3X150mm2;20kV;UG",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Tanah Tegangan Menengah 20 kV Aluminium berisolasi XLPE berlapis baja (SKTM NA2XSEYBY). Standar SPLN 43-5-1.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -413,8 +399,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110015",
     "name": "CABLE PWR;NA2XSEYBY;3X240mm2;20kV;UG",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Tanah Tegangan Menengah 20 kV Aluminium berisolasi XLPE berlapis baja (SKTM NA2XSEYBY). Standar SPLN 43-5-1.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -423,8 +409,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110039",
     "name": "CABLE PWR;NFA2X-T;3X35+1X35;0.6/1kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -433,8 +419,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110542",
     "name": "CABLE PWR;NFA2X-T;3X70+1X70;0.6/1kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -443,8 +429,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110025",
     "name": "CABLE PWR;NFA2X;2X10mm2;0.6/1kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -453,8 +439,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110026",
     "name": "CABLE PWR;NFA2X;2X16mm2;0.6/1kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -463,8 +449,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110029",
     "name": "CABLE PWR;NFA2X;4X16mm2;0.6/1kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -473,8 +459,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110030",
     "name": "CABLE PWR;NFA2X;4X25mm2;0.6/1kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -483,8 +469,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110034",
     "name": "CABLE PWR;NFA2XSY-T;3X150+1X95;20kV;OH",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Pilin Udara Tegangan Rendah (SUTR / NFA2X-T) 0.6/1kV konduktor Aluminium berisolasi XLPE tahan cuaca. Standar SPLN 42-10.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -493,8 +479,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110516",
     "name": "CABLE PWR;NYY;1X150mm2;0.6/1kV;Opstig",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Naik Gardu Opstig NYY 0.6/1kV tembaga inti tunggal/multi berisolasi PVC tebal. Standar SPLN 43-1.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -503,8 +489,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3110518",
     "name": "CABLE PWR;NYY;4X70mm2;0.6/1kV;Opstig",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kabel Naik Gardu Opstig NYY 0.6/1kV tembaga inti tunggal/multi berisolasi PVC tebal. Standar SPLN 43-1.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -513,8 +499,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2230042",
     "name": "CLAMP;PG;CU;50mm2;BOLT",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -523,8 +509,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060192",
     "name": "COND ACC;ALL BINDING WIRE 2.0mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -533,8 +519,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3061272",
     "name": "COND ACC;ALL BINDING WIRE 4.0MM2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -543,8 +529,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060644",
     "name": "COND ACC;COMP JOINT INTS COVER 35mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -553,8 +539,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060642",
     "name": "COND ACC;COMP JOINT INTS COVER70mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -563,8 +549,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060382",
     "name": "COND ACC;DOUBLE SIDE TIE 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -573,8 +559,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3061804",
     "name": "COND ACC;EXT GROUND WIRE TYPE A",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -583,8 +569,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3061805",
     "name": "COND ACC;EXT GROUND WIRE TYPE B",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -593,8 +579,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060145",
     "name": "COND ACC;JOINT SLEEVE AL 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -603,8 +589,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060409",
     "name": "COND ACC;JOINT SLEEVE AL 185mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -613,8 +599,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060143",
     "name": "COND ACC;JOINT SLEEVE AL 70mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -623,8 +609,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060233",
     "name": "COND ACC;JOINT SLEEVE ALCU 70mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -633,8 +619,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060132",
     "name": "COND ACC;NON TENSION JOINT AL 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -643,8 +629,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060133",
     "name": "COND ACC;NON TENSION JOINT AL 240mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -653,8 +639,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060130",
     "name": "COND ACC;NON TENSION JOINT AL 70mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Joint sleeve sambungan kompresi bimetal konduktor saluran udara SUTM / SUTR tahan tarikan mekanis.",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -663,8 +649,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060051",
     "name": "COND ACC;PLSTIC TREE GUARD 150MM2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -673,8 +659,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060152",
     "name": "COND ACC;PLSTIC TREE GUARD 240mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -683,8 +669,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060050",
     "name": "COND ACC;PLSTIC TREE GUARD 70MM2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -693,8 +679,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060504",
     "name": "COND ACC;SIDE TIE 150mm2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -703,8 +689,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3060677",
     "name": "COND ACC;TOP TIES 150MM2",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Aksesoris konduktor (binding wire, side tie, top ties, tree guard plastik pelindung dahan).",
+    "unit": "BH",
+    "specification": "Aksesoris kabel / sambungan konduktor tegangan menengah & rendah (sepatu kabel AL-CU, joint sleeve kompresi, side tie).",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -713,8 +699,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3050084",
     "name": "CONDUCTOR;AAAC-S;150mm2;",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kawat Penghantar Telanjang Saluran Udara Tegangan Menengah All Aluminium Alloy Conductor (AAAC/AAAC-S). Standar SPLN 41-8.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -723,8 +709,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3050004",
     "name": "CONDUCTOR;AAAC;70mm2;21.07kN",
     "categoryId": "cat-kabel",
-    "unit": "Buah",
-    "specification": "Kawat Penghantar Telanjang Saluran Udara Tegangan Menengah All Aluminium Alloy Conductor (AAAC/AAAC-S). Standar SPLN 41-8.",
+    "unit": "BH",
+    "specification": "Kabel daya dan konduktor distribusi jaringan listrik tegangan menengah 20kV dan tegangan rendah 0.6/1kV standar SPLN.",
     "photoPath": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -733,8 +719,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280456",
     "name": "CONN;1KV;CCO;AL;35-50/10-16;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -743,8 +729,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280457",
     "name": "CONN;1KV;CCO;AL;35-50/35-50;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -753,8 +739,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280458",
     "name": "CONN;1KV;CCO;AL;35-70/10-16;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -763,8 +749,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280459",
     "name": "CONN;1KV;CCO;AL;50-70/50-70;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -773,8 +759,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280460",
     "name": "CONN;1KV;CCO;AL;70-95/10-16;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -783,8 +769,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280461",
     "name": "CONN;1KV;CCO;AL;70-95/25-35;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -793,8 +779,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280474",
     "name": "CONN;1KV;CCO;AL;70-95/70-95;INSUL;PITA",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -803,8 +789,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280282",
     "name": "CONN;1kV;CCO;AL;120-150/50-70mm2;PRS;",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -813,8 +799,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280466",
     "name": "CONN;20KV;CCO;AL;150-150MM2;PRS;",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -823,8 +809,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280129",
     "name": "CONN;20KV;LLC;AL;70-150mm2; BOLT",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -833,8 +819,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280384",
     "name": "CONN;20kV;CCO;AL;70-150mm2;PRS",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -843,8 +829,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280186",
     "name": "CONN;20kV;LLC;AL;240/150MM2;PRS;2BOLT",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -853,8 +839,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3280158",
     "name": "CONN;20kV;LLC;AL;35-70mm2;PRS;2BOLT",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Konektor Kompresi CCO Aluminium / Konektor Piercing LLC kedap air anti-korosi standar SPLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -863,8 +849,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2050128",
     "name": "CT;380/220V;SQUARE;100/5A;0.5;5VA;P",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Current Transformer (Trafo Arus TR) tipe Square kelas akurasi 0.5/0.5S untuk pengukuran beban pelanggan daya menengah-besar.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -873,8 +859,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2050133",
     "name": "CT;380/220V;SQUARE;150/5A;0.5;5VA;P",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Current Transformer (Trafo Arus TR) tipe Square kelas akurasi 0.5/0.5S untuk pengukuran beban pelanggan daya menengah-besar.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -883,8 +869,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2050136",
     "name": "CT;380/220V;SQUARE;200/5A;0.5;5VA;P",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Current Transformer (Trafo Arus TR) tipe Square kelas akurasi 0.5/0.5S untuk pengukuran beban pelanggan daya menengah-besar.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -893,8 +879,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2050139",
     "name": "CT;380/220V;SQUARE;250/5A;0.5;5VA;P",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Current Transformer (Trafo Arus TR) tipe Square kelas akurasi 0.5/0.5S untuk pengukuran beban pelanggan daya menengah-besar.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -903,8 +889,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2050142",
     "name": "CT;380/220V;SQUARE;300/5A;0.5;5VA;P",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Current Transformer (Trafo Arus TR) tipe Square kelas akurasi 0.5/0.5S untuk pengukuran beban pelanggan daya menengah-besar.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -913,8 +899,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2050808",
     "name": "CT;380/220V;SQUARE;300/5A;0.5S;2.5VA;P",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Current Transformer (Trafo Arus TR) tipe Square kelas akurasi 0.5/0.5S untuk pengukuran beban pelanggan daya menengah-besar.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -923,8 +909,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2160146",
     "name": "CUB ACC;HEATER 50W + THERMOSTAT",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Material standar jaringan distribusi PLN UP3 Malang. Sesuai SPLN dan standar mutu Puslitbang PLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -933,8 +919,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2150082",
     "name": "CUB;N ISO;LBS INC;20kV;630A;16kA;",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Material standar jaringan distribusi PLN UP3 Malang. Sesuai SPLN dan standar mutu Puslitbang PLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -943,8 +929,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200055",
     "name": "CUT OUT ACC;COVER CUT OUT ATAS",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Fused Cut Out (FCO) 20-24 kV 100A rating pemutus 10-12.5 kA perlengkapan proteksi trafo gardu portal/cantol.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -953,8 +939,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200054",
     "name": "CUT OUT ACC;COVER CUT OUT BAWAH",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Fused Cut Out (FCO) 20-24 kV 100A rating pemutus 10-12.5 kA perlengkapan proteksi trafo gardu portal/cantol.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -963,8 +949,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200002",
     "name": "CUT OUT ACC;FUSE LINK 20kV 10A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -973,8 +959,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200003",
     "name": "CUT OUT ACC;FUSE LINK 20kV 12A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -983,8 +969,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200004",
     "name": "CUT OUT ACC;FUSE LINK 20kV 15A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -993,8 +979,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200005",
     "name": "CUT OUT ACC;FUSE LINK 20kV 20A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1003,8 +989,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200007",
     "name": "CUT OUT ACC;FUSE LINK 20kV 25A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1013,8 +999,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200008",
     "name": "CUT OUT ACC;FUSE LINK 20kV 2A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1023,8 +1009,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200010",
     "name": "CUT OUT ACC;FUSE LINK 20kV 3A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1033,8 +1019,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200018",
     "name": "CUT OUT ACC;FUSE LINK 20kV 5A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1043,8 +1029,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200015",
     "name": "CUT OUT ACC;FUSE LINK 20kV 6A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1053,8 +1039,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3200017",
     "name": "CUT OUT ACC;FUSE LINK 20kV 8A",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Elemen pelebur Fuse Link 20 kV tipe K / T pemutus arus gangguan saluran gardu distribusi.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1063,8 +1049,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3190002",
     "name": "CUT OUT;20kV;6-100A;10kA;125kV",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Fused Cut Out (FCO) 20-24 kV 100A rating pemutus 10-12.5 kA perlengkapan proteksi trafo gardu portal/cantol.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1073,8 +1059,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2030022",
     "name": "DS;K;20kV;3P;630A;;;OD",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Material standar jaringan distribusi PLN UP3 Malang. Sesuai SPLN dan standar mutu Puslitbang PLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1083,9 +1069,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240024",
     "name": "FUSE;380/220V;100A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-091",
@@ -1093,9 +1079,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240029",
     "name": "FUSE;380/220V;125A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-092",
@@ -1103,9 +1089,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240035",
     "name": "FUSE;380/220V;160A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-093",
@@ -1113,9 +1099,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240038",
     "name": "FUSE;380/220V;200A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-094",
@@ -1123,9 +1109,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240044",
     "name": "FUSE;380/220V;250A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-095",
@@ -1133,9 +1119,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240048",
     "name": "FUSE;380/220V;300A;SQUARE;2",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-096",
@@ -1143,9 +1129,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240050",
     "name": "FUSE;380/220V;355A;SQUARE;2",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-097",
@@ -1153,9 +1139,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240055",
     "name": "FUSE;380/220V;400A;SQUARE;2",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-098",
@@ -1163,9 +1149,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240067",
     "name": "FUSE;380/220V;63A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-099",
@@ -1173,9 +1159,9 @@ export const clientMaterials: Material[] = [
     "sapCode": "2240072",
     "name": "FUSE;380/220V;80A;SQUARE;1",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "NH Fuse Pisau Square HRC Tegangan Rendah 380/220V kapasitas pemutus 120kA proteksi jalur kabel jurusan.",
-    "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
+    "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
     "id": "mat-csv-100",
@@ -1183,7 +1169,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "3080015",
     "name": "ISOLATOR ACC;STRAIN CLAMP 70-150MM2",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Isolator Tumpu Pin Post Keramik / Isolator Tarik Suspensi Polimer 24 kV kekuatan mekanis 12.5kN - 70kN.",
     "photoPath": "https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=600&q=80"
   },
@@ -1193,7 +1179,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "3070151",
     "name": "ISOLATOR;PINPOST;PORC;24KV;;12.5kN",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Isolator Tumpu Pin Post Keramik / Isolator Tarik Suspensi Polimer 24 kV kekuatan mekanis 12.5kN - 70kN.",
     "photoPath": "https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=600&q=80"
   },
@@ -1203,7 +1189,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "3070160",
     "name": "ISOLATOR;STRAIN KAP PIN;PORC;24KV;;70kN",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Isolator Tumpu Pin Post Keramik / Isolator Tarik Suspensi Polimer 24 kV kekuatan mekanis 12.5kN - 70kN.",
     "photoPath": "https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=600&q=80"
   },
@@ -1213,7 +1199,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "3070154",
     "name": "ISOLATOR;SUSP;POLYMER;24KV;;70kN",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Isolator Tumpu Pin Post Keramik / Isolator Tarik Suspensi Polimer 24 kV kekuatan mekanis 12.5kN - 70kN.",
     "photoPath": "https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=600&q=80"
   },
@@ -1223,8 +1209,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2090032",
     "name": "LA;20-24kV;K;10kA;POLYMER;;",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Lightning Arrester Polimer Logam Oksida (ZnO) 20-24 kV 10 kA pengaman surja tegangan lebih petir.",
+    "unit": "BH",
+    "specification": "Peralatan proteksi gardu distribusi (FCO 20kV, Fuse Link, Lightning Arrester, dan NH Fuse TR).",
     "photoPath": "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1233,8 +1219,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3260161",
     "name": "LVSB;DIST;3P;400V;250A;2LINE;OD",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Low Voltage Switchboard (PHB-TR) 3 Fasa 400V 2-Line / 4-Line lengkap busbar tembaga dan fuse base.",
+    "unit": "BH",
+    "specification": "Panel Hubung Bagi Tegangan Rendah (PHB-TR / LVSB) dan box panel distribusi outdoor.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1243,8 +1229,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3260238",
     "name": "LVSB;DIST;3P;400V;400A;4LINE;OD",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Low Voltage Switchboard (PHB-TR) 3 Fasa 400V 2-Line / 4-Line lengkap busbar tembaga dan fuse base.",
+    "unit": "BH",
+    "specification": "Panel Hubung Bagi Tegangan Rendah (PHB-TR / LVSB) dan box panel distribusi outdoor.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1253,8 +1239,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250052",
     "name": "MCB;230/400V;1P;10A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1263,8 +1249,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250054",
     "name": "MCB;230/400V;1P;16A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1273,8 +1259,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250056",
     "name": "MCB;230/400V;1P;20A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1283,8 +1269,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250058",
     "name": "MCB;230/400V;1P;25A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1293,8 +1279,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250046",
     "name": "MCB;230/400V;1P;2A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1303,8 +1289,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250059",
     "name": "MCB;230/400V;1P;35A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1313,8 +1299,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250048",
     "name": "MCB;230/400V;1P;4A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1323,8 +1309,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250060",
     "name": "MCB;230/400V;1P;50A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1333,8 +1319,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250050",
     "name": "MCB;230/400V;1P;6A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Miniature Circuit Breaker (MCB) 1 Fasa 230V kapasitas pemutus 4.5kA / 6kA pembatas daya resmi pelanggan PLN.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1343,8 +1329,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250097",
     "name": "MCB;230/400V;3P;10A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1353,8 +1339,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250099",
     "name": "MCB;230/400V;3P;16A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1363,8 +1349,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250100",
     "name": "MCB;230/400V;3P;20A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1373,8 +1359,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250102",
     "name": "MCB;230/400V;3P;25A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1383,8 +1369,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250103",
     "name": "MCB;230/400V;3P;35A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1393,8 +1379,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250292",
     "name": "MCB;230/400V;3P;63A;50HZ;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1403,8 +1389,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250301",
     "name": "MCB;230/415V;3P;100A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1413,8 +1399,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250302",
     "name": "MCB;230/415V;3P;125A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1423,8 +1409,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250303",
     "name": "MCB;230/415V;3P;160A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1433,8 +1419,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250296",
     "name": "MCB;230/415V;3P;200A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1443,8 +1429,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250297",
     "name": "MCB;230/415V;3P;225A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1453,8 +1439,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250298",
     "name": "MCB;230/415V;3P;250A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1463,8 +1449,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250299",
     "name": "MCB;230/415V;3P;300A;50Hz;MCCB+SHUNTTRIP",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1473,8 +1459,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250029",
     "name": "MCB;380/440V;3P;50A;50Hz;",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1483,8 +1469,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3250032",
     "name": "MCB;380/440V;3P;63A;50Hz;MCCB",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "MCB 3 Fasa / Moulded Case Circuit Breaker (MCCB) + Shunt Trip pengaman beban lebih dan hubung singkat daya besar.",
+    "unit": "BH",
+    "specification": "Box Panel APP Pelanggan Daya Terpasang MCCB / MCB pembatas daya arus listrik standar PLN.",
     "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1493,8 +1479,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2200125",
     "name": "MTR ACC;MODEM 4G LTE",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Modem Komunikasi AMI 4G LTE industri terintegrasi antena gain tinggi untuk pembacaan jarak jauh AMR.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1503,8 +1489,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2200016",
     "name": "MTR ACC;SEGEL PUTAR PLASTIC",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Segel putar polikarbonat tahan cuaca anti-rusak untuk pengamanan kotak APP dan terminal meter.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1513,8 +1499,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2190224",
     "name": "MTR;kWH E-PR;;1P;230V;5-60A;1;;2W",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Meter Listrik Elektronik (kWh Meter) presisi tinggi bersertifikat Tera Metrologi Legal. Dilengkapi optical port dan anti-tamper.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1523,8 +1509,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2190252",
     "name": "MTR;kWH E-PR;;3P;230/400V;5-80A;1;;4W",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Meter Listrik Elektronik (kWh Meter) presisi tinggi bersertifikat Tera Metrologi Legal. Dilengkapi optical port dan anti-tamper.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1533,8 +1519,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2190502",
     "name": "MTR;kWH E;;1P;230V;5-60A;1;;2W",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Meter Listrik Elektronik (kWh Meter) presisi tinggi bersertifikat Tera Metrologi Legal. Dilengkapi optical port dan anti-tamper.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1543,8 +1529,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2190218",
     "name": "MTR;kWH E;;3P;230/400V;5-80A;1;;4W",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Meter Listrik Elektronik (kWh Meter) presisi tinggi bersertifikat Tera Metrologi Legal. Dilengkapi optical port dan anti-tamper.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1553,8 +1539,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "2190438",
     "name": "MTR;kWHE;;3P;57.7/100V-230/400;5A;0.5;4W",
     "categoryId": "cat-kwh",
-    "unit": "Buah",
-    "specification": "Meter Listrik Elektronik (kWh Meter) presisi tinggi bersertifikat Tera Metrologi Legal. Dilengkapi optical port dan anti-tamper.",
+    "unit": "BH",
+    "specification": "Peralatan Alat Pengukur & Pembatas (APP) / Smart Meter AMI, CT Trafo Arus, dan segel putar kalibrasi tera resmi.",
     "photoPath": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1563,8 +1549,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3040883",
     "name": "POLE ACC;CONNECTION CLAMP NETRAL 35MM2",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Cross Arm Travers Profil Baja UNP Galvanis Hot-Dip 2000-3000mm penguat dudukan isolator tiang SUTM.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1573,8 +1559,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3040325",
     "name": "POLE ACC;CR ARM A1 UNP100X50X5X2000mm GA (TUMPU)",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Cross Arm Travers Profil Baja UNP Galvanis Hot-Dip 2000-3000mm penguat dudukan isolator tiang SUTM.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1583,8 +1569,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3040327",
     "name": "POLE ACC;CR ARM A3 UNP100X50X5X2000mm GA (TARIK)",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Cross Arm Travers Profil Baja UNP Galvanis Hot-Dip 2000-3000mm penguat dudukan isolator tiang SUTM.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1593,8 +1579,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3040246",
     "name": "POLE ACC;CR ARM UNP100X50X5X2500mm GALV",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Cross Arm Travers Profil Baja UNP Galvanis Hot-Dip 2000-3000mm penguat dudukan isolator tiang SUTM.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1603,8 +1589,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3040247",
     "name": "POLE ACC;CR ARM UNP100X50X5X3000mm GALV",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Cross Arm Travers Profil Baja UNP Galvanis Hot-Dip 2000-3000mm penguat dudukan isolator tiang SUTM.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1613,8 +1599,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "3100061",
     "name": "STRINGSET ACC;STRAIN CLAMP 150-240 mm2",
     "categoryId": "cat-gardu",
-    "unit": "Buah",
-    "specification": "Material standar jaringan distribusi PLN UP3 Malang. Sesuai SPLN dan standar mutu Puslitbang PLN.",
+    "unit": "BH",
+    "specification": "Material logistik distribusi standar PT PLN (Persero) UP3 Malang. Lolos uji spesifikasi SPLN dan standar Puslitbang PLN.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1623,8 +1609,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "202608",
     "name": "TANG INGGRIS 20026-08",
     "categoryId": "cat-k3",
-    "unit": "Pack",
-    "specification": "Tang Inggris perkakas mekanik presisi baja vanadium berlapis krom isolasi pengaman standar ergonomis.",
+    "unit": "PACK",
+    "specification": "Peralatan Keselamatan & Kesehatan Kerja (K3) dan cover pelindung isolasi satwa.",
     "photoPath": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1633,7 +1619,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "1060798",
     "name": "TRF ACC;DUDUKAN TRFCANTOL-PIPA KBL-LA-CO",
     "categoryId": "cat-mdu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Dudukan dan konstruksi braket transformator distribusi cantol / portal pipa kabel LA-CO galvanis hot-dip.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
@@ -1643,7 +1629,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "1060799",
     "name": "TRF ACC;DUDUKAN TRFPORTAL-PIPA KBL-LA-CO",
     "categoryId": "cat-mdu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Dudukan dan konstruksi braket transformator distribusi cantol / portal pipa kabel LA-CO galvanis hot-dip.",
     "photoPath": "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80"
   },
@@ -1653,7 +1639,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "1030074",
     "name": "TRF DIS;D3;20kV/400V;3P;100kVA;YZN5;OD",
     "categoryId": "cat-mdu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Transformator Distribusi 3 Fasa 20kV / 400V 100 kVA, Vektor Grup Yzn5, Outdoor hermetically sealed sesuai SPLN D3.002-1.",
     "photoPath": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80"
   },
@@ -1663,7 +1649,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "1030075",
     "name": "TRF DIS;D3;20kV/400V;3P;160kVA;YZN5;OD",
     "categoryId": "cat-mdu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Transformator Distribusi 3 Fasa 20kV / 400V 160 kVA, Vektor Grup Yzn5, Outdoor hermetically sealed sesuai SPLN D3.002-1.",
     "photoPath": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80"
   },
@@ -1673,7 +1659,7 @@ export const clientMaterials: Material[] = [
     "sapCode": "1030077",
     "name": "TRF DIS;D3;20kV/400V;3P;250kVA;DYN5;OD",
     "categoryId": "cat-mdu",
-    "unit": "Buah",
+    "unit": "BH",
     "specification": "Transformator Distribusi 3 Fasa 20kV / 400V 250 kVA, Vektor Grup Dyn5, Outdoor hermetically sealed sesuai SPLN D3.002-1.",
     "photoPath": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80"
   },
@@ -1683,8 +1669,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4190647",
     "name": "UNIV ACC;COVER ARRESTER",
     "categoryId": "cat-k3",
-    "unit": "Buah",
-    "specification": "Cover isolasi silikon pelindung bushing trafo / arrester dari gangguan sentuhan satwa / pohon.",
+    "unit": "BH",
+    "specification": "Peralatan Keselamatan & Kesehatan Kerja (K3) dan cover pelindung isolasi satwa.",
     "photoPath": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
   },
   {
@@ -1693,8 +1679,8 @@ export const clientMaterials: Material[] = [
     "sapCode": "4190646",
     "name": "UNIV ACC;COVER BUSHING TRAFO",
     "categoryId": "cat-k3",
-    "unit": "Buah",
-    "specification": "Cover isolasi silikon pelindung bushing trafo / arrester dari gangguan sentuhan satwa / pohon.",
+    "unit": "BH",
+    "specification": "Peralatan Keselamatan & Kesehatan Kerja (K3) dan cover pelindung isolasi satwa.",
     "photoPath": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
   }
 ];
@@ -1702,7 +1688,7 @@ export const clientMaterials: Material[] = [
 export const clientStockSnapshots: StockSnapshot[] = [
   {
     "materialId": "mat-csv-001",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 4,
     "reserved": 0,
     "available": 4,
@@ -1710,7 +1696,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-002",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1718,7 +1704,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-003",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1726,7 +1712,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-004",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 11,
     "reserved": 1,
     "available": 10,
@@ -1734,7 +1720,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-005",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 3,
     "reserved": 0,
     "available": 3,
@@ -1742,7 +1728,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-006",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 6,
     "reserved": 0,
     "available": 6,
@@ -1750,7 +1736,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-007",
-    "locationId": "loc-c-07",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1758,7 +1744,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-008",
-    "locationId": "loc-a-06",
+    "locationId": "loc-c-open",
     "quantity": 125,
     "reserved": 12,
     "available": 113,
@@ -1766,7 +1752,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-009",
-    "locationId": "loc-a-06",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1774,7 +1760,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-010",
-    "locationId": "loc-a-06",
+    "locationId": "loc-c-open",
     "quantity": 5,
     "reserved": 0,
     "available": 5,
@@ -1782,7 +1768,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-011",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h12",
     "quantity": 1000,
     "reserved": 100,
     "available": 900,
@@ -1790,7 +1776,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-012",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h12",
     "quantity": 25,
     "reserved": 2,
     "available": 23,
@@ -1798,7 +1784,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-013",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1806,7 +1792,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-014",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1814,7 +1800,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-015",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1822,7 +1808,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-016",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h14",
     "quantity": 90,
     "reserved": 9,
     "available": 81,
@@ -1830,7 +1816,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-017",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1838,7 +1824,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-018",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1846,7 +1832,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-019",
-    "locationId": "loc-e-01",
+    "locationId": "loc-b-h14",
     "quantity": 100,
     "reserved": 10,
     "available": 90,
@@ -1854,7 +1840,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-020",
-    "locationId": "loc-e-03",
+    "locationId": "loc-b-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1862,7 +1848,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-021",
-    "locationId": "loc-e-03",
+    "locationId": "loc-b-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1870,7 +1856,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-022",
-    "locationId": "loc-b-drum-01",
+    "locationId": "loc-gd-bululawang-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1878,7 +1864,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-023",
-    "locationId": "loc-b-drum-01",
+    "locationId": "loc-gd-bululawang-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1886,7 +1872,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-024",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-d-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1894,7 +1880,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-025",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-d-open",
     "quantity": 14000,
     "reserved": 1400,
     "available": 12600,
@@ -1902,7 +1888,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-026",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-c-open",
     "quantity": 45000,
     "reserved": 4500,
     "available": 40500,
@@ -1910,7 +1896,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-027",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-c-open",
     "quantity": 3000,
     "reserved": 300,
     "available": 2700,
@@ -1918,7 +1904,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-028",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-c-open",
     "quantity": 5000,
     "reserved": 500,
     "available": 4500,
@@ -1926,7 +1912,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-029",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-c-open",
     "quantity": 7300,
     "reserved": 730,
     "available": 6570,
@@ -1934,7 +1920,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-030",
-    "locationId": "loc-b-drum-02",
+    "locationId": "loc-gd-bululawang-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1942,7 +1928,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-031",
-    "locationId": "loc-b-drum-03",
+    "locationId": "loc-c-open",
     "quantity": 1500,
     "reserved": 150,
     "available": 1350,
@@ -1950,7 +1936,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-032",
-    "locationId": "loc-b-drum-03",
+    "locationId": "loc-c-open",
     "quantity": 3000,
     "reserved": 300,
     "available": 2700,
@@ -1958,7 +1944,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-033",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1966,7 +1952,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-034",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1974,7 +1960,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-035",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 200,
     "reserved": 20,
     "available": 180,
@@ -1982,7 +1968,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-036",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 2000,
     "reserved": 200,
     "available": 1800,
@@ -1990,7 +1976,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-037",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 1000,
     "reserved": 100,
     "available": 900,
@@ -1998,7 +1984,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-038",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 1000,
     "reserved": 100,
     "available": 900,
@@ -2006,7 +1992,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-039",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2014,7 +2000,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-040",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2022,7 +2008,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-041",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 500,
     "reserved": 50,
     "available": 450,
@@ -2030,7 +2016,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-042",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2038,7 +2024,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-043",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 400,
     "reserved": 40,
     "available": 360,
@@ -2046,7 +2032,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-044",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 300,
     "reserved": 30,
     "available": 270,
@@ -2054,7 +2040,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-045",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 100,
     "reserved": 10,
     "available": 90,
@@ -2062,7 +2048,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-046",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2070,7 +2056,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-047",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 100,
     "reserved": 10,
     "available": 90,
@@ -2078,7 +2064,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-048",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2086,7 +2072,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-049",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2094,7 +2080,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-050",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2102,7 +2088,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-051",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 500,
     "reserved": 50,
     "available": 450,
@@ -2110,7 +2096,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-052",
-    "locationId": "loc-e-02",
+    "locationId": "loc-b-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2118,7 +2104,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-053",
-    "locationId": "loc-b-drum-04",
+    "locationId": "loc-e-open",
     "quantity": 2000,
     "reserved": 200,
     "available": 1800,
@@ -2126,7 +2112,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-054",
-    "locationId": "loc-b-drum-04",
+    "locationId": "loc-e-open",
     "quantity": 996,
     "reserved": 99,
     "available": 897,
@@ -2134,7 +2120,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-055",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 2000,
     "reserved": 200,
     "available": 1800,
@@ -2142,7 +2128,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-056",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 500,
     "reserved": 50,
     "available": 450,
@@ -2150,7 +2136,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-057",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 1500,
     "reserved": 150,
     "available": 1350,
@@ -2158,7 +2144,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-058",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 400,
     "reserved": 40,
     "available": 360,
@@ -2166,7 +2152,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-059",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 1500,
     "reserved": 150,
     "available": 1350,
@@ -2174,7 +2160,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-060",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2182,7 +2168,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-061",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2190,7 +2176,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-062",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2198,7 +2184,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-063",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 30,
     "reserved": 3,
     "available": 27,
@@ -2206,7 +2192,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-064",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 800,
     "reserved": 80,
     "available": 720,
@@ -2214,7 +2200,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-065",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 300,
     "reserved": 30,
     "available": 270,
@@ -2222,7 +2208,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-066",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2230,7 +2216,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-067",
-    "locationId": "loc-a-05",
+    "locationId": "loc-b-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2238,7 +2224,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-068",
-    "locationId": "loc-c-04",
+    "locationId": "loc-b-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2246,7 +2232,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-069",
-    "locationId": "loc-c-04",
+    "locationId": "loc-b-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2254,7 +2240,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-070",
-    "locationId": "loc-c-04",
+    "locationId": "loc-b-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2262,7 +2248,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-071",
-    "locationId": "loc-c-04",
+    "locationId": "loc-b-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2270,7 +2256,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-072",
-    "locationId": "loc-c-04",
+    "locationId": "loc-b-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2278,7 +2264,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-073",
-    "locationId": "loc-c-04",
+    "locationId": "loc-b-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2286,7 +2272,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-074",
-    "locationId": "loc-a-01",
+    "locationId": "loc-b-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2294,7 +2280,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-075",
-    "locationId": "loc-a-01",
+    "locationId": "loc-b-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2302,7 +2288,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-076",
-    "locationId": "loc-a-02",
+    "locationId": "loc-b-i13",
     "quantity": 45,
     "reserved": 4,
     "available": 41,
@@ -2310,7 +2296,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-077",
-    "locationId": "loc-a-02",
+    "locationId": "loc-b-i13",
     "quantity": 45,
     "reserved": 4,
     "available": 41,
@@ -2318,7 +2304,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-078",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 481,
     "reserved": 48,
     "available": 433,
@@ -2326,7 +2312,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-079",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 350,
     "reserved": 35,
     "available": 315,
@@ -2334,7 +2320,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-080",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 355,
     "reserved": 35,
     "available": 320,
@@ -2342,7 +2328,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-081",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 253,
     "reserved": 25,
     "available": 228,
@@ -2350,7 +2336,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-082",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 265,
     "reserved": 26,
     "available": 239,
@@ -2358,7 +2344,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-083",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 654,
     "reserved": 65,
     "available": 589,
@@ -2366,7 +2352,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-084",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 1119,
     "reserved": 111,
     "available": 1008,
@@ -2374,7 +2360,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-085",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 496,
     "reserved": 49,
     "available": 447,
@@ -2382,7 +2368,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-086",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 1489,
     "reserved": 148,
     "available": 1341,
@@ -2390,7 +2376,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-087",
-    "locationId": "loc-a-03",
+    "locationId": "loc-b-i13",
     "quantity": 323,
     "reserved": 32,
     "available": 291,
@@ -2398,7 +2384,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-088",
-    "locationId": "loc-a-02",
+    "locationId": "loc-b-open",
     "quantity": 2,
     "reserved": 0,
     "available": 2,
@@ -2406,7 +2392,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-089",
-    "locationId": "loc-a-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2414,7 +2400,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-090",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 300,
     "reserved": 30,
     "available": 270,
@@ -2422,7 +2408,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-091",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 590,
     "reserved": 59,
     "available": 531,
@@ -2430,7 +2416,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-092",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 600,
     "reserved": 60,
     "available": 540,
@@ -2438,7 +2424,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-093",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 410,
     "reserved": 41,
     "available": 369,
@@ -2446,7 +2432,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-094",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 420,
     "reserved": 42,
     "available": 378,
@@ -2454,7 +2440,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-095",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 350,
     "reserved": 35,
     "available": 315,
@@ -2462,7 +2448,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-096",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2470,7 +2456,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-097",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 310,
     "reserved": 31,
     "available": 279,
@@ -2478,7 +2464,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-098",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 270,
     "reserved": 27,
     "available": 243,
@@ -2486,7 +2472,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-099",
-    "locationId": "loc-a-04",
+    "locationId": "loc-b-i13",
     "quantity": 270,
     "reserved": 27,
     "available": 243,
@@ -2494,7 +2480,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-100",
-    "locationId": "loc-a-01",
+    "locationId": "loc-b-i13",
     "quantity": 95,
     "reserved": 9,
     "available": 86,
@@ -2502,7 +2488,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-101",
-    "locationId": "loc-a-01",
+    "locationId": "loc-b-i13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2510,7 +2496,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-102",
-    "locationId": "loc-a-01",
+    "locationId": "loc-b-i13",
     "quantity": 1,
     "reserved": 0,
     "available": 1,
@@ -2518,7 +2504,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-103",
-    "locationId": "loc-a-01",
+    "locationId": "loc-b-i13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2526,7 +2512,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-104",
-    "locationId": "loc-a-02",
+    "locationId": "loc-b-i13",
     "quantity": 204,
     "reserved": 20,
     "available": 184,
@@ -2534,7 +2520,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-105",
-    "locationId": "loc-a-06",
+    "locationId": "loc-b-i13",
     "quantity": 15,
     "reserved": 1,
     "available": 14,
@@ -2542,7 +2528,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-106",
-    "locationId": "loc-a-06",
+    "locationId": "loc-b-i13",
     "quantity": 44,
     "reserved": 4,
     "available": 40,
@@ -2550,7 +2536,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-107",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a11",
     "quantity": 1550,
     "reserved": 155,
     "available": 1395,
@@ -2558,7 +2544,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-108",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a12",
     "quantity": 419,
     "reserved": 41,
     "available": 378,
@@ -2566,7 +2552,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-109",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a13",
     "quantity": 48,
     "reserved": 4,
     "available": 44,
@@ -2574,7 +2560,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-110",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a14",
     "quantity": 5,
     "reserved": 0,
     "available": 5,
@@ -2582,7 +2568,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-111",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a15",
     "quantity": 265,
     "reserved": 26,
     "available": 239,
@@ -2590,7 +2576,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-112",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a11",
     "quantity": 533,
     "reserved": 53,
     "available": 480,
@@ -2598,7 +2584,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-113",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a12",
     "quantity": 1736,
     "reserved": 173,
     "available": 1563,
@@ -2606,7 +2592,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-114",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a13",
     "quantity": 80,
     "reserved": 8,
     "available": 72,
@@ -2614,7 +2600,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-115",
-    "locationId": "loc-c-05",
+    "locationId": "loc-a-a14",
     "quantity": 4728,
     "reserved": 472,
     "available": 4256,
@@ -2622,7 +2608,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-116",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 171,
     "reserved": 17,
     "available": 154,
@@ -2630,7 +2616,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-117",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 150,
     "reserved": 15,
     "available": 135,
@@ -2638,7 +2624,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-118",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 317,
     "reserved": 31,
     "available": 286,
@@ -2646,7 +2632,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-119",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 173,
     "reserved": 17,
     "available": 156,
@@ -2654,7 +2640,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-120",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 188,
     "reserved": 18,
     "available": 170,
@@ -2662,7 +2648,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-121",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2670,7 +2656,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-122",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 27,
     "reserved": 2,
     "available": 25,
@@ -2678,7 +2664,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-123",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 28,
     "reserved": 2,
     "available": 26,
@@ -2686,7 +2672,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-124",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e13",
     "quantity": 26,
     "reserved": 2,
     "available": 24,
@@ -2694,7 +2680,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-125",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e14",
     "quantity": 2,
     "reserved": 0,
     "available": 2,
@@ -2702,7 +2688,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-126",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e15",
     "quantity": 6,
     "reserved": 0,
     "available": 6,
@@ -2710,7 +2696,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-127",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 6,
     "reserved": 0,
     "available": 6,
@@ -2718,7 +2704,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-128",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 16,
     "reserved": 1,
     "available": 15,
@@ -2726,7 +2712,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-129",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-e12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2734,7 +2720,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-130",
-    "locationId": "loc-c-06",
+    "locationId": "loc-b-open",
     "quantity": 4,
     "reserved": 0,
     "available": 4,
@@ -2742,7 +2728,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-131",
-    "locationId": "loc-c-03",
+    "locationId": "loc-b-e12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2750,7 +2736,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-132",
-    "locationId": "loc-c-03",
+    "locationId": "loc-b-e12",
     "quantity": 14444,
     "reserved": 1444,
     "available": 13000,
@@ -2758,7 +2744,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-133",
-    "locationId": "loc-c-01",
+    "locationId": "loc-a-c11",
     "quantity": 204,
     "reserved": 20,
     "available": 184,
@@ -2766,7 +2752,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-134",
-    "locationId": "loc-c-01",
+    "locationId": "loc-a-c12",
     "quantity": 618,
     "reserved": 61,
     "available": 557,
@@ -2774,7 +2760,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-135",
-    "locationId": "loc-c-02",
+    "locationId": "loc-a-c13",
     "quantity": 455,
     "reserved": 45,
     "available": 410,
@@ -2782,7 +2768,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-136",
-    "locationId": "loc-c-02",
+    "locationId": "loc-b-e13",
     "quantity": 620,
     "reserved": 62,
     "available": 558,
@@ -2790,7 +2776,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-137",
-    "locationId": "loc-c-02",
+    "locationId": "loc-b-e13",
     "quantity": 69,
     "reserved": 6,
     "available": 63,
@@ -2798,7 +2784,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-138",
-    "locationId": "loc-f-01",
+    "locationId": "loc-b-j12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2806,7 +2792,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-139",
-    "locationId": "loc-f-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2814,7 +2800,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-140",
-    "locationId": "loc-f-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2822,7 +2808,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-141",
-    "locationId": "loc-f-01",
+    "locationId": "loc-c-open",
     "quantity": 187,
     "reserved": 18,
     "available": 169,
@@ -2830,7 +2816,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-142",
-    "locationId": "loc-f-01",
+    "locationId": "loc-c-open",
     "quantity": 19,
     "reserved": 1,
     "available": 18,
@@ -2838,7 +2824,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-143",
-    "locationId": "loc-a-01",
+    "locationId": "loc-c-open",
     "quantity": 1965,
     "reserved": 196,
     "available": 1769,
@@ -2846,7 +2832,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-144",
-    "locationId": "loc-d-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2854,7 +2840,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-145",
-    "locationId": "loc-b-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2862,7 +2848,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-146",
-    "locationId": "loc-b-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2870,7 +2856,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-147",
-    "locationId": "loc-b-01",
+    "locationId": "loc-c-open",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2878,7 +2864,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-148",
-    "locationId": "loc-b-02",
+    "locationId": "loc-c-open",
     "quantity": 3,
     "reserved": 0,
     "available": 3,
@@ -2886,7 +2872,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-149",
-    "locationId": "loc-b-03",
+    "locationId": "loc-c-open",
     "quantity": 3,
     "reserved": 0,
     "available": 3,
@@ -2894,7 +2880,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-150",
-    "locationId": "loc-d-02",
+    "locationId": "loc-b-e13",
     "quantity": 1,
     "reserved": 0,
     "available": 1,
@@ -2902,7 +2888,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-151",
-    "locationId": "loc-d-02",
+    "locationId": "loc-b-e13",
     "quantity": 21,
     "reserved": 2,
     "available": 19,

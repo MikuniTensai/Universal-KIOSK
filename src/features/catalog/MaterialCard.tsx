@@ -51,37 +51,29 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick })
       <div className="flex flex-1 flex-col justify-between p-4">
         <div>
           {/* Material Codes */}
-          <div className="mb-1 flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              Kode: {material.code}
+          <div className="mb-1.5 flex items-center gap-1.5 flex-wrap">
+            <span className="font-mono text-xs font-black text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
+              Normalisasi: <strong>{material.code}</strong>
             </span>
-            {material.sapCode && (
-              <span className="font-mono text-xs text-slate-500">
-                SAP: {material.sapCode}
-              </span>
-            )}
           </div>
 
           {/* Name */}
-          <h4 className="text-base font-bold text-[#0F172A] line-clamp-2 leading-snug">
+          <h4
+            onClick={onClick}
+            className="text-base font-black text-[#0F172A] line-clamp-2 leading-snug cursor-pointer"
+          >
             {material.name}
           </h4>
 
           {/* Prominent Blok & Rak Badge - Persis kebutuhan klien untuk cek letak blok dan nomor rak */}
-          <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-amber-100/80 border border-amber-300/80 px-3 py-1.5 text-xs font-black text-amber-950 shadow-2xs">
-            <MapPin className="h-3.5 w-3.5 text-amber-700 shrink-0" />
-            <span className="font-mono tracking-wide text-amber-900 font-extrabold">
-              {primaryLocation?.rack || 'Rak -'}
+          <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1 rounded-lg bg-amber-100/90 border border-amber-300 px-2.5 py-1 text-xs font-black text-amber-950">
+              <MapPin className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+              <span>{primaryLocation?.zone?.replace(/\s*\(.*\)/, '') || 'Blok C'}</span>
             </span>
-            <span className="text-amber-400 font-bold">&bull;</span>
-            <span className="truncate text-slate-800 font-bold">
-              {primaryLocation?.zone?.split('(')[0]?.trim() || 'Gudang'}
+            <span className="inline-flex items-center gap-1 rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1 text-xs font-mono font-bold text-[#FACC15]">
+              <span>RAK: {primaryLocation?.bin && primaryLocation.bin !== 'Luar Rak' && primaryLocation.bin !== 'Tanpa Rak' ? primaryLocation.bin : (primaryLocation?.rack && primaryLocation.rack !== '-' ? primaryLocation.rack : '-')}</span>
             </span>
-            {primaryLocation?.bin && (
-              <span className="hidden sm:inline text-slate-500 text-[11px] font-medium truncate">
-                ({primaryLocation.bin})
-              </span>
-            )}
           </div>
         </div>
 

@@ -129,8 +129,9 @@ export class CatalogService {
         const codeMatch = m.code.toLowerCase().includes(cleanQuery);
         const sapMatch = m.sapCode ? m.sapCode.toLowerCase().includes(cleanQuery) : false;
         const specMatch = m.specification ? m.specification.toLowerCase().includes(cleanQuery) : false;
+        const unitMatch = m.unit ? m.unit.toLowerCase().includes(cleanQuery) : false;
 
-        // Search by location: Blok, Rak, Bin (contoh: 'kwh', 'rak a-001', 'a-001', 'blok c', 'a.3.1', 'c.1.1')
+        // Search by location: Blok, Rak, Bin (contoh: 'h12', 'rak h12', 'blok b', 'blok c', 'bululawang')
         const locationMatch = pkg.stockSnapshots
           .filter(s => s.materialId === m.id)
           .some(s => {
@@ -142,12 +143,25 @@ export class CatalogService {
             return zoneMatch || rackMatch || binMatch;
           });
 
-        // Search in barcode aliases (e.g. 'A.3.1', 'C.1.1', 'RAK-A-001')
+        // Search by stock amount if user searches "stok 0", "stok habis", or exact quantity
+        const stockMatch = pkg.stockSnapshots
+          .filter(s => s.materialId === m.id)
+          .some(s => {
+            if (cleanQuery === 'stok habis' || cleanQuery === 'habis') {
+              return s.quantity === 0;
+            }
+            if (cleanQuery === `stok ${s.quantity}` || cleanQuery === `${s.quantity} ${m.unit.toLowerCase()}`) {
+              return true;
+            }
+            return false;
+          });
+
+        // Search in barcode aliases (e.g. '1060798', 'A.3.1', 'C.1.1', 'RAK-A-001')
         const aliasMatch = pkg.barcodeAliases
           .filter(a => a.targetId === m.id)
           .some(a => a.value.toLowerCase().includes(cleanQuery));
 
-        return nameMatch || codeMatch || sapMatch || specMatch || locationMatch || aliasMatch;
+        return nameMatch || codeMatch || sapMatch || specMatch || unitMatch || locationMatch || stockMatch || aliasMatch;
       });
     }
 

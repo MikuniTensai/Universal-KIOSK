@@ -30,17 +30,21 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
 
   const presetList = useMemo(() => {
     const list: { label: string; code: string; isCustom?: boolean }[] = [
+      { label: 'TRF Dudukan (1060798)', code: '1060798' },
+      { label: 'MCB 10A Rak A11', code: '3250052' },
+      { label: 'Cable Shoe Rak H12', code: '3120159' },
+      { label: 'Box 105 kVA', code: '4120470' },
       { label: 'Trafo 100kVA', code: 'PLN-TRF-100KVA-2026' },
       { label: 'Kode Nol Depan', code: '000123' },
       { label: 'Asset Serial', code: 'TRF-TRAFOINDO-2026-081' },
       { label: 'Isolator 20kV', code: '000456' },
     ];
 
-    // Tambahkan preset dinamis untuk material baru yang didaftarkan oleh petugas
+    // Tambahkan preset dinamis hanya untuk material kustom baru yang didaftarkan oleh petugas
     if (pkg && pkg.materials) {
-      const defaultCodes = new Set(['000123', '000456', '000789', '001012', '001345', '001678']);
+      const standardCodes = new Set(['000123', '000456', '000789', '001012', '001345', '001678', '1060798', '3250052', '3120159', '4120470']);
       pkg.materials.forEach((m) => {
-        if (!defaultCodes.has(m.code)) {
+        if (!m.id.startsWith('mat-csv-') && !standardCodes.has(m.code)) {
           const alias = pkg.barcodeAliases?.find(a => a.targetId === m.id && a.targetType === 'material');
           const codeToUse = alias?.value || m.code;
           list.push({
@@ -244,11 +248,17 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-900 block">
                   Posisi Rak & Alamat Lokasi Gudang:
                 </span>
-                <p className="text-xl font-extrabold text-[#0F172A] mt-0.5">
-                  {primaryLoc ? `${primaryLoc.zone} - ${primaryLoc.rack} - ${primaryLoc.bin}` : 'Lokasi belum dialokasikan'}
-                </p>
-                <span className="text-xs text-amber-800 mt-1 block">
-                  Petugas lapangan silakan menuju ke lorong dan blok rak di atas untuk pengambilan fisik material.
+                <div className="flex flex-wrap items-center gap-2.5 mt-1.5">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-1 text-sm font-black text-amber-950">
+                    <MapPin className="h-4 w-4 text-amber-700 shrink-0" />
+                    <span>{primaryLoc?.zone?.replace(/\s*\(.*\)/, '').toUpperCase() || 'BLOK C'}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F172A] border border-slate-800 px-3.5 py-1 text-sm font-mono font-black text-[#FACC15]">
+                    <span>RAK: {primaryLoc?.bin && primaryLoc.bin !== 'Luar Rak' && primaryLoc.bin !== 'Tanpa Rak' ? primaryLoc.bin : (primaryLoc?.rack && primaryLoc.rack !== '-' ? primaryLoc.rack : 'Area Terbuka (Tanpa Rak)')}</span>
+                  </span>
+                </div>
+                <span className="text-xs text-amber-900/80 mt-1.5 block">
+                  {primaryLoc?.zone || 'Gudang Aris Munandar UP3 Malang'} &bull; Menuju ke lorong rak di atas untuk pengambilan fisik material.
                 </span>
               </div>
             </div>
