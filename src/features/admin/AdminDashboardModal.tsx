@@ -1011,7 +1011,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     <span>Daftar &amp; Kelola Stok Material ({filteredStockMaterials.length} dari {activePkg?.materials.length || 0} Terdaftar):</span>
                   </h4>
                   <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                    Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK)
+                    Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK, SUB RAK)
                   </p>
                 </div>
 
@@ -1178,13 +1178,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <tr>
                         <th className="p-3 w-12 text-center">No</th>
                         <th className="p-3">Nama Material</th>
-                        <th className="p-3">Kategori</th>
                         <th className="p-3">Kode Normalisasi</th>
                         <th className="p-3 text-center">Satuan</th>
                         <th className="p-3 text-center">Stok</th>
                         <th className="p-3 text-center">BLOK</th>
                         <th className="p-3 text-center">RAK</th>
                         <th className="p-3 text-center">SUB RAK</th>
+                        <th className="p-3">Kategori</th>
                         <th className="p-3 text-right">Aksi</th>
                       </tr>
                     </thead>
@@ -1203,11 +1203,6 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             <tr key={m.id} className="hover:bg-slate-50 transition">
                               <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
                               <td className="p-3 font-bold text-slate-900 min-w-[220px]">{m.name}</td>
-                              <td className="p-3 min-w-[140px]">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                                  {category?.name || m.categoryId || 'Tanpa Kategori'}
-                                </span>
-                              </td>
                               <td className="p-3 font-mono font-bold text-sky-700">{m.code}</td>
                               <td className="p-3 text-center font-bold text-slate-600">{m.unit}</td>
                               <td className="p-3 text-center">
@@ -1234,6 +1229,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                               <td className="p-3 text-center font-mono font-bold text-sky-800">
                                 <span className={subRakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-sky-50 border border-sky-200' : 'text-slate-400'}>
                                   {subRakDisplay}
+                                </span>
+                              </td>
+                              <td className="p-3 min-w-[140px]">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                  {category?.name || m.categoryId || 'Tanpa Kategori'}
                                 </span>
                               </td>
                               <td className="p-3 text-right">
