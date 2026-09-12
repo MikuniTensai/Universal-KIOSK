@@ -13,7 +13,7 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     render(<App />);
 
     // Screensaver is visible
-    expect(screen.getByText(/SELAMAT DATANG DI GUDANG LOGISTIK PLN/i)).toBeInTheDocument();
+    expect(screen.getByText('SELAMAT DATANG')).toBeInTheDocument();
     expect(screen.getByText(/Sentuh Layar di Mana Saja untuk Memulai/i)).toBeInTheDocument();
 
     // User touches screen

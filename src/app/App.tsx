@@ -234,48 +234,46 @@ export const App: React.FC = () => {
                 />
               )}
 
-              {/* Welcome Header */}
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
-                <div className="text-left">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-amber-900 mb-2.5 shadow-sm">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                    </span>
-                    <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                    <span>Terminal Mandiri Kassen WK-215 (Full HD 1080p)</span>
-                  </div>
-                  <h2 className="text-3xl lg:text-4xl 2xl:text-[42px] font-black tracking-tight text-[#0F172A] leading-tight">
-                    Selamat Datang di Gudang Aris Munandar PLN UP3 Malang
-                  </h2>
-                  <p className="mt-1.5 text-base lg:text-lg text-slate-600 font-medium max-w-3xl">
+              {/* Welcome Header (Centered) */}
+              <div className="flex flex-col items-center justify-center text-center gap-2 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-amber-900 shadow-sm">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                  </span>
+                  <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                  <span>Terminal Mandiri Kassen WK-215 (Full HD 1080p)</span>
+                </div>
+                <h2 className="text-3xl lg:text-4xl 2xl:text-[40px] font-black tracking-tight text-[#0F172A] leading-tight text-center">
+                  Selamat Datang di Gudang Aris Munandar PLN UP3 Malang
+                </h2>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <p className="text-base lg:text-lg text-slate-600 font-medium">
                     Pilih layanan informasi di bawah atau dekatkan barcode material langsung ke scanner.
                   </p>
+                  <button
+                    onClick={() => {
+                      idleTimer.recordActivity();
+                      const nextStyle = isPhotoMode ? 'minimal' : 'photo';
+                      const updated: KioskConfig = { ...config, cardStyle: nextStyle };
+                      kioskStorage.saveConfig(updated);
+                      setConfig(updated);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white/95 backdrop-blur-sm px-4 py-1.5 text-xs font-bold text-slate-700 shadow-sm border border-slate-200 hover:border-[#FACC15] active:scale-95 transition hover:shadow"
+                  >
+                    {isPhotoMode ? (
+                      <ImageIcon className="h-3.5 w-3.5 text-amber-600" />
+                    ) : (
+                      <LayoutGrid className="h-3.5 w-3.5 text-slate-700" />
+                    )}
+                    <span>
+                      Tampilan Kartu:{' '}
+                      <strong className="text-amber-900 font-extrabold">
+                        {isPhotoMode ? 'Bergambar Nyata' : 'Minimalis Ikon'}
+                      </strong>
+                    </span>
+                  </button>
                 </div>
-
-                {/* Quick Toggle for Senior Staff */}
-                <button
-                  onClick={() => {
-                    idleTimer.recordActivity();
-                    const nextStyle = isPhotoMode ? 'minimal' : 'photo';
-                    const updated: KioskConfig = { ...config, cardStyle: nextStyle };
-                    kioskStorage.saveConfig(updated);
-                    setConfig(updated);
-                  }}
-                  className="flex items-center gap-2.5 rounded-2xl bg-white/95 backdrop-blur-sm px-5 py-3 text-xs lg:text-sm font-bold text-slate-700 shadow-md border border-slate-200 hover:border-[#FACC15] active:scale-95 transition hover:shadow-lg"
-                >
-                  {isPhotoMode ? (
-                    <ImageIcon className="h-4 w-4 text-amber-600" />
-                  ) : (
-                    <LayoutGrid className="h-4 w-4 text-slate-700" />
-                  )}
-                  <span>
-                    Tampilan Kartu:{' '}
-                    <strong className="text-amber-900 font-extrabold">
-                      {isPhotoMode ? 'Bergambar Nyata' : 'Minimalis Ikon'}
-                    </strong>
-                  </span>
-                </button>
               </div>
 
               {/* 3 Main Sections Layout - Persis Kebutuhan Klien:
