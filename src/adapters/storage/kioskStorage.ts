@@ -382,6 +382,53 @@ export class KioskStorage {
     return newMaterial;
   }
 
+  /**
+   * Menghapus material yang masuk dari database aktif beserta seluruh relasi stok, aset, dan barcode
+   */
+  public deleteMaterial(materialId: string): { success: boolean; materialName: string; materialCode: string } {
+    if (!this.activePackage) {
+      throw new Error('Tidak ada paket data aktif.');
+    }
+
+    const materialIndex = this.activePackage.materials.findIndex(m => m.id === materialId);
+    if (materialIndex < 0) {
+      throw new Error(`Material dengan ID "${materialId}" tidak ditemukan.`);
+    }
+
+    const targetMaterial = this.activePackage.materials[materialIndex];
+    const materialName = targetMaterial.name;
+    const materialCode = targetMaterial.code;
+
+    // 1. Hapus dari daftar material
+    this.activePackage.materials = this.activePackage.materials.filter(m => m.id !== materialId);
+
+    // 2. Hapus snapshot stok untuk material ini
+    this.activePackage.stockSnapshots = this.activePackage.stockSnapshots.filter(s => s.materialId !== materialId);
+
+    // 3. Hapus barcode alias untuk material ini
+    this.activePackage.barcodeAliases = this.activePackage.barcodeAliases.filter(
+      a => !(a.targetType === 'material' && a.targetId === materialId)
+    );
+
+    // 4. Cari dan hapus aset terkait material ini
+    const assetIds = this.activePackage.assets
+      .filter(a => a.materialId === materialId)
+      .map(a => a.id);
+
+    this.activePackage.assets = this.activePackage.assets.filter(a => a.materialId !== materialId);
+
+    // 5. Hapus barcode alias untuk aset yang dihapus
+    if (assetIds.length > 0) {
+      this.activePackage.barcodeAliases = this.activePackage.barcodeAliases.filter(
+        a => !(a.targetType === 'asset' && assetIds.includes(a.targetId))
+      );
+    }
+
+    this.persistActivePackage();
+    this.addLog('info', 'Storage', `Material "${materialName}" (${materialCode}) berhasil dihapus dari database.`);
+    return { success: true, materialName, materialCode };
+  }
+
   public getLogs(): DiagnosticLog[] {
     return [...this.logs];
   }

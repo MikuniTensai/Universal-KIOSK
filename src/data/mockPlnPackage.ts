@@ -62,11 +62,11 @@ export const samplePlnPackage: ImportPackage = {
     { id: 'cat-kabel', name: 'Kabel & Aksesoris Sambungan', sortOrder: 5, active: true },
   ],
   locations: [
-    { id: 'loc-01', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok B (Heavy Material & Trafo)', rack: 'Jalur Hoist 2', bin: 'Blok H-04' },
-    { id: 'loc-02', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok A (Rak Perlengkapan Gardu)', rack: 'Rak A3', bin: 'Tingkat 2' },
-    { id: 'loc-03', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok C (Ruang Bersih Kalibrasi APP)', rack: 'Rak A-001', bin: 'Kotak 12 (kWh Meter)' },
-    { id: 'loc-04', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok D (Gudang APD & Tool K3)', rack: 'Rak K3-01', bin: 'Rak 1' },
-    { id: 'loc-05', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok B (Heavy Material & Kabel)', rack: 'Blok Drum D-02', bin: 'Jalur 1' },
+    { id: 'loc-01', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok B (Heavy Material & Trafo)', rack: 'Jalur Hoist 2', bin: 'B.2.1 (Blok H-04)' },
+    { id: 'loc-02', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok A (Rak Perlengkapan Gardu)', rack: 'Rak A3', bin: 'A.3.1 (Tingkat 2)' },
+    { id: 'loc-03', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok C (Ruang Bersih Kalibrasi APP)', rack: 'Rak A-001', bin: 'C.1.1 (Kotak 12 kWh Meter)' },
+    { id: 'loc-04', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok D (Gudang APD & Tool K3)', rack: 'Rak K3-01', bin: 'D.1.1 (Rak 1)' },
+    { id: 'loc-05', warehouseCode: 'GUD-PLN-MLG-AM01', zone: 'Blok B (Heavy Material & Kabel)', rack: 'Blok Drum D-02', bin: 'B.3.2 (Jalur 1)' },
   ],
   materials: [
     {
@@ -141,15 +141,20 @@ export const samplePlnPackage: ImportPackage = {
     { value: 'TRF-TRAFOINDO-2026-081', targetType: 'asset', targetId: 'ast-01' },
     { value: '000456', targetType: 'material', targetId: 'mat-002' },
     { value: 'PLN-ISO-20KV-PIN', targetType: 'material', targetId: 'mat-002' },
+    { value: 'A.3.1', targetType: 'material', targetId: 'mat-002' },
     { value: '000789', targetType: 'material', targetId: 'mat-003' },
     { value: 'kwh', targetType: 'material', targetId: 'mat-003' },
     { value: 'RAK-A-001', targetType: 'material', targetId: 'mat-003' },
     { value: 'A-001', targetType: 'material', targetId: 'mat-003' },
+    { value: 'C.1.1', targetType: 'material', targetId: 'mat-003' },
     { value: 'AMI-HEX-2026-00912', targetType: 'asset', targetId: 'ast-03' },
     { value: '001012', targetType: 'material', targetId: 'mat-004' },
+    { value: 'D.1.1', targetType: 'material', targetId: 'mat-004' },
     { value: 'PLN-K3-HELM-PUTIH', targetType: 'material', targetId: 'mat-004' },
     { value: '001345', targetType: 'material', targetId: 'mat-005' },
+    { value: 'B.3.2', targetType: 'material', targetId: 'mat-005' },
     { value: '001678', targetType: 'material', targetId: 'mat-006' },
+    { value: 'B.2.1', targetType: 'material', targetId: 'mat-001' },
   ],
   stockSnapshots: [
     {

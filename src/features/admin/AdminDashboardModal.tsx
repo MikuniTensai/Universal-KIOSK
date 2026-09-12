@@ -20,14 +20,19 @@ import {
   FolderPlus,
   PlusCircle,
   Barcode,
+  FolderTree,
+  Sparkles,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
-import { ImportPackage, KioskConfig } from '../../domain/types';
+import { ImportPackage, KioskConfig, Material } from '../../domain/types';
 import { validateKioskConfig } from '../../domain/validation';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../../data/mockPlnPackage';
+import { WarehouseLayoutService, WarehouseBlock } from '../layout/warehouseLayoutService';
 
 interface AdminDashboardModalProps {
   visible: boolean;
@@ -43,7 +48,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(AdminAuth.isAuthenticated());
-  const [activeTab, setActiveTab] = useState<'import' | 'history' | 'settings' | 'logs' | 'stock' | 'categories'>('stock');
+  const [activeTab, setActiveTab] = useState<'import' | 'history' | 'settings' | 'logs' | 'stock' | 'categories' | 'locations'>('stock');
 
   // Import states
   const [jsonInput, setJsonInput] = useState('');
@@ -62,9 +67,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [adjustMatId, setAdjustMatId] = useState<string>('');
   const [stockDeltaInput, setStockDeltaInput] = useState<number>(10);
   const [isExactStock, setIsExactStock] = useState<boolean>(false);
-  const [adjustZone, setAdjustZone] = useState<string>('Zona A');
-  const [adjustRack, setAdjustRack] = useState<string>('Rak 01');
-  const [adjustBin, setAdjustBin] = useState<string>('Bin 01');
+  const [adjustZone, setAdjustZone] = useState<string>('Blok A');
+  const [adjustRack, setAdjustRack] = useState<string>('A.1');
+  const [adjustBin, setAdjustBin] = useState<string>('A.1.1');
   const [stockError, setStockError] = useState<string | null>(null);
 
   // New Material states
@@ -75,14 +80,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [newMatUnit, setNewMatUnit] = useState<string>('Unit');
   const [newMatSpec, setNewMatSpec] = useState<string>('');
   const [newMatBarcode, setNewMatBarcode] = useState<string>('');
-  const [newMatZone, setNewMatZone] = useState<string>('Zona A');
-  const [newMatRack, setNewMatRack] = useState<string>('Rak 01');
-  const [newMatBin, setNewMatBin] = useState<string>('Bin 01');
+  const [newMatZone, setNewMatZone] = useState<string>('Blok A');
+  const [newMatRack, setNewMatRack] = useState<string>('A.1');
+  const [newMatBin, setNewMatBin] = useState<string>('A.1.1');
   const [newMatInitialQty, setNewMatInitialQty] = useState<number>(10);
 
   // Category Management states
   const [newCatName, setNewCatName] = useState<string>('');
   const [catError, setCatError] = useState<string | null>(null);
+
+  // Location & Block Management states (A-Z)
+  const [adminBlocks, setAdminBlocks] = useState<WarehouseBlock[]>(() => WarehouseLayoutService.getBlocks());
+  const [adminNewBlockLetter, setAdminNewBlockLetter] = useState<string>('I');
+  const [adminNewBlockName, setAdminNewBlockName] = useState<string>('');
+  const [adminSubCount, setAdminSubCount] = useState<number>(3);
+  const [adminSlotCount, setAdminSlotCount] = useState<number>(5);
+  const [blockActionMessage, setBlockActionMessage] = useState<string | null>(null);
+
+  // Deletion confirmation state
+  const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null);
 
   if (!visible) return null;
 
@@ -249,6 +265,56 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     }
   };
 
+  const handleAdminAddBlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    setBlockActionMessage(null);
+    try {
+      const created = WarehouseLayoutService.addBlock({
+        letter: adminNewBlockLetter,
+        name: adminNewBlockName || `Area Blok ${adminNewBlockLetter.toUpperCase()}`,
+        subBlockCount: adminSubCount,
+        slotsPerSubBlock: adminSlotCount,
+      });
+      setAdminBlocks(WarehouseLayoutService.getBlocks());
+      setBlockActionMessage(`Blok "${created.code}" (${created.name}) berhasil ditambahkan.`);
+      setAdminNewBlockName('');
+      onPackageUpdated();
+    } catch (err: any) {
+      setBlockActionMessage(err instanceof Error ? err.message : 'Gagal menambah blok');
+    }
+  };
+
+  const handleAdminInitializeAtoZ = () => {
+    const updated = WarehouseLayoutService.initializeAllBlocksAtoZ();
+    setAdminBlocks(updated);
+    setBlockActionMessage('Seluruh Blok A sampai Z (lengkap dengan Sub-Blok .1-.3 dan Slot .1-.5) berhasil diinisialisasi.');
+    onPackageUpdated();
+  };
+
+  const handleAdminResetDefaults = () => {
+    const defaults = WarehouseLayoutService.resetDefaults();
+    setAdminBlocks(defaults);
+    setBlockActionMessage('Struktur Blok berhasil dikembalikan ke standar awal (Blok A-H).');
+    onPackageUpdated();
+  };
+
+  const handleConfirmDeleteMaterial = () => {
+    if (!materialToDelete) return;
+    try {
+      const res = kioskStorage.deleteMaterial(materialToDelete.id);
+      setActionSuccessMessage(`Material "${res.materialName}" (${res.materialCode}) berhasil dihapus dari database.`);
+      setMaterialToDelete(null);
+      setAdjustMatId('');
+      const updatedPkg = kioskStorage.getActivePackage();
+      if (updatedPkg) {
+        WarehouseLayoutService.syncWithPackage(updatedPkg);
+      }
+      onPackageUpdated();
+    } catch (err: unknown) {
+      setStockError(err instanceof Error ? err.message : 'Gagal menghapus material');
+    }
+  };
+
   // 1. PIN Keypad View
   if (!isAuthenticated) {
     return (
@@ -370,6 +436,15 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           >
             <FolderPlus className="h-4 w-4" />
             <span>Kelola Kategori</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('locations'); setActionSuccessMessage(null); setBlockActionMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'locations' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <FolderTree className="h-4 w-4" />
+            <span>Tata Letak Blok &amp; Rak (A-Z)</span>
           </button>
           <button
             onClick={() => { setActiveTab('import'); setActionSuccessMessage(null); }}
@@ -559,13 +634,32 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Simpan Perubahan Stok</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="submit"
+                      className="flex-1 flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 hover:bg-amber-400"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Simpan Perubahan Stok</span>
+                    </button>
+
+                    {(() => {
+                      const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
+                      const mat = activePkg?.materials.find(m => m.id === currentMatId);
+                      if (!mat) return null;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => setMaterialToDelete(mat)}
+                          className="flex h-12 items-center justify-center gap-2 rounded-control bg-rose-50 border border-rose-300 px-5 text-sm font-bold text-rose-700 shadow-sm transition active:scale-95 hover:bg-rose-100"
+                          title={`Hapus material ${mat.name} dari database`}
+                        >
+                          <Trash2 className="h-4 w-4 text-rose-600" />
+                          <span>Hapus Material Ini</span>
+                        </button>
+                      );
+                    })()}
+                  </div>
                 </form>
               ) : (
                 <form onSubmit={handleAddNewMaterial} className="space-y-4 max-w-2xl">
@@ -725,6 +819,66 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   </button>
                 </form>
               )}
+
+              {/* Material Inventory Table & Delete Actions */}
+              <div className="pt-6 border-t border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Boxes className="h-4 w-4 text-amber-600" />
+                    <span>Daftar Material Gudang ({activePkg?.materials.length || 0} Item Terdaftar):</span>
+                  </h4>
+                  <span className="text-[11px] text-slate-500 font-medium">
+                    Setiap barang yang masuk dapat disesuaikan stoknya atau dihapus permanen
+                  </span>
+                </div>
+
+                <div className="max-h-[300px] overflow-y-auto rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 no-scrollbar">
+                  {activePkg?.materials.map((m) => {
+                    const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === m.id) || [];
+                    const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                    const cat = activePkg?.categories.find(c => c.id === m.categoryId);
+                    return (
+                      <div key={m.id} className="flex items-center justify-between p-3.5 hover:bg-slate-50 transition gap-4">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <span className="font-mono text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300 shrink-0">
+                            {m.code}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-bold text-slate-800 truncate">{m.name}</h5>
+                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                              <span>{cat?.name || 'Umum'}</span>
+                              <span>&bull;</span>
+                              <span>Stok: <strong className="text-emerald-700 font-bold">{totalQty} {m.unit}</strong></span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setStockMode('adjust');
+                              setAdjustMatId(m.id);
+                            }}
+                            className="text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition"
+                          >
+                            Sesuaikan
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setMaterialToDelete(m)}
+                            className="flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-lg transition"
+                            title={`Hapus material ${m.name}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            <span>Hapus</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           )}
 
@@ -776,6 +930,211 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: WAREHOUSE LOCATIONS & BLOCKS (A-Z) */}
+          {activeTab === 'locations' && (
+            <div className="space-y-6 max-w-4xl overflow-y-auto no-scrollbar pb-10">
+              {blockActionMessage && (
+                <div className="rounded-xl bg-amber-50 border border-amber-300 p-4 text-xs font-bold text-amber-900 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-amber-600 shrink-0" />
+                  <span>{blockActionMessage}</span>
+                </div>
+              )}
+
+              {/* Action Toolbar & Stats */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                <div>
+                  <h4 className="text-sm font-black text-slate-800 flex items-center gap-2">
+                    <FolderTree className="h-4 w-4 text-amber-600" />
+                    <span>Hierarki Tata Letak Gudang: Blok (A-Z) &bull; Sub-Blok (.1-.3) &bull; Slot (.1-.5)</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Tersedia {adminBlocks.length} Blok Aktif &bull; {adminBlocks.reduce((acc, b) => acc + b.subBlocks.length, 0)} Sub-Blok &bull; {adminBlocks.reduce((acc, b) => acc + b.subBlocks.reduce((sAcc, sb) => sAcc + sb.slots.length, 0), 0)} Slot Rak Fisik.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleAdminInitializeAtoZ}
+                    className="flex h-10 items-center gap-1.5 px-3.5 rounded-xl bg-[#FACC15] text-[#0F172A] text-xs font-bold shadow-sm hover:bg-amber-400 active:scale-95 transition"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>Inisialisasi A s/d Z</span>
+                  </button>
+                  <button
+                    onClick={handleAdminResetDefaults}
+                    className="flex h-10 items-center gap-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 active:scale-95 transition"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span>Reset (A-H)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Form Tambah Blok Baru */}
+              <form onSubmit={handleAdminAddBlock} className="rounded-card border border-slate-200 bg-white p-5 space-y-4 shadow-sm">
+                <h5 className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                  <PlusCircle className="h-4 w-4 text-amber-600" />
+                  <span>Tambah Blok Baru Mandiri (Fleksibel A s/d Z):</span>
+                </h5>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Huruf Blok:</label>
+                    <input
+                      type="text"
+                      maxLength={2}
+                      value={adminNewBlockLetter}
+                      onChange={(e) => setAdminNewBlockLetter(e.target.value.toUpperCase())}
+                      placeholder="I, J, Z..."
+                      required
+                      className="w-full rounded-xl border border-slate-300 p-2.5 font-mono font-black text-sm bg-slate-50 focus:bg-white"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">Nama Area / Blok:</label>
+                    <input
+                      type="text"
+                      value={adminNewBlockName}
+                      onChange={(e) => setAdminNewBlockName(e.target.value)}
+                      placeholder="Contoh: Area Panel Hubung Bagi 20kV"
+                      required
+                      className="w-full rounded-xl border border-slate-300 p-2.5 text-xs bg-slate-50 focus:bg-white font-medium"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="submit"
+                      className="w-full h-11 flex items-center justify-center gap-1.5 rounded-xl bg-[#FACC15] text-[#0F172A] text-xs font-bold shadow active:scale-95 hover:bg-amber-400"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Buat Blok</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Jumlah Sub-Blok:</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={adminSubCount}
+                      onChange={(e) => setAdminSubCount(Number(e.target.value))}
+                      className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">Slot per Baris:</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={adminSlotCount}
+                      onChange={(e) => setAdminSlotCount(Number(e.target.value))}
+                      className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white font-bold"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 flex items-center text-[11px] text-slate-500">
+                    Contoh format: <strong>{adminNewBlockLetter || '?'}.1.1 s/d {adminNewBlockLetter || '?'}.{adminSubCount}.{adminSlotCount}</strong>
+                  </div>
+                </div>
+              </form>
+
+              {/* List of Blocks Tree */}
+              <div className="space-y-3">
+                <h5 className="text-xs font-black uppercase text-slate-700 tracking-wider">
+                  Daftar Blok &amp; Sub-Blok Terdaftar ({adminBlocks.length} Blok):
+                </h5>
+
+                <div className="grid grid-cols-1 gap-3 max-h-[420px] overflow-y-auto pr-1 no-scrollbar">
+                  {adminBlocks.map((block) => (
+                    <div
+                      key={block.id}
+                      className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs"
+                    >
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">{block.icon}</span>
+                          <div>
+                            <span className="font-mono font-black text-xs text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                              {block.code}
+                            </span>
+                            <span className="ml-2 font-bold text-xs text-slate-800">
+                              {block.name}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              try {
+                                WarehouseLayoutService.addSubBlock(block.letter);
+                                setAdminBlocks(WarehouseLayoutService.getBlocks());
+                                setBlockActionMessage(`Sub-blok baru berhasil ditambahkan ke ${block.code}.`);
+                              } catch (err) {
+                                console.error(err);
+                              }
+                            }}
+                            className="text-[11px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-2 py-1 rounded-lg transition"
+                          >
+                            + Baris Sub-Blok
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Sub-Blocks */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                        {block.subBlocks.map((sb) => (
+                          <div
+                            key={sb.code}
+                            className="rounded-xl bg-slate-50 border border-slate-200 p-2.5 text-xs space-y-1.5"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono font-black text-[11px] text-slate-700">
+                                Baris {sb.code}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  try {
+                                    WarehouseLayoutService.addSlotToSubBlock(sb.code);
+                                    setAdminBlocks(WarehouseLayoutService.getBlocks());
+                                    setBlockActionMessage(`Slot baru berhasil ditambahkan ke ${sb.code}.`);
+                                  } catch (err) {
+                                    console.error(err);
+                                  }
+                                }}
+                                className="text-[10px] text-slate-500 hover:text-amber-800 font-bold"
+                              >
+                                + Slot ({sb.code}.{sb.slots.length + 1})
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {sb.slots.map((s) => (
+                                <span
+                                  key={s.code}
+                                  className={`font-mono text-[10px] px-1.5 py-0.5 rounded ${
+                                    s.status === 'occupied' || s.materialName
+                                      ? 'bg-amber-200 text-amber-900 font-bold border border-amber-300'
+                                      : 'bg-white text-slate-600 border border-slate-200'
+                                  }`}
+                                  title={s.materialName ? `Terisi: ${s.materialName}` : 'Kosong'}
+                                >
+                                  {s.code}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1153,6 +1512,57 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Modal Konfirmasi Hapus Material */}
+      {materialToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100">
+                <Trash2 className="h-6 w-6 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Material</h3>
+                <span className="text-xs text-rose-700 font-bold">Tindakan ini menghapus data secara permanen</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
+              <div className="font-mono text-[11px] font-bold text-amber-800">
+                Kode Material: {materialToDelete.code}
+              </div>
+              <div className="font-bold text-sm text-slate-900 leading-snug">
+                {materialToDelete.name}
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Satuan: {materialToDelete.unit} &bull; ID: {materialToDelete.id}
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Apakah Anda yakin ingin menghapus barang masuk ini? Seluruh data stok gudang, nomor rak, dan barcode alias terkait material ini akan dihapus dari sistem kiosk.
+            </p>
+
+            <div className="pt-2 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setMaterialToDelete(null)}
+                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteMaterial}
+                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span>Ya, Hapus Material Ini</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

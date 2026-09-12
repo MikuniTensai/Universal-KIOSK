@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, Keyboard, PackageOpen } from 'lucide-react';
+import { Search, X, Keyboard, PackageOpen, MapPin } from 'lucide-react';
 import { ImportPackage, KioskConfig, MaterialWithStock } from '../../domain/types';
 import { CatalogService } from './catalogService';
 import { MaterialCard } from './MaterialCard';
@@ -20,6 +20,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedBlock, setSelectedBlock] = useState<string>('all');
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithStock | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState<boolean>(false);
 
@@ -27,9 +28,10 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
     return CatalogService.searchMaterials(pkg, config, {
       query: searchQuery,
       categoryId: selectedCategory,
+      blockCode: selectedBlock,
       pageSize: 50,
     });
-  }, [pkg, config, searchQuery, selectedCategory]);
+  }, [pkg, config, searchQuery, selectedCategory, selectedBlock]);
 
   const handleKeyPress = (char: string) => {
     setSearchQuery(prev => prev + char);
@@ -146,6 +148,40 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSelected ? 'bg-amber-400/60 text-[#0F172A]' : 'bg-slate-100 text-slate-500'}`}>
                 {count}
               </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Block A-Z Filter Selector Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar mb-5 shrink-0 text-xs">
+        <span className="font-extrabold uppercase text-slate-500 whitespace-nowrap flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5 text-amber-600" />
+          Filter Blok Gudang:
+        </span>
+        <button
+          onClick={() => setSelectedBlock('all')}
+          className={`h-9 px-3.5 rounded-full font-bold transition shrink-0 ${
+            selectedBlock === 'all'
+              ? 'bg-[#0F172A] text-[#FACC15]'
+              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          Semua Blok
+        </button>
+        {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map((blockLetter) => {
+          const isBlockSelected = selectedBlock === blockLetter;
+          return (
+            <button
+              key={blockLetter}
+              onClick={() => setSelectedBlock(isBlockSelected ? 'all' : blockLetter)}
+              className={`h-9 px-3.5 rounded-full font-mono font-bold transition shrink-0 border ${
+                isBlockSelected
+                  ? 'bg-amber-400 text-slate-950 border-amber-500 shadow-xs scale-105'
+                  : 'bg-white border-slate-200 text-slate-700 hover:border-amber-400'
+              }`}
+            >
+              BLOK {blockLetter}
             </button>
           );
         })}
