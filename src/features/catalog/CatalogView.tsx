@@ -54,11 +54,11 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </div>
           <input
             type="text"
-            placeholder="Cari nama material, kode SAP, atau spek SPLN..."
+            placeholder="Cari nama material, nomor rak (misal: Rak A-001), atau blok gudang..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setKeyboardVisible(true)}
-            className="h-16 w-full rounded-control border border-slate-200 bg-white pl-14 pr-32 text-lg font-medium text-[#0F172A] shadow-sm placeholder:text-slate-400 focus:border-[#FACC15] focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20"
+            className="h-16 w-full rounded-control border border-slate-200 bg-white pl-14 pr-32 text-base lg:text-lg font-medium text-[#0F172A] shadow-sm placeholder:text-slate-400 focus:border-[#FACC15] focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20"
           />
           <div className="absolute right-3 flex items-center gap-1.5">
             {searchQuery && (
@@ -80,6 +80,28 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Quick Location Shortcuts (Pencarian Cepat Berdasarkan Blok & Rak) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar mb-4 shrink-0 text-xs">
+        <span className="font-extrabold uppercase text-slate-500 whitespace-nowrap">
+          Pencarian Cepat Lokasi:
+        </span>
+        {[
+          { label: '⚡ kWh Meter (Rak A-001)', query: 'Rak A-001' },
+          { label: '🔌 Isolator (Rak A3)', query: 'Rak A3' },
+          { label: '🏗️ Trafo (Blok B)', query: 'Blok B' },
+          { label: '🦺 APD & Helm (Rak K3-01)', query: 'Rak K3-01' },
+          { label: '📦 Kabel MVTIC', query: 'Kabel MVTIC' },
+        ].map((item, idx) => (
+          <button
+            key={idx}
+            onClick={() => setSearchQuery(item.query)}
+            className="flex h-9 items-center rounded-full bg-white border border-slate-200 px-3.5 font-bold text-slate-700 shadow-2xs hover:border-[#FACC15] hover:bg-amber-50 active:scale-95 transition whitespace-nowrap"
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       {/* Category Filter Chips Bar */}

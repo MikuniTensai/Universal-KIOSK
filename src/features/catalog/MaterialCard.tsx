@@ -66,6 +66,23 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick })
           <h4 className="text-base font-bold text-[#0F172A] line-clamp-2 leading-snug">
             {material.name}
           </h4>
+
+          {/* Prominent Blok & Rak Badge - Persis kebutuhan klien untuk cek letak blok dan nomor rak */}
+          <div className="mt-2.5 flex items-center gap-1.5 rounded-xl bg-amber-100/80 border border-amber-300/80 px-3 py-1.5 text-xs font-black text-amber-950 shadow-2xs">
+            <MapPin className="h-3.5 w-3.5 text-amber-700 shrink-0" />
+            <span className="font-mono tracking-wide text-amber-900 font-extrabold">
+              {primaryLocation?.rack || 'Rak -'}
+            </span>
+            <span className="text-amber-400 font-bold">&bull;</span>
+            <span className="truncate text-slate-800 font-bold">
+              {primaryLocation?.zone?.split('(')[0]?.trim() || 'Gudang'}
+            </span>
+            {primaryLocation?.bin && (
+              <span className="hidden sm:inline text-slate-500 text-[11px] font-medium truncate">
+                ({primaryLocation.bin})
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Location & Stock Bottom Status */}

@@ -1,35 +1,39 @@
 import React, { useState } from 'react';
-import { Target, Compass, Sparkles, ShieldAlert, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Target, Sparkles, ShieldAlert, CheckCircle2, ArrowLeft, FileText, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 interface WorkProgramsViewProps {
   onBack: () => void;
 }
 
 export const WorkProgramsView: React.FC<WorkProgramsViewProps> = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState<'visi' | 'roadmap' | '5s' | 'k3'>('visi');
+  const [activeTab, setActiveTab] = useState<'sop' | 'k3' | '5s' | 'visi'>('sop');
 
   const tabs = [
+    { id: 'sop', label: 'SOP Masuk & Keluar Material', icon: FileText },
+    { id: 'k3', label: 'Aturan K3 & Keselamatan Kerja', icon: ShieldAlert },
+    { id: '5s', label: 'Standar 5S Pergudangan', icon: Sparkles },
     { id: 'visi', label: 'Visi & KPI Logistik', icon: Target },
-    { id: 'roadmap', label: 'Roadmap 2026', icon: Compass },
-    { id: '5s', label: 'Standar 5S Gudang', icon: Sparkles },
-    { id: 'k3', label: 'K3 & Keselamatan', icon: ShieldAlert },
   ];
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] p-8 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col min-h-full bg-[#F8FAFC] p-6 lg:p-8 overflow-y-auto no-scrollbar">
       {/* Title & Back Button */}
-      <div className="flex items-center justify-between mb-6 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 shrink-0">
         <div>
-          <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">
-            Program Kerja & Tata Kelola Logistik PLN
+          <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-amber-900 mb-1.5 shadow-2xs">
+            <ShieldCheck className="h-3.5 w-3.5 text-amber-600" />
+            <span>STANDAR OPERASIONAL PROSEDUR &amp; ATURAN GUDANG PLN</span>
+          </div>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#0F172A] tracking-tight">
+            SOP &amp; Aturan: Program Kerja &amp; Tata Kelola Logistik PLN
           </h2>
-          <p className="text-sm font-medium text-slate-500 mt-1">
-            Transparansi roadmap kerja, standar keselamatan, dan tata kelola material distribusi
+          <p className="text-sm lg:text-base font-medium text-slate-500 mt-1">
+            Panduan resmi prosedur operasional standar, tata tertib keselamatan K3, kepatuhan 5S, dan program kerja logistik terpadu.
           </p>
         </div>
         <button
           onClick={onBack}
-          className="flex h-14 items-center gap-2 rounded-control bg-white border border-slate-200 px-6 text-base font-bold text-slate-700 shadow-sm active:scale-95 active:bg-slate-100 shrink-0"
+          className="flex h-14 items-center gap-2 rounded-control bg-white border border-slate-200 px-6 text-base font-bold text-slate-700 shadow-sm active:scale-95 active:bg-slate-100 shrink-0 hover:border-amber-400"
         >
           <ArrowLeft className="h-5 w-5" />
           <span>Kembali</span>
@@ -37,7 +41,7 @@ export const WorkProgramsView: React.FC<WorkProgramsViewProps> = ({ onBack }) =>
       </div>
 
       {/* Navigation Tabs (Min 56px touch target) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 shrink-0">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 shrink-0">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -45,26 +49,238 @@ export const WorkProgramsView: React.FC<WorkProgramsViewProps> = ({ onBack }) =>
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex h-16 items-center justify-center gap-3 rounded-control px-4 text-base font-bold transition shadow-sm active:scale-95 ${
+              className={`flex h-16 items-center justify-center gap-2.5 rounded-control px-4 text-sm lg:text-base font-bold transition shadow-sm active:scale-95 ${
                 isActive
                   ? 'bg-[#FACC15] text-[#0F172A] shadow-md border-2 border-amber-400'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
               }`}
             >
-              <Icon className="h-6 w-6" />
-              <span>{tab.label}</span>
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="truncate">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 rounded-card bg-white p-8 shadow-sm border border-slate-200">
+      <div className="flex-1 rounded-card bg-white p-6 lg:p-8 shadow-sm border border-slate-200">
+        {/* TAB 1: SOP MASUK & KELUAR MATERIAL */}
+        {activeTab === 'sop' && (
+          <div className="space-y-6">
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-md border border-amber-300">
+                PROSEDUR STANDAR OPERASIONAL (SOP)
+              </span>
+              <h3 className="text-2xl font-black text-[#0F172A] mt-2">
+                SOP Tata Kelola Masuk &amp; Keluar Material Gudang Logistik
+              </h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Kepatuhan mutlak alur logistik sesuai regulasi Direksi PLN dan integrasi sistem SAP ERP Terpadu.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* SOP 01: Penerimaan Barang */}
+              <div className="rounded-2xl border-2 border-blue-100 bg-blue-50/30 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-base shadow-sm">
+                    01
+                  </span>
+                  <div>
+                    <h4 className="text-lg font-black text-blue-950">SOP Penerimaan Material (Inbound)</h4>
+                    <span className="text-xs text-blue-700 font-semibold">Vendor &bull; Pabrikan &bull; Kiriman UP3 Lain</span>
+                  </div>
+                </div>
+                <ol className="space-y-3 text-xs lg:text-sm text-slate-700">
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">1</span>
+                    <span><strong>Verifikasi Dokumen:</strong> Cocokkan Surat Jalan (DO), Purchase Order (PO), dan sertifikat hasil uji pabrikan SPLN.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">2</span>
+                    <span><strong>Pemeriksaan Fisik &amp; Kualitas:</strong> Lakukan visual check (segel, baut tangki trafo, body meteran tidak retak).</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">3</span>
+                    <span><strong>Pemasangan Barcode 2D:</strong> Tempelkan label barcode tahan cuaca pada material sebelum masuk rak.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">4</span>
+                    <span><strong>Penempatan Sesuai Alamat Rak:</strong> Letakkan material persis pada Blok &amp; Rak yang dialokasikan di sistem (misal: kWh di Rak A-001).</span>
+                  </li>
+                </ol>
+              </div>
+
+              {/* SOP 02: Pengeluaran Barang */}
+              <div className="rounded-2xl border-2 border-amber-100 bg-amber-50/30 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600 text-white font-extrabold text-base shadow-sm">
+                    02
+                  </span>
+                  <div>
+                    <h4 className="text-lg font-black text-amber-950">SOP Pengeluaran Material (Outbound)</h4>
+                    <span className="text-xs text-amber-700 font-semibold">Pelayanan Teknik (Yantek) &bull; Pemeliharaan &bull; Gangguan</span>
+                  </div>
+                </div>
+                <ol className="space-y-3 text-xs lg:text-sm text-slate-700">
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">1</span>
+                    <span><strong>Penerbitan Reservasi / PK:</strong> Petugas lapangan menunjukkan nomor Perintah Kerja (PK) atau Surat Permintaan Material (SPM) sah.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">2</span>
+                    <span><strong>Scanning Barcode Pengeluaran:</strong> Petugas gudang memindai barcode material untuk pemotongan saldo stok di sistem.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">3</span>
+                    <span><strong>Berita Acara Serah Terima (BAST):</strong> Tandatangani dokumen serah terima fisik material bersama tim lapangan.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">4</span>
+                    <span><strong>Prosedur Retur / Sisa Pakai:</strong> Material lebih atau bekas bongkaran wajib dilaporkan kembali dalam 1x24 jam untuk pencatatan retur.</span>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: ATURAN K3 & KESELAMATAN */}
+        {activeTab === 'k3' && (
+          <div className="space-y-6">
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-xs font-black uppercase tracking-wider text-rose-800 bg-rose-100/80 px-2.5 py-0.5 rounded-md border border-rose-300">
+                KESELAMATAN &amp; KESEHATAN KERJA (K3)
+              </span>
+              <h3 className="text-2xl font-black text-[#0F172A] mt-2">
+                Aturan Mutlak Keselamatan Kerja di Area Gudang Logistik PLN
+              </h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Zero Accident adalah komitmen utama kita bersama. Tidak ada pekerjaan yang begitu penting sehingga mengabaikan keselamatan.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="rounded-2xl bg-rose-50/70 p-6 border-2 border-rose-200">
+                <h4 className="text-lg font-black text-rose-900 mb-3.5 flex items-center gap-2">
+                  <ShieldAlert className="h-5 w-5 text-rose-600" />
+                  <span>Aturan Wajib APD Masuk Area Gudang</span>
+                </h4>
+                <ul className="space-y-3 text-xs lg:text-sm text-rose-950 font-medium">
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span><strong>Helm Safety SNI/ANSI:</strong> Wajib dikenakan dan tali dagu terpasang kencang di seluruh zona gudang.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span><strong>Safety Shoes Baja:</strong> Wajib bersol anti-slip dan memiliki steel toe cap penahan beban kejatuhan benda berat.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span><strong>Rompi Reflektif (High-Vis):</strong> Wajib warna kuning/oranye menyala agar terlihat jelas oleh operator forklift.</span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span><strong>Dilarang Merokok:</strong> Gudang menyimpan bahan mudah terbakar (isolasi kabel, oli trafo). Sanksi tegas diberlakukan.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-6 border-2 border-slate-200">
+                <h4 className="text-lg font-black text-slate-900 mb-3.5 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <span>Prosedur Darurat &amp; Titik Kumpul (Evakuasi)</span>
+                </h4>
+                <div className="space-y-3 text-xs lg:text-sm text-slate-700 leading-relaxed">
+                  <p>
+                    Jika terjadi gempa bumi, kebakaran, atau bunyi alarm sirine bahaya:
+                  </p>
+                  <ol className="list-decimal pl-4 space-y-2">
+                    <li>Hentikan seketika operasi pengangkatan hoist trafo dan forklift.</li>
+                    <li>Jangan panik. Segera ikuti garis jalur evakuasi hijau di lantai.</li>
+                    <li>Berkumpul di <strong>Titik Kumpul (Assembly Point) Lapangan Parkir Depan</strong> untuk absensi darurat.</li>
+                    <li>Hubungi posko K3 PLN Aris Munandar di line darurat internal: <strong>Ext. 112</strong>.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: STANDAR 5S PERGUDANGAN */}
+        {activeTab === '5s' && (
+          <div className="space-y-6">
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-md border border-amber-300">
+                STANDAR TATA KELOLA FISIK
+              </span>
+              <h3 className="text-2xl font-black text-[#0F172A] mt-2">
+                Penerapan Budaya 5S (Seiri, Seiton, Seiso, Seiketsu, Shitsuke)
+              </h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Kerapian fisik rak dan blok gudang mempercepat waktu penemuan material (retrieval time) hingga di bawah 3 menit.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-xs font-black uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded">1. Seiri</span>
+                <h4 className="text-base font-black text-slate-900 mt-2">Ringkas</h4>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Pilah material aktif dari barang afkir/rusak. Bersihkan lorong lintasan dari tumpukan kardus kosong.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-xs font-black uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded">2. Seiton</span>
+                <h4 className="text-base font-black text-slate-900 mt-2">Rapi</h4>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Setiap material memiliki alamat rak tetap. Label kode rak (misal Rak A-001) harus terbaca jelas dari jarak 2 meter.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-xs font-black uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded">3. Seiso</span>
+                <h4 className="text-base font-black text-slate-900 mt-2">Resik</h4>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Bersihkan ceceran oli atau serbuk isolasi setiap sore. Pastikan ruang bersih kalibrasi kWh meter selalu bebas debu.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-xs font-black uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded">4. Seiketsu</span>
+                <h4 className="text-base font-black text-slate-900 mt-2">Rawat</h4>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Pertahankan standar visual marka lantai kuning forklift dan batas tinggi tumpukan maksimal 3 susun.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-xs font-black uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded">5. Shitsuke</span>
+                <h4 className="text-base font-black text-slate-900 mt-2">Rajin</h4>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Disiplin harian seluruh personel logistik tanpa perlu diawasi. Lakukan briefing K3 5S setiap apel pagi.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: VISI & KPI LOGISTIK */}
         {activeTab === 'visi' && (
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-[#0F172A]">
-              Visi, Misi & Key Performance Indicators (KPI)
-            </h3>
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-md border border-amber-300">
+                TARGET &amp; STRATEGI UTAMA
+              </span>
+              <h3 className="text-2xl font-black text-[#0F172A] mt-2">
+                Visi, Misi &amp; Key Performance Indicators (KPI) Logistik
+              </h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Arah transformasi rantai pasok ketenagalistrikan nasional menuju World Class Logistics Provider.
+              </p>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-control bg-amber-50/50 p-6 border border-amber-200">
                 <h4 className="text-lg font-bold text-amber-900 mb-3">Visi Logistik Terpadu</h4>
@@ -88,137 +304,6 @@ export const WorkProgramsView: React.FC<WorkProgramsViewProps> = ({ onBack }) =>
                     <span><strong>Zero Accident:</strong> Nihil kecelakaan kerja di seluruh area gudang</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'roadmap' && (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-[#0F172A]">
-              Roadmap Digitalisasi Gudang Logistik 2026
-            </h3>
-            <div className="space-y-4">
-              <div className="flex gap-4 p-4 rounded-control bg-slate-50 border border-slate-200">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FACC15] font-bold text-[#0F172A]">
-                  Q1
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-slate-900">Digitalisasi Barcode 2D Material MDU</h4>
-                  <p className="text-sm text-slate-600 mt-1">
-                    Pemasangan barcode & QR code tahan cuaca pada seluruh Transformator, Isolator, FCO, dan Kabel MVTIC di area gudang.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 p-4 rounded-control bg-slate-50 border border-slate-200">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FACC15] font-bold text-[#0F172A]">
-                  Q2
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-slate-900">Implementasi Terminal Kiosk Mandiri Kassen WK-215</h4>
-                  <p className="text-sm text-slate-600 mt-1">
-                    Penyediaan kios informasi interaktif di pos logistik untuk kemudahan cek lokasi rak dan spek teknis material oleh tim teknik lapangan.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 p-4 rounded-control bg-slate-50 border border-slate-200">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-300 font-bold text-slate-700">
-                  Q3-Q4
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-slate-900">Integrasi Otomasi Stock Opname Digital Terpadu</h4>
-                  <p className="text-sm text-slate-600 mt-1">
-                    Penyelarasan data real-time dengan aplikasi mobile lapangan dan sistem ERP PLN pusat.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === '5s' && (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-[#0F172A]">
-              Penerapan Standar 5S (Seiri, Seiton, Seiso, Seiketsu, Shitsuke)
-            </h3>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="p-5 rounded-control bg-slate-50 border border-slate-200">
-                <span className="text-xs font-bold uppercase text-amber-700">1. Seiri (Ringkas)</span>
-                <h4 className="text-lg font-bold text-slate-900 mt-1">Pilah & Singkirkan</h4>
-                <p className="text-sm text-slate-600 mt-2">
-                  Pisahkan material layak pakai, rusak retur, dan limbah isolasi. Singkirkan barang yang tidak diperlukan dari jalur lintasan.
-                </p>
-              </div>
-              <div className="p-5 rounded-control bg-slate-50 border border-slate-200">
-                <span className="text-xs font-bold uppercase text-amber-700">2. Seiton (Rapi)</span>
-                <h4 className="text-lg font-bold text-slate-900 mt-1">Tata & Beri Label</h4>
-                <p className="text-sm text-slate-600 mt-2">
-                  Semua material ditaruh pada rak/bin yang memiliki kode alamat dan label barcode yang terlihat jelas.
-                </p>
-              </div>
-              <div className="p-5 rounded-control bg-slate-50 border border-slate-200">
-                <span className="text-xs font-bold uppercase text-amber-700">3. Seiso (Resik)</span>
-                <h4 className="text-lg font-bold text-slate-900 mt-1">Bersihkan Area</h4>
-                <p className="text-sm text-slate-600 mt-2">
-                  Lakukan pembersihan harian dari debu, ceceran oli trafo, atau potongan kabel guna mencegah risiko slip dan api.
-                </p>
-              </div>
-              <div className="p-5 rounded-control bg-slate-50 border border-slate-200">
-                <span className="text-xs font-bold uppercase text-amber-700">4. Seiketsu (Rawat)</span>
-                <h4 className="text-lg font-bold text-slate-900 mt-1">Standarisasi Tata Letak</h4>
-                <p className="text-sm text-slate-600 mt-2">
-                  Tetapkan standar penandaan garis kuning marka forklift dan batas tumpukan material maksimal 3 tingkat.
-                </p>
-              </div>
-              <div className="p-5 rounded-control bg-slate-50 border border-slate-200">
-                <span className="text-xs font-bold uppercase text-amber-700">5. Shitsuke (Rajin)</span>
-                <h4 className="text-lg font-bold text-slate-900 mt-1">Disiplin Berkelanjutan</h4>
-                <p className="text-sm text-slate-600 mt-2">
-                  Jadikan 5S sebagai kebiasaan kerja setiap pergantian shift dan sebelum penutupan gudang sore hari.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'k3' && (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-[#0F172A]">
-              Pedoman Keselamatan & Kesehatan Kerja (K3)
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="rounded-control bg-rose-50 p-6 border border-rose-200">
-                <h4 className="text-lg font-bold text-rose-900 mb-3 flex items-center gap-2">
-                  <ShieldAlert className="h-5 w-5 text-rose-600" />
-                  <span>Aturan Wajib Masuk Area Gudang</span>
-                </h4>
-                <ul className="space-y-2.5 text-sm text-rose-950 font-medium">
-                  <li className="flex items-start gap-2">
-                    <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                    <span>Wajib menggunakan Safety Helmet Full Brim berstandar SNI/ANSI.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                    <span>Wajib memakai Safety Shoes dengan toe-cap baja pelindung.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                    <span>Kenakan rompi reflektif berkilau tinggi (high-visibility vest).</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <ShieldAlert className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                    <span>Dilarang merokok di seluruh area tertutup maupun terbuka gudang.</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-control bg-slate-50 p-6 border border-slate-200">
-                <h4 className="text-lg font-bold text-slate-900 mb-3">Jalur Evakuasi & Titik Kumpul</h4>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Apabila sirine bahaya berbunyi, segera tinggalkan pekerjaan dan ikuti marka garis hijau menuju <strong>Titik Kumpul (Assembly Point) Lapangan Parkir Depan</strong>. Jangan menggunakan lift barang saat terjadi gempa atau kebakaran.
-                </p>
               </div>
             </div>
           </div>

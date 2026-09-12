@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Zap, ShieldCheck, Sparkles, Scan, ArrowRight } from 'lucide-react';
 import { ImportPackage, KioskConfig } from '../../domain/types';
 import { WALLPAPER_PRESETS } from '../../data/mockPlnPackage';
+import { DanantaraLogo } from '../../shared/ui/DanantaraLogo';
+import { PlnLogo } from '../../shared/ui/PlnLogo';
 
 interface IdleScreensaverProps {
   pkg: ImportPackage;
@@ -67,28 +69,18 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
         </div>
       )}
 
-      {/* Top Banner */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FACC15] text-[#0F172A] shadow-xl">
-            <Zap className="h-10 w-10 fill-current" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-wider text-[#FACC15]">
-              PT PLN (PERSERO)
-            </h1>
-            <p className="text-sm font-medium text-slate-300">
-              {config.organizationName}
-            </p>
-          </div>
-        </div>
+      {/* Top Banner: Danantara Kiri & PLN Kanan */}
+      <div className="flex items-center justify-between z-10">
+        <DanantaraLogo variant="dark" />
 
-        <div className="flex items-center gap-2 rounded-full bg-white/10 px-5 py-2.5 backdrop-blur-md border border-white/20">
-          <ShieldCheck className="h-5 w-5 text-[#FACC15]" />
-          <span className="text-sm font-semibold tracking-wide text-slate-200">
-            Sistem Logistik Siaga 24/7
+        <div className="hidden md:flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 backdrop-blur-md border border-white/20">
+          <ShieldCheck className="h-4 w-4 text-[#FACC15]" />
+          <span className="text-xs font-bold tracking-wider text-slate-200 uppercase">
+            Holding BUMN Ketenagalistrikan &bull; {config.warehouseCode}
           </span>
         </div>
+
+        <PlnLogo variant="dark" />
       </div>
 
       {/* Main Center Message */}

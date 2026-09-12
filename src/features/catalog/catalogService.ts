@@ -110,7 +110,20 @@ export class CatalogService {
         const codeMatch = m.code.toLowerCase().includes(cleanQuery);
         const sapMatch = m.sapCode ? m.sapCode.toLowerCase().includes(cleanQuery) : false;
         const specMatch = m.specification ? m.specification.toLowerCase().includes(cleanQuery) : false;
-        return nameMatch || codeMatch || sapMatch || specMatch;
+
+        // Search by location: Blok, Rak, Bin (contoh: 'kwh', 'rak a-001', 'a-001', 'blok c')
+        const locationMatch = pkg.stockSnapshots
+          .filter(s => s.materialId === m.id)
+          .some(s => {
+            const loc = pkg.locations.find(l => l.id === s.locationId);
+            if (!loc) return false;
+            const zoneMatch = loc.zone ? loc.zone.toLowerCase().includes(cleanQuery) : false;
+            const rackMatch = loc.rack ? loc.rack.toLowerCase().includes(cleanQuery) : false;
+            const binMatch = loc.bin ? loc.bin.toLowerCase().includes(cleanQuery) : false;
+            return zoneMatch || rackMatch || binMatch;
+          });
+
+        return nameMatch || codeMatch || sapMatch || specMatch || locationMatch;
       });
     }
 
