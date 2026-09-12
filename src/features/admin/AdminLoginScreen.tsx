@@ -17,8 +17,10 @@ import {
   FileText,
   History,
   Delete,
+  Wifi,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
+import { NetworkAccessModal } from '../network/NetworkAccessModal';
 import plnLogoImg from '../../assets/pln_logo.webp';
 import './adminConsole.css';
 
@@ -53,6 +55,7 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [activeSlide, setActiveSlide] = useState(0);
+  const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   const handlePinDigit = (digit: string) => {
     if (pin.length < 6) {
@@ -392,6 +395,21 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
               >
                 <CheckCircle2 size={13} strokeWidth={2.5} />
                 <span>Masuk Langsung</span>
+              </button>
+            </div>
+
+            {/* Remote Access via WiFi Guide Link */}
+            <div className="flex items-center justify-between rounded-xl bg-sky-50/90 border border-sky-200 p-2.5 px-3.5 text-xs text-sky-900 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <Wifi size={15} className="text-[#0369a1] shrink-0" />
+                <span className="font-semibold">Buka dari HP di WiFi sama?</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNetworkModal(true)}
+                className="font-bold text-[#0369a1] hover:underline flex items-center gap-1 active:scale-95 transition"
+              >
+                <span>Lihat QR &amp; Panduan IP &rarr;</span>
               </button>
             </div>
 
