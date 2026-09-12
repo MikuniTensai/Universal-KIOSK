@@ -20,6 +20,7 @@ import {
   Trash2,
   ArrowRight,
   Search,
+  X,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
@@ -60,6 +61,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   });
   const [activeTab, setActiveTab] = useState<AdminModuleTab>('stock');
   const [overviewSearch, setOverviewSearch] = useState('');
+  const [stockSearch, setStockSearch] = useState('');
   const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   const triggerPackageUpdated = () => {
@@ -344,6 +346,56 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const logs = kioskStorage.getLogs();
   const activePkg = kioskStorage.getActivePackage();
 
+  const getMaterialLocationInfo = (materialId: string, pkg?: ImportPackage | null) => {
+    const snapshots = pkg?.stockSnapshots.filter(s => s.materialId === materialId) || [];
+    const totalQty = snapshots.reduce((sum, s) => sum + (s.quantity || 0), 0);
+    const locObj = snapshots[0] ? pkg?.locations.find(l => l.id === snapshots[0].locationId) : null;
+
+    let blokDisplay = '-';
+    if (locObj?.zone) {
+      const rawZone = locObj.zone.replace(/\s*\(.*?\)/g, '').trim();
+      blokDisplay = rawZone.replace(/^Blok\s+/i, '').trim() || rawZone;
+    }
+
+    let rakDisplay = '-';
+    if (locObj?.rack) {
+      const rawRack = locObj.rack.trim();
+      if (rawRack && rawRack !== '-' && !rawRack.toLowerCase().includes('area terbuka')) {
+        rakDisplay = rawRack.replace(/^Rak\s+/i, '').trim();
+      }
+    }
+
+    return { totalQty, blokDisplay, rakDisplay, locObj };
+  };
+
+  const filteredStockMaterials = (activePkg?.materials || []).filter((m) => {
+    if (!stockSearch) return true;
+    const q = stockSearch.toLowerCase().trim();
+    const { blokDisplay, rakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+    return (
+      m.name.toLowerCase().includes(q) ||
+      m.code.toLowerCase().includes(q) ||
+      (m.sapCode ? m.sapCode.toLowerCase().includes(q) : false) ||
+      m.unit.toLowerCase().includes(q) ||
+      blokDisplay.toLowerCase().includes(q) ||
+      rakDisplay.toLowerCase().includes(q)
+    );
+  });
+
+  const overviewFilteredMaterials = (activePkg?.materials || []).filter((m) => {
+    if (!overviewSearch) return true;
+    const q = overviewSearch.toLowerCase().trim();
+    const { blokDisplay, rakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+    return (
+      m.name.toLowerCase().includes(q) ||
+      m.code.toLowerCase().includes(q) ||
+      (m.sapCode ? m.sapCode.toLowerCase().includes(q) : false) ||
+      m.unit.toLowerCase().includes(q) ||
+      blokDisplay.toLowerCase().includes(q) ||
+      rakDisplay.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className={standalone ? "min-h-screen w-full bg-slate-100 flex flex-col font-sans" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-2 sm:p-4"}>
       <div className={standalone ? "w-full min-h-screen" : "w-full h-full max-w-[1600px] max-h-[96vh] rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-white"}>
@@ -517,15 +569,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       Snapshot aktif versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
                     </p>
                   </div>
-                  <div className="relative w-full sm:w-64">
+                  <div className="relative w-full sm:w-80">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                     <input
                       type="text"
-                      placeholder="Cari kode atau nama material..."
+                      placeholder="Cari nama, kode normalisasi, blok, rak..."
                       value={overviewSearch}
                       onChange={(e) => setOverviewSearch(e.target.value)}
-                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
+                    {overviewSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setOverviewSearch('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                        aria-label="Bersihkan pencarian"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -533,64 +595,72 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   <table className="w-full text-left text-xs min-w-[640px]">
                     <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200">
                       <tr>
-                        <th className="p-3">Kode Material</th>
+                        <th className="p-3 w-12 text-center">No</th>
                         <th className="p-3">Nama Material</th>
-                        <th className="p-3">Kategori</th>
-                        <th className="p-3">Lokasi Gudang</th>
-                        <th className="p-3">Stok Siap Pakai</th>
+                        <th className="p-3">Kode Normalisasi</th>
+                        <th className="p-3 text-center">Satuan</th>
+                        <th className="p-3 text-center">Stok</th>
+                        <th className="p-3 text-center">BLOK</th>
+                        <th className="p-3 text-center">RAK</th>
                         <th className="p-3 text-right">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                      {activePkg?.materials
-                        .filter((m) =>
-                          overviewSearch
-                            ? m.name.toLowerCase().includes(overviewSearch.toLowerCase()) ||
-                              m.code.toLowerCase().includes(overviewSearch.toLowerCase())
-                            : true
-                        )
-                        .slice(0, 8)
-                        .map((mat) => {
-                          const cat = activePkg?.categories.find((c) => c.id === mat.categoryId);
-                          const snapshots = activePkg?.stockSnapshots.filter((s) => s.materialId === mat.id) || [];
-                          const totalQty = snapshots.reduce((sum, s) => sum + (s.quantity || 0), 0);
-                          const locObj = snapshots[0] ? activePkg?.locations.find((l) => l.id === snapshots[0].locationId) : null;
-                          const loc = locObj
-                            ? `${locObj.zone || '-'} • ${locObj.rack || '-'} / ${locObj.bin || '-'}`
-                            : '-';
-                          return (
-                            <tr key={mat.id} className="hover:bg-slate-50 transition">
-                              <td className="p-3 font-mono font-bold text-sky-700">{mat.code}</td>
-                              <td className="p-3 font-bold text-slate-900">{mat.name}</td>
-                              <td className="p-3 text-slate-500">{cat?.name || '-'}</td>
-                              <td className="p-3 font-mono text-[11px]">{loc}</td>
-                              <td className="p-3">
-                                <span
-                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
-                                    totalQty > 0
-                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
-                                  }`}
-                                >
-                                  {totalQty} {mat.unit}
-                                </span>
-                              </td>
-                              <td className="p-3 text-right">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setAdjustMatId(mat.id);
-                                    setActiveTab('stock');
-                                    setStockMode('adjust');
-                                  }}
-                                  className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
-                                >
-                                  Sesuaikan
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                      {overviewFilteredMaterials.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-slate-400 font-medium">
+                            Tidak ada material yang cocok dengan pencarian "{overviewSearch}".
+                          </td>
+                        </tr>
+                      ) : (
+                        overviewFilteredMaterials
+                          .slice(0, overviewSearch ? 100 : 12)
+                          .map((mat, idx) => {
+                            const { totalQty, blokDisplay, rakDisplay } = getMaterialLocationInfo(mat.id, activePkg);
+                            return (
+                              <tr key={mat.id} className="hover:bg-slate-50 transition">
+                                <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                                <td className="p-3 font-bold text-slate-900 max-w-xs">{mat.name}</td>
+                                <td className="p-3 font-mono font-bold text-sky-700">{mat.code}</td>
+                                <td className="p-3 text-center font-bold text-slate-600">{mat.unit}</td>
+                                <td className="p-3 text-center">
+                                  <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                                      totalQty > 0
+                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                        : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                    }`}
+                                  >
+                                    {totalQty}
+                                  </span>
+                                </td>
+                                <td className="p-3 text-center font-mono font-bold text-amber-900">
+                                  <span className="inline-block px-2 py-0.5 rounded bg-amber-100/80 border border-amber-300">
+                                    {blokDisplay}
+                                  </span>
+                                </td>
+                                <td className="p-3 text-center font-mono font-bold text-slate-800">
+                                  <span className={rakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-slate-100 border border-slate-200' : 'text-slate-400'}>
+                                    {rakDisplay}
+                                  </span>
+                                </td>
+                                <td className="p-3 text-right">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setAdjustMatId(mat.id);
+                                      setActiveTab('stock');
+                                      setStockMode('adjust');
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
+                                  >
+                                    Sesuaikan
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -926,62 +996,120 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               )}
 
               {/* Material Inventory Table & Delete Actions */}
-              <div className="pt-6 border-t border-slate-200 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Boxes className="h-4 w-4 text-amber-600" />
-                    <span>Daftar Material Gudang ({activePkg?.materials.length || 0} Item Terdaftar):</span>
-                  </h4>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Setiap barang yang masuk dapat disesuaikan stoknya atau dihapus permanen
-                  </span>
+              <div className="pt-6 border-t border-slate-200 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                      <Boxes className="h-4 w-4 text-amber-600" />
+                      <span>Daftar &amp; Kelola Stok Material ({filteredStockMaterials.length} dari {activePkg?.materials.length || 0} Terdaftar):</span>
+                    </h4>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK)
+                    </p>
+                  </div>
+
+                  {/* Search Bar for Stock Table */}
+                  <div className="relative w-full sm:w-80">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Cari nama, kode normalisasi, blok, rak..."
+                      value={stockSearch}
+                      onChange={(e) => setStockSearch(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    />
+                    {stockSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setStockSearch('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                        aria-label="Bersihkan pencarian"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <div className="max-h-[300px] overflow-y-auto rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 no-scrollbar">
-                  {activePkg?.materials.map((m) => {
-                    const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === m.id) || [];
-                    const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
-                    const cat = activePkg?.categories.find(c => c.id === m.categoryId);
-                    return (
-                      <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-slate-50 transition gap-3">
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <span className="font-mono text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300 shrink-0">
-                            {m.code}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <h5 className="text-xs font-bold text-slate-800 truncate">{m.name}</h5>
-                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                              <span>{cat?.name || 'Umum'}</span>
-                              <span>&bull;</span>
-                              <span>Stok: <strong className="text-emerald-700 font-bold">{totalQty} {m.unit}</strong></span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setStockMode('adjust');
-                              setAdjustMatId(m.id);
-                            }}
-                            className="text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition"
-                          >
-                            Sesuaikan
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setMaterialToDelete(m)}
-                            className="flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-1.5 rounded-lg transition"
-                            title={`Hapus material ${m.name}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            <span>Hapus</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white max-h-[460px] overflow-y-auto">
+                  <table className="w-full text-left text-xs min-w-[640px]">
+                    <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+                      <tr>
+                        <th className="p-3 w-12 text-center">No</th>
+                        <th className="p-3">Nama Material</th>
+                        <th className="p-3">Kode Normalisasi</th>
+                        <th className="p-3 text-center">Satuan</th>
+                        <th className="p-3 text-center">Stok</th>
+                        <th className="p-3 text-center">BLOK</th>
+                        <th className="p-3 text-center">RAK</th>
+                        <th className="p-3 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                      {filteredStockMaterials.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-slate-400 font-medium">
+                            Tidak ada material yang cocok dengan pencarian "{stockSearch}".
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredStockMaterials.map((m, idx) => {
+                          const { totalQty, blokDisplay, rakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+                          return (
+                            <tr key={m.id} className="hover:bg-slate-50 transition">
+                              <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                              <td className="p-3 font-bold text-slate-900 max-w-xs">{m.name}</td>
+                              <td className="p-3 font-mono font-bold text-sky-700">{m.code}</td>
+                              <td className="p-3 text-center font-bold text-slate-600">{m.unit}</td>
+                              <td className="p-3 text-center">
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                                    totalQty > 0
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  }`}
+                                >
+                                  {totalQty}
+                                </span>
+                              </td>
+                              <td className="p-3 text-center font-mono font-bold text-amber-900">
+                                <span className="inline-block px-2 py-0.5 rounded bg-amber-100/80 border border-amber-300">
+                                  {blokDisplay}
+                                </span>
+                              </td>
+                              <td className="p-3 text-center font-mono font-bold text-slate-800">
+                                <span className={rakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-slate-100 border border-slate-200' : 'text-slate-400'}>
+                                  {rakDisplay}
+                                </span>
+                              </td>
+                              <td className="p-3 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setStockMode('adjust');
+                                      setAdjustMatId(m.id);
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
+                                  >
+                                    Sesuaikan
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setMaterialToDelete(m)}
+                                    className="p-1 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 border border-transparent hover:border-rose-200 transition"
+                                    title={`Hapus material ${m.name}`}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

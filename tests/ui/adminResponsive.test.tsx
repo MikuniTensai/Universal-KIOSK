@@ -205,5 +205,42 @@ describe('Admin Console Responsive UX & Touch Targets (Uci UI/UX Audit)', () => 
       const tableContainer = table?.closest('.overflow-x-auto');
       expect(tableContainer).toBeInTheDocument();
     });
+
+    it('renders Stock tab table with Excel columns (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK) and filters with search', () => {
+      const onClose = vi.fn();
+
+      render(
+        <AdminDashboardModal
+          visible={true}
+          bypassPin={true}
+          onClose={onClose}
+          onPackageUpdated={vi.fn()}
+        />
+      );
+
+      // Default active tab is 'stock' (Kelola & Tambah Stok)
+      expect(screen.getByText(/Daftar & Kelola Stok Material/i)).toBeInTheDocument();
+
+      // Check all Excel table headers
+      expect(screen.getAllByText('Nama Material').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Kode Normalisasi').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Satuan').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Stok').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('BLOK').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('RAK').length).toBeGreaterThanOrEqual(1);
+
+      // Search input is present
+      const searchInputs = screen.getAllByPlaceholderText(/Cari nama, kode normalisasi, blok, rak/i);
+      expect(searchInputs.length).toBeGreaterThanOrEqual(1);
+      const stockSearchInput = searchInputs[searchInputs.length - 1];
+
+      // Type a query that matches a specific material
+      fireEvent.change(stockSearchInput, { target: { value: 'Transformator' } });
+      expect(screen.getAllByText(/Transformator Distribusi 3 Fasa 100 kVA/i).length).toBeGreaterThanOrEqual(1);
+
+      // Filter with non-matching query
+      fireEvent.change(stockSearchInput, { target: { value: 'nonexistentmaterial12345' } });
+      expect(screen.getByText(/Tidak ada material yang cocok dengan pencarian/i)).toBeInTheDocument();
+    });
   });
 });
