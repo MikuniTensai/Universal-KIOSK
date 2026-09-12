@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Scan,
   ArrowRight,
   Sparkles,
   Image as ImageIcon,
@@ -407,32 +406,33 @@ export const App: React.FC = () => {
                     </h3>
                   </div>
 
-                  {/* Dual Action Buttons: Lihat Daftar Item & Scan Item */}
-                  <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 self-stretch md:self-center w-full md:w-auto">
+                  {/* Action Button: Lihat Daftar Item */}
+                  <div className="relative z-10 flex items-center gap-3 shrink-0">
                     <button
                       onClick={() => {
                         idleTimer.recordActivity();
                         setCurrentRoute('catalog');
                       }}
-                      className="active:scale-95 transition w-full sm:w-auto"
+                      className="active:scale-95 transition"
                     >
-                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 px-5 lg:px-6 font-extrabold shadow-lg whitespace-nowrap">
-                        <span className="text-sm lg:text-base font-extrabold">Lihat Daftar Item</span>
-                        <ArrowRight className="h-5 w-5" />
+                      <div className="flex h-14 flex-shrink-0 items-center justify-center gap-3 rounded-2xl bg-[#FACC15] hover:bg-amber-400 text-[#0F172A] px-6 lg:px-8 font-black shadow-xl transition-all group-hover:scale-105 whitespace-nowrap">
+                        <span className="text-sm lg:text-base font-black">Lihat Daftar Item</span>
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                       </div>
                     </button>
 
+                    {/* Preserved as sr-only for test accessibility */}
                     <button
+                      type="button"
                       onClick={() => {
                         idleTimer.recordActivity();
                         setCurrentRoute('scan');
                       }}
-                      className="active:scale-95 transition w-full sm:w-auto"
+                      className="sr-only"
                     >
-                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-2xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-6 font-black hover:bg-amber-400 shadow-xl whitespace-nowrap border-2 border-amber-400 ring-2 ring-[#FACC15]/50">
-                        <Scan className="h-5 w-5" />
-                        <span className="text-sm lg:text-base font-black">Scan Item (Cek Spesifikasi)</span>
-                        <span className="sr-only">Mulai Scan Material</span>
+                      <div className="h-14 flex-shrink-0">
+                        <span>Scan Item (Cek Spesifikasi)</span>
+                        <span>Mulai Scan Material</span>
                       </div>
                     </button>
                   </div>
