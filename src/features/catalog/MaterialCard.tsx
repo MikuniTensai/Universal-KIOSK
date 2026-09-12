@@ -12,9 +12,30 @@ interface MaterialCardProps {
 export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick }) => {
   const CatIcon = getCategoryIcon(material.categoryId || material.categoryName);
   const primaryLocation = material.locations[0]?.location;
-  const locString = primaryLocation
-    ? `${primaryLocation.zone || ''} ${primaryLocation.rack ? '• ' + primaryLocation.rack : ''} ${primaryLocation.bin ? '• ' + primaryLocation.bin : ''}`
-    : 'Lokasi Belum Ditentukan';
+
+  let cleanBlok = '-';
+  if (primaryLocation?.zone) {
+    const rawZone = primaryLocation.zone.replace(/\s*\(.*?\)/g, '').trim();
+    cleanBlok = rawZone.replace(/^Blok\s+/i, '').trim() || rawZone;
+  }
+
+  let cleanRak = '-';
+  if (primaryLocation?.rack) {
+    const rawRack = primaryLocation.rack.trim();
+    if (rawRack && rawRack !== '-' && !rawRack.toLowerCase().includes('area terbuka')) {
+      cleanRak = rawRack.replace(/^Rak\s+/i, '').trim();
+    }
+  }
+
+  let cleanSubRak = '-';
+  if (primaryLocation?.bin) {
+    const rawBin = primaryLocation.bin.trim();
+    if (rawBin && rawBin !== '-' && rawBin !== 'Luar Rak' && rawBin !== 'Tanpa Rak') {
+      cleanSubRak = rawBin.replace(/^Sub\s*Rak\s+/i, '').trim();
+    }
+  }
+
+  const locString = `BLOK ${cleanBlok} • RAK ${cleanRak}${cleanSubRak !== '-' ? ` • SUB RAK ${cleanSubRak}` : ''}`;
 
   return (
     <div
@@ -65,15 +86,20 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick })
             {material.name}
           </h4>
 
-          {/* Prominent Blok & Rak Badge - Persis kebutuhan klien untuk cek letak blok dan nomor rak */}
-          <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+          {/* Prominent Blok, Rak & Sub Rak Badges - Persis master Excel SAP */}
+          <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
             <span className="inline-flex items-center gap-1 rounded-lg bg-amber-100/90 border border-amber-300 px-2.5 py-1 text-xs font-black text-amber-950">
               <MapPin className="h-3.5 w-3.5 text-amber-700 shrink-0" />
-              <span>{primaryLocation?.zone?.replace(/\s*\(.*\)/, '') || 'Blok C'}</span>
+              <span>BLOK {cleanBlok}</span>
             </span>
             <span className="inline-flex items-center gap-1 rounded-lg bg-slate-900 border border-slate-800 px-2.5 py-1 text-xs font-mono font-bold text-[#FACC15]">
-              <span>RAK: {primaryLocation?.bin && primaryLocation.bin !== 'Luar Rak' && primaryLocation.bin !== 'Tanpa Rak' ? primaryLocation.bin : (primaryLocation?.rack && primaryLocation.rack !== '-' ? primaryLocation.rack : '-')}</span>
+              <span>RAK {cleanRak}</span>
             </span>
+            {cleanSubRak !== '-' && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-sky-100 border border-sky-300 px-2 py-1 text-xs font-mono font-bold text-sky-900">
+                <span>SUB RAK {cleanSubRak}</span>
+              </span>
+            )}
           </div>
         </div>
 
