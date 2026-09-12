@@ -1,34 +1,46 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Peluncur Kiosk Mandiri Gudang PLN untuk Pengujian di Lingkungan Linux
+# Menggunakan Dual-Port: Port 5000 (Kiosk) & Port 5001 (Admin)
 # ==============================================================================
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-URL="http://localhost:3000"
+KIOSK_URL="http://localhost:5000"
+ADMIN_URL="http://localhost:5001"
 
-# 1. Cek apakah server lokal sudah aktif
-if ! curl -s --head "$URL" | grep "200" > /dev/null 2>&1; then
-    echo "[INFO] Memulai server Kiosk di background..."
-    cd "$DIR" && nohup npx vite preview --port 3000 --host > /dev/null 2>&1 &
-    sleep 2
-fi
+# 1. Jalankan server background jika belum aktif
+bash "$DIR/scripts/start-server-linux.sh"
 
 echo "=========================================================="
 echo "  MELUNCURKAN UNIVERSAL-KIOSK PLN DI LINUX"
-echo "  URL: $URL"
+echo "  Kiosk URL: $KIOSK_URL"
+echo "  Admin URL: $ADMIN_URL"
 echo "=========================================================="
 
-# 2. Pilihan Mode: Kiosk Fullscreen atau Tab Biasa
+# 2. Pilihan Mode
 if [ "$1" == "--kiosk" ]; then
-    echo "[INFO] Membuka mode Kiosk Layar Penuh (Tekan Alt+F4 untuk keluar)..."
-    firefox --kiosk "$URL" &
+    echo "[INFO] Membuka mode Kiosk Layar Penuh (Tekan Alt+F4 atau F11 untuk keluar)..."
+    if command -v firefox >/dev/null 2>&1; then
+        firefox --kiosk "$KIOSK_URL" &
+    elif command -v google-chrome >/dev/null 2>&1; then
+        google-chrome --kiosk "$KIOSK_URL" &
+    elif command -v chromium >/dev/null 2>&1; then
+        chromium --kiosk "$KIOSK_URL" &
+    fi
+elif [ "$1" == "--admin" ]; then
+    echo "[INFO] Membuka Portal Admin di browser..."
+    if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$ADMIN_URL" &
+    fi
 else
     echo "[INFO] Membuka di browser default..."
     if command -v xdg-open >/dev/null 2>&1; then
-        xdg-open "$URL" > /dev/null 2>&1 &
+        xdg-open "$KIOSK_URL" &
     elif command -v firefox >/dev/null 2>&1; then
-        firefox "$URL" > /dev/null 2>&1 &
+        firefox "$KIOSK_URL" &
     else
-        echo "Buka di browser: $URL"
+        echo "Buka di browser:"
+        echo "  - Layar Kiosk: $KIOSK_URL"
+        echo "  - Portal Admin: $ADMIN_URL"
     fi
 fi
