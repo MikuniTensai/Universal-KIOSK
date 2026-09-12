@@ -609,6 +609,12 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
           </div>
         </section>
       </main>
+
+      {/* Network Access Guide Modal */}
+      <NetworkAccessModal
+        visible={showNetworkModal}
+        onClose={() => setShowNetworkModal(false)}
+      />
     </div>
   );
 };
