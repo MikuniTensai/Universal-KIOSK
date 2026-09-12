@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Package,
   Scan,
   ArrowRight,
   Sparkles,
   Image as ImageIcon,
   LayoutGrid,
-  Compass,
-  FileText,
 } from 'lucide-react';
 import { kioskStorage } from '../adapters/storage/kioskStorage';
 import { scannerAdapter } from '../features/scanner/scannerWedgeAdapter';
@@ -285,7 +282,7 @@ export const App: React.FC = () => {
                     <span>
                       Tampilan Kartu:{' '}
                       <strong className="text-amber-900 font-extrabold">
-                        {isPhotoMode ? 'Bergambar Nyata' : 'Minimalis Ikon'}
+                        {isPhotoMode ? 'Wallpaper Penuh' : 'Minimalis Ikon'}
                       </strong>
                     </span>
                   </button>
@@ -298,243 +295,209 @@ export const App: React.FC = () => {
                   3. Bawah: Katalog Material & Lokasi Rak/Blok (contoh: kWh di Rak A-001) */}
               <div className="flex flex-col gap-4 lg:gap-5 flex-1 justify-between my-2">
                 {/* 1. BAGIAN ATAS: Visualisasi Denah & Tata Letak Gudang ("Nanti ada layout yang minta divisualisasikan tapi ini nanti saja yang atas sendiri") */}
-                <button
+                <div
                   onClick={() => {
                     idleTimer.recordActivity();
                     setCurrentRoute('layout');
                   }}
-                  className="group relative flex flex-1 items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-card border-2 border-slate-200/90 bg-gradient-to-r from-slate-50/70 via-white to-white p-5 lg:p-7 text-left shadow-md transition-all duration-300 hover:border-[#FACC15] hover:shadow-xl active:scale-[0.99]"
+                  role="button"
+                  tabIndex={0}
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-6 lg:p-8 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
                 >
-                  <div className="flex items-center gap-5 lg:gap-7 flex-1 min-w-0">
-                    {/* Visual Layout Thumbnail */}
-                    {isPhotoMode && (
-                      <div className="relative h-28 w-44 sm:h-32 sm:w-52 lg:h-36 lg:w-60 shrink-0 overflow-hidden rounded-2xl bg-slate-900 shadow-md ring-1 ring-black/5">
-                        <img
-                          src={photoC}
-                          alt="Visualisasi Denah Gudang"
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                        <span className="absolute bottom-2.5 left-2.5 rounded-lg bg-[#FACC15] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#0F172A] shadow-md flex items-center gap-1">
-                          <Compass className="h-3 w-3 text-[#0F172A]" />
-                          DENAH TATA LETAK
-                        </span>
-                      </div>
-                    )}
-                    {!isPhotoMode && (
-                      <div className="relative h-28 w-44 sm:h-32 sm:w-52 lg:h-36 lg:w-60 shrink-0 overflow-hidden rounded-2xl bg-slate-950 shadow-md ring-1 ring-black/5 p-3 flex flex-col justify-between">
-                        <div className="flex items-center justify-between text-[10px] font-black text-[#FACC15]">
-                          <span className="flex items-center gap-1">
-                            <Compass className="h-3 w-3" /> PETA DENAH GUDANG
-                          </span>
-                          <span className="bg-amber-400/20 px-1.5 py-0.5 rounded text-amber-300 font-mono">UP3 MLG</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-1.5 my-1">
-                          <div className="rounded bg-slate-800/90 p-1 text-center text-[9px] font-bold text-slate-300 border border-slate-700">
-                            Blok A (Gardu)
-                          </div>
-                          <div className="rounded bg-slate-800/90 p-1 text-center text-[9px] font-bold text-slate-300 border border-slate-700">
-                            Blok B (Trafo)
-                          </div>
-                          <div className="rounded bg-amber-500/20 p-1 text-center text-[9px] font-extrabold text-amber-300 border border-amber-500/40">
-                            Blok C (Rak A-001)
-                          </div>
-                          <div className="rounded bg-slate-800/90 p-1 text-center text-[9px] font-bold text-slate-300 border border-slate-700">
-                            Blok D (APD K3)
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-[9px] font-semibold text-slate-400">
-                          <span>Pintu &amp; Loading</span>
-                          <span className="text-amber-400 font-bold">Siap Integrasi CAD</span>
-                        </div>
-                      </div>
-                    )}
+                  {/* Full Wallpaper Background Image */}
+                  {isPhotoMode ? (
+                    <img
+                      src={photoC}
+                      alt="Visualisasi Denah Gudang"
+                      className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 pointer-events-none" />
+                  )}
 
-                    <div className="flex flex-col min-w-0 flex-1 justify-center py-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-amber-900">
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                          LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI
-                        </span>
-                        <span className="hidden sm:inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-700">
-                          Peta Denah Blok &amp; Rak
-                        </span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] tracking-tight leading-tight mb-1">
-                        Visualisasi Denah &amp; Tata Letak Gudang
-                      </h3>
-                      <p className="text-xs sm:text-sm lg:text-base text-slate-600 line-clamp-2 leading-relaxed mb-2.5 max-w-3xl">
-                        Peta tata letak visual denah gudang, lorong rak penyimpanan material PLN, jalur forklift, dan posisi pos Kiosk Kassen.
-                      </p>
-                      {/* Interactive Feature Chips */}
-                      <div className="hidden sm:flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🔌 Blok A: Gardu &amp; Jaringan
-                        </span>
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🏗️ Blok B: Heavy &amp; Trafo
-                        </span>
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          ⚡ Blok C: APP &amp; kWh (Rak A-001)
-                        </span>
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🦺 Blok D: APD &amp; K3
-                        </span>
-                      </div>
+                  {/* High Contrast Gradient Overlay for Crystal Clear Text */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/65 pointer-events-none" />
+                  <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
+
+                  {/* Content (Relative Z-10) */}
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 shadow-sm backdrop-blur-sm">
+                        <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                        LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI
+                      </span>
+                      <span className="inline-flex items-center rounded-md bg-white/15 border border-white/20 px-2.5 py-1 text-xs font-bold text-slate-200 backdrop-blur-sm">
+                        Peta Denah Blok &amp; Rak
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-2 drop-shadow-md">
+                      Visualisasi Denah &amp; Tata Letak Gudang
+                    </h3>
+                    <p className="text-sm sm:text-base lg:text-lg text-slate-300 line-clamp-2 leading-relaxed mb-3 max-w-4xl drop-shadow-sm">
+                      Peta tata letak visual denah gudang, lorong rak penyimpanan material PLN, jalur forklift, dan posisi pos Kiosk Kassen.
+                    </p>
+
+                    {/* Interactive Feature Chips */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🔌 Blok A: Gardu &amp; Jaringan
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🏗️ Blok B: Heavy &amp; Trafo
+                      </span>
+                      <span className="rounded-full bg-amber-500/20 border border-amber-400/40 px-3.5 py-1.5 text-xs font-extrabold text-amber-300 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        ⚡ Blok C: APP &amp; kWh (Rak A-001)
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🦺 Blok D: APD &amp; K3
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex h-14 flex-shrink-0 items-center gap-3 rounded-xl bg-slate-900 text-white hover:bg-[#FACC15] hover:text-[#0F172A] px-5 lg:px-7 font-bold transition-all shadow-md active:scale-95 group-hover:bg-[#FACC15] group-hover:text-[#0F172A]">
-                    <span className="text-sm lg:text-base font-extrabold whitespace-nowrap">Lihat Denah Tata Letak</span>
+                  {/* CTA Action Button */}
+                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-6 lg:px-8 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
+                    <span className="text-sm lg:text-base font-black whitespace-nowrap">Lihat Denah Tata Letak</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
-                </button>
+                </div>
 
                 {/* 2. BAGIAN TENGAH: SOP & Aturan-Aturan Gudang PLN ("lalu yang tengah berubah menjadi SOP aturan-aturan") */}
-                <button
+                <div
                   onClick={() => {
                     idleTimer.recordActivity();
                     setCurrentRoute('programs');
                   }}
-                  className="group relative flex flex-1 items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-card border-2 border-slate-200/90 bg-gradient-to-r from-slate-50/70 via-white to-white p-5 lg:p-7 text-left shadow-md transition-all duration-300 hover:border-[#FACC15] hover:shadow-xl active:scale-[0.99]"
+                  role="button"
+                  tabIndex={0}
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-6 lg:p-8 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
                 >
-                  <div className="flex items-center gap-5 lg:gap-7 flex-1 min-w-0">
-                    {/* SOP Thumbnail */}
-                    {isPhotoMode && (
-                      <div className="relative h-28 w-44 sm:h-32 sm:w-52 lg:h-36 lg:w-60 shrink-0 overflow-hidden rounded-2xl bg-slate-900 shadow-md ring-1 ring-black/5">
-                        <img
-                          src={photoA}
-                          alt="Program Kerja & SOP"
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                        <span className="absolute bottom-2.5 left-2.5 rounded-lg bg-[#FACC15] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#0F172A] shadow-md flex items-center gap-1">
-                          <FileText className="h-3 w-3 text-[#0F172A]" />
-                          SOP &amp; ATURAN K3
-                        </span>
-                      </div>
-                    )}
-                    {!isPhotoMode && (
-                      <div className="relative h-28 w-44 sm:h-32 sm:w-52 lg:h-36 lg:w-60 shrink-0 overflow-hidden rounded-2xl bg-amber-500/10 border-2 border-amber-500/30 p-4 flex flex-col justify-between text-amber-900">
-                        <FileText className="h-8 w-8 text-amber-600" />
-                        <span className="text-xs font-black uppercase tracking-wider">SOP &amp; 5S K3</span>
-                      </div>
-                    )}
+                  {/* Full Wallpaper Background Image */}
+                  {isPhotoMode ? (
+                    <img
+                      src={photoA}
+                      alt="Program Kerja & SOP"
+                      className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 pointer-events-none" />
+                  )}
 
-                    <div className="flex flex-col min-w-0 flex-1 justify-center py-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-amber-900">
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                          SOP &amp; ATURAN PERGUDANGAN
-                        </span>
-                        <span className="hidden sm:inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-700">
-                          Pedoman 5S &amp; K3
-                        </span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] tracking-tight leading-tight mb-1">
-                        Program Kerja Gudang PLN &amp; SOP Aturan
-                      </h3>
-                      <p className="text-xs sm:text-sm lg:text-base text-slate-600 line-clamp-2 leading-relaxed mb-2.5 max-w-3xl">
-                        SOP masuk/keluar barang, aturan mutlak keselamatan kerja K3 (Zero Accident), dan kepatuhan standar 5S.
-                      </p>
-                      {/* Interactive Feature Chips */}
-                      <div className="hidden sm:flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-amber-50 border border-amber-300 px-3 py-1 text-xs font-bold text-amber-900 shadow-xs flex items-center gap-1">
-                          ✨ Alur SOP Animasi (Penerimaan, Pengeluaran &amp; Retur)
-                        </span>
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🛡️ Aturan Wajib APD K3
-                        </span>
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          ✨ Standar 5S Pergudangan
-                        </span>
-                        <span className="rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🎯 Visi &amp; Roadmap 2026
-                        </span>
-                      </div>
+                  {/* High Contrast Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/65 pointer-events-none" />
+                  <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
+
+                  {/* Content (Relative Z-10) */}
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 shadow-sm backdrop-blur-sm">
+                        <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                        SOP &amp; ATURAN PERGUDANGAN
+                      </span>
+                      <span className="inline-flex items-center rounded-md bg-white/15 border border-white/20 px-2.5 py-1 text-xs font-bold text-slate-200 backdrop-blur-sm">
+                        Pedoman 5S &amp; K3
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-2 drop-shadow-md">
+                      Program Kerja Gudang PLN &amp; SOP Aturan
+                    </h3>
+                    <p className="text-sm sm:text-base lg:text-lg text-slate-300 line-clamp-2 leading-relaxed mb-3 max-w-4xl drop-shadow-sm">
+                      SOP masuk/keluar barang, aturan mutlak keselamatan kerja K3 (Zero Accident), dan kepatuhan standar 5S.
+                    </p>
+
+                    {/* Interactive Feature Chips */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-amber-400/20 border border-amber-400/50 px-3.5 py-1.5 text-xs font-black text-amber-300 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        ✨ Alur SOP Animasi (Penerimaan, Pengeluaran &amp; Retur)
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🛡️ Aturan Wajib APD K3
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        ✨ Standar 5S Pergudangan
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🎯 Visi &amp; Roadmap 2026
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex h-14 flex-shrink-0 items-center gap-3 rounded-xl bg-slate-900 text-white hover:bg-[#FACC15] hover:text-[#0F172A] px-5 lg:px-7 font-bold transition-all shadow-md active:scale-95 group-hover:bg-[#FACC15] group-hover:text-[#0F172A]">
-                    <span className="text-sm lg:text-base font-extrabold whitespace-nowrap">Buka Program Kerja</span>
+                  {/* CTA Action Button */}
+                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-6 lg:px-8 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
+                    <span className="text-sm lg:text-base font-black whitespace-nowrap">Buka Program Kerja</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
-                </button>
+                </div>
 
                 {/* 3. BAGIAN BAWAH: Katalog Material & Lokasi Rak/Blok ("dan yang terakhir ketiga Katalog isi ada di blok apa atau di rak material apa kwh rak A-001 semisal") */}
                 <div
-                  className="group relative flex flex-1 flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-card border-2 border-[#FACC15] bg-gradient-to-r from-amber-50/40 via-white to-white p-5 lg:p-7 text-left shadow-xl transition-all duration-300 hover:border-amber-400 ring-2 ring-[#FACC15]/30"
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-[#FACC15] p-6 lg:p-8 text-left shadow-2xl transition-all duration-300 ring-2 ring-[#FACC15]/40 hover:ring-[#FACC15]/70"
                 >
-                  <div className="absolute top-0 right-0 bg-[#FACC15] px-4 py-1.5 rounded-bl-2xl text-[11px] font-black uppercase tracking-wider text-[#0F172A] z-10 shadow-sm flex items-center gap-1.5">
+                  <div className="absolute top-0 right-0 bg-[#FACC15] px-4 py-1.5 rounded-bl-2xl text-[11px] font-black uppercase tracking-wider text-[#0F172A] z-20 shadow-sm flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-emerald-600 animate-ping" />
                     <span>CEK MANDIRI &bull; SCANNER 2D SIAGA</span>
                   </div>
 
-                  <div className="flex items-center gap-5 lg:gap-7 flex-1 min-w-0">
-                    {/* Catalog Thumbnail */}
-                    {isPhotoMode && (
-                      <div className="relative h-28 w-44 sm:h-32 sm:w-52 lg:h-36 lg:w-60 shrink-0 overflow-hidden rounded-2xl bg-slate-900 shadow-md ring-1 ring-black/5">
-                        <img
-                          src={photoB}
-                          alt="Katalog Material"
-                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                        <span className="absolute bottom-2.5 left-2.5 rounded-lg bg-[#FACC15] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#0F172A] shadow-md flex items-center gap-1">
-                          <Package className="h-3 w-3 text-[#0F172A]" />
-                          BLOK &amp; RAK MATERIAL
-                        </span>
-                      </div>
-                    )}
-                    {!isPhotoMode && (
-                      <div className="relative h-28 w-44 sm:h-32 sm:w-52 lg:h-36 lg:w-60 shrink-0 overflow-hidden rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 p-4 flex flex-col justify-between text-blue-900">
-                        <Package className="h-8 w-8 text-blue-600" />
-                        <span className="text-xs font-black uppercase tracking-wider">KATALOG STOK</span>
-                      </div>
-                    )}
+                  {/* Full Wallpaper Background Image */}
+                  {isPhotoMode ? (
+                    <img
+                      src={photoB}
+                      alt="Katalog Material"
+                      className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 pointer-events-none" />
+                  )}
 
-                    <div
-                      onClick={() => {
-                        idleTimer.recordActivity();
-                        setCurrentRoute('catalog');
-                      }}
-                      className="flex flex-col min-w-0 flex-1 justify-center py-1 cursor-pointer"
-                    >
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-100 border border-blue-200 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-blue-900">
-                          <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
-                          KATALOG MATERIAL &amp; LOKASI RAK
-                        </span>
-                        <span className="inline-flex items-center rounded-md bg-amber-100 border border-amber-300 px-2.5 py-0.5 text-[11px] font-extrabold text-amber-950">
-                          Contoh: kWh di Rak A-001
-                        </span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] tracking-tight leading-tight mb-1">
-                        Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak)
-                      </h3>
-                      <p className="text-xs sm:text-sm lg:text-base text-slate-600 line-clamp-2 leading-relaxed mb-2.5 max-w-3xl">
-                        Cek material berada di blok apa dan di rak material mana (contoh: Smart Meter kWh di Rak A-001), cek saldo stok, atau scan barcode langsung.
-                      </p>
-                      {/* Featured Client Example Chips */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-amber-100/90 border border-amber-300 px-3 py-1 text-xs font-black text-amber-950 shadow-xs flex items-center gap-1">
-                          <span>⚡</span> Smart Meter (kWh) &rarr; <strong className="text-amber-900">Rak A-001 (Blok C)</strong>
-                        </span>
-                        <span className="hidden sm:inline-flex rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🔌 Isolator &rarr; Rak A3 (Blok A)
-                        </span>
-                        <span className="hidden md:inline-flex rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🏗️ Trafo 100kVA &rarr; Blok B (Jalur 2)
-                        </span>
-                        <span className="hidden lg:inline-flex rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 shadow-xs">
-                          🦺 APD Helm &rarr; Rak K3-01 (Blok D)
-                        </span>
-                      </div>
+                  {/* High Contrast Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/65 pointer-events-none" />
+                  <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
+
+                  {/* Content (Relative Z-10) */}
+                  <div
+                    onClick={() => {
+                      idleTimer.recordActivity();
+                      setCurrentRoute('catalog');
+                    }}
+                    className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1 cursor-pointer"
+                  >
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 shadow-sm backdrop-blur-sm">
+                        <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                        KATALOG MATERIAL &amp; LOKASI RAK
+                      </span>
+                      <span className="inline-flex items-center rounded-md bg-amber-400/30 border border-amber-400/50 px-2.5 py-1 text-xs font-extrabold text-amber-200 backdrop-blur-sm">
+                        Contoh: kWh di Rak A-001
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-2 drop-shadow-md">
+                      Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak)
+                    </h3>
+                    <p className="text-sm sm:text-base lg:text-lg text-slate-300 line-clamp-2 leading-relaxed mb-3 max-w-4xl drop-shadow-sm">
+                      Cek material berada di blok apa dan di rak material mana (contoh: Smart Meter kWh di Rak A-001), cek saldo stok, atau scan barcode langsung.
+                    </p>
+
+                    {/* Featured Client Example Chips */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-amber-400/90 border border-amber-300 px-3.5 py-1.5 text-xs font-black text-slate-950 shadow-md flex items-center gap-1.5">
+                        <span>⚡</span> Smart Meter (kWh) &rarr; <strong className="text-amber-950">Rak A-001 (Blok C)</strong>
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🔌 Isolator &rarr; Rak A3 (Blok A)
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🏗️ Trafo 100kVA &rarr; Blok B (Jalur 2)
+                      </span>
+                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
+                        🦺 APD Helm &rarr; Rak K3-01 (Blok D)
+                      </span>
                     </div>
                   </div>
 
                   {/* Dual Action Buttons: Lihat Daftar Item & Scan Item */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 self-stretch lg:self-center z-10 w-full sm:w-auto">
+                  <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 self-stretch md:self-center w-full md:w-auto">
                     <button
                       onClick={() => {
                         idleTimer.recordActivity();
@@ -542,7 +505,7 @@ export const App: React.FC = () => {
                       }}
                       className="active:scale-95 transition w-full sm:w-auto"
                     >
-                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-5 lg:px-6 font-extrabold border border-slate-700 shadow-md whitespace-nowrap">
+                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 px-5 lg:px-6 font-extrabold shadow-lg whitespace-nowrap">
                         <span className="text-sm lg:text-base font-extrabold">Lihat Daftar Item</span>
                         <ArrowRight className="h-5 w-5" />
                       </div>
@@ -555,7 +518,7 @@ export const App: React.FC = () => {
                       }}
                       className="active:scale-95 transition w-full sm:w-auto"
                     >
-                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-6 font-black hover:bg-amber-400 shadow-xl whitespace-nowrap border-2 border-amber-400 ring-2 ring-[#FACC15]/50">
+                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-2xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-6 font-black hover:bg-amber-400 shadow-xl whitespace-nowrap border-2 border-amber-400 ring-2 ring-[#FACC15]/50">
                         <Scan className="h-5 w-5" />
                         <span className="text-sm lg:text-base font-black">Scan Item (Cek Spesifikasi)</span>
                         <span className="sr-only">Mulai Scan Material</span>
