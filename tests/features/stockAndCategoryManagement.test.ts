@@ -106,4 +106,48 @@ describe('Stock & Category Management Integration Tests', () => {
     const exactStock = updatedPkg?.stockSnapshots.find(s => s.materialId === material.id);
     expect(exactStock?.quantity).toBe(100);
   });
+
+  it('deletes a registered material and cleans up stocks, assets, and barcode aliases', async () => {
+    // 1. Register a test material
+    const newMat = kioskStorage.addMaterialWithBarcode({
+      code: '007777',
+      name: 'Material Uji Coba Hapus',
+      categoryId: 'cat-mdu',
+      unit: 'Unit',
+      barcode: 'BARCODE-TEST-HAPUS-001',
+      initialQuantity: 20,
+    });
+
+    // Verify it is present
+    let pkg = kioskStorage.getActivePackage();
+    expect(pkg?.materials.some(m => m.id === newMat.id)).toBe(true);
+    expect(pkg?.stockSnapshots.some(s => s.materialId === newMat.id)).toBe(true);
+    expect(pkg?.barcodeAliases.some(a => a.value === 'BARCODE-TEST-HAPUS-001')).toBe(true);
+
+    // Verify scan works before deletion
+    const preScan = await scannerAdapter.processScan('BARCODE-TEST-HAPUS-001');
+    expect(preScan.status).toBe('found');
+
+    // 2. Delete the material
+    const deleteResult = kioskStorage.deleteMaterial(newMat.id);
+    expect(deleteResult.success).toBe(true);
+    expect(deleteResult.materialName).toBe('Material Uji Coba Hapus');
+    expect(deleteResult.materialCode).toBe('007777');
+
+    // 3. Verify it is completely removed from package
+    pkg = kioskStorage.getActivePackage();
+    expect(pkg?.materials.some(m => m.id === newMat.id)).toBe(false);
+    expect(pkg?.stockSnapshots.some(s => s.materialId === newMat.id)).toBe(false);
+    expect(pkg?.barcodeAliases.some(a => a.value === 'BARCODE-TEST-HAPUS-001')).toBe(false);
+
+    // 4. Verify scan resolves as not_found after deletion
+    const postScan = await scannerAdapter.processScan('BARCODE-TEST-HAPUS-001');
+    expect(postScan.status).toBe('not_found');
+  });
+
+  it('throws error when attempting to delete non-existent material ID', () => {
+    expect(() => {
+      kioskStorage.deleteMaterial('non-existent-id-9999');
+    }).toThrow('Material dengan ID "non-existent-id-9999" tidak ditemukan.');
+  });
 });

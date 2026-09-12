@@ -91,17 +91,36 @@ export class CatalogService {
     options: {
       query?: string;
       categoryId?: string;
+      blockCode?: string;
       page?: number;
       pageSize?: number;
     } = {}
   ): { items: MaterialWithStock[]; total: number; page: number; totalPages: number } {
-    const { query = '', categoryId, page = 1, pageSize = 20 } = options;
+    const { query = '', categoryId, blockCode, page = 1, pageSize = 20 } = options;
     const cleanQuery = query.trim().toLowerCase();
 
     let filtered = pkg.materials;
 
     if (categoryId && categoryId !== 'all') {
       filtered = filtered.filter(m => m.categoryId === categoryId);
+    }
+
+    if (blockCode && blockCode !== 'all') {
+      const targetBlock = blockCode.trim().toUpperCase();
+      filtered = filtered.filter(m => {
+        return pkg.stockSnapshots
+          .filter(s => s.materialId === m.id)
+          .some(s => {
+            const loc = pkg.locations.find(l => l.id === s.locationId);
+            if (!loc) return false;
+            const fullLoc = `${loc.zone || ''} ${loc.rack || ''} ${loc.bin || ''}`.toUpperCase();
+            return (
+              fullLoc.includes(`BLOK ${targetBlock}`) ||
+              fullLoc.includes(`BLOK-${targetBlock}`) ||
+              new RegExp(`\\b${targetBlock}\\.\\d+`).test(fullLoc)
+            );
+          });
+      });
     }
 
     if (cleanQuery) {
@@ -111,7 +130,7 @@ export class CatalogService {
         const sapMatch = m.sapCode ? m.sapCode.toLowerCase().includes(cleanQuery) : false;
         const specMatch = m.specification ? m.specification.toLowerCase().includes(cleanQuery) : false;
 
-        // Search by location: Blok, Rak, Bin (contoh: 'kwh', 'rak a-001', 'a-001', 'blok c')
+        // Search by location: Blok, Rak, Bin (contoh: 'kwh', 'rak a-001', 'a-001', 'blok c', 'a.3.1', 'c.1.1')
         const locationMatch = pkg.stockSnapshots
           .filter(s => s.materialId === m.id)
           .some(s => {
@@ -123,7 +142,12 @@ export class CatalogService {
             return zoneMatch || rackMatch || binMatch;
           });
 
-        return nameMatch || codeMatch || sapMatch || specMatch || locationMatch;
+        // Search in barcode aliases (e.g. 'A.3.1', 'C.1.1', 'RAK-A-001')
+        const aliasMatch = pkg.barcodeAliases
+          .filter(a => a.targetId === m.id)
+          .some(a => a.value.toLowerCase().includes(cleanQuery));
+
+        return nameMatch || codeMatch || sapMatch || specMatch || locationMatch || aliasMatch;
       });
     }
 
