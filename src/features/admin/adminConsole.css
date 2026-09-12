@@ -840,69 +840,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Autodetect Badge */
-.adms-autodetect-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: #f0f9ff;
-  border: 1px solid #bae6fd;
-  color: #0369a1;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 8px;
-  margin-top: 2px;
-}
-
-.adms-auto-icon {
-  color: #0284c7;
-}
-
-/* Divider */
-.adms-divider-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 4px 0;
-}
-
-.adms-divider-line {
-  flex: 1;
-  height: 1px;
-  background: #e2e8f0;
-}
-
-.adms-divider-text {
-  font-size: 11px;
-  font-weight: 600;
-  color: #94a3b8;
-}
-
-/* Google / SSO Login Button */
-.adms-google-login-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transition: all 0.16s ease;
-}
-
-.adms-google-login-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
-}
-
 /* Footer Link */
 .adms-form-footer {
   text-align: center;
