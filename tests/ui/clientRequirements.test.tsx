@@ -30,6 +30,7 @@ describe('Client Meeting Requirements Verification (Universal-KIOSK)', () => {
     // In Header (Tampilan Utama)
     expect(screen.getByLabelText(/Logo Danantara Indonesia/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Logo PT PLN \(Persero\)/i)).toBeInTheDocument();
+    expect(screen.queryByText(/WIB/i)).not.toBeInTheDocument();
   });
 
   it('Requirement 2: Top section displays Warehouse Layout visualizer, opens interactive layout schematic with zones & racks', () => {
