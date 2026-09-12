@@ -21,6 +21,8 @@ import {
   ArrowRight,
   Search,
   X,
+  MoreVertical,
+  Check,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
@@ -61,7 +63,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   });
   const [activeTab, setActiveTab] = useState<AdminModuleTab>('stock');
   const [overviewSearch, setOverviewSearch] = useState('');
+  const [overviewSelectedCategory, setOverviewSelectedCategory] = useState<string>('all');
+  const [showOverviewCategoryMenu, setShowOverviewCategoryMenu] = useState<boolean>(false);
   const [stockSearch, setStockSearch] = useState('');
+  const [stockSelectedCategory, setStockSelectedCategory] = useState<string>('all');
+  const [showStockCategoryMenu, setShowStockCategoryMenu] = useState<boolean>(false);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   const triggerPackageUpdated = () => {
@@ -369,6 +375,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   };
 
   const filteredStockMaterials = (activePkg?.materials || []).filter((m) => {
+    if (stockSelectedCategory !== 'all' && m.categoryId !== stockSelectedCategory) {
+      return false;
+    }
     if (!stockSearch) return true;
     const q = stockSearch.toLowerCase().trim();
     const { blokDisplay, rakDisplay } = getMaterialLocationInfo(m.id, activePkg);
@@ -383,6 +392,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   });
 
   const overviewFilteredMaterials = (activePkg?.materials || []).filter((m) => {
+    if (overviewSelectedCategory !== 'all' && m.categoryId !== overviewSelectedCategory) {
+      return false;
+    }
     if (!overviewSearch) return true;
     const q = overviewSearch.toLowerCase().trim();
     const { blokDisplay, rakDisplay } = getMaterialLocationInfo(m.id, activePkg);
@@ -569,27 +581,127 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       Snapshot aktif versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
                     </p>
                   </div>
-                  <div className="relative w-full sm:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Cari nama, kode normalisasi, blok, rak..."
-                      value={overviewSearch}
-                      onChange={(e) => setOverviewSearch(e.target.value)}
-                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                    {overviewSearch && (
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-80">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Cari nama, kode normalisasi, blok, rak..."
+                        value={overviewSearch}
+                        onChange={(e) => setOverviewSearch(e.target.value)}
+                        className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                      {overviewSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setOverviewSearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                          aria-label="Bersihkan pencarian overview"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Titik 3 Filter Kategori Overview */}
+                    <div className="relative shrink-0">
                       <button
                         type="button"
-                        onClick={() => setOverviewSearch('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                        aria-label="Bersihkan pencarian"
+                        onClick={() => setShowOverviewCategoryMenu((prev) => !prev)}
+                        title="Filter Berdasarkan Kategori"
+                        aria-label="Filter berdasarkan kategori overview"
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl border transition shadow-2xs active:scale-95 ${
+                          overviewSelectedCategory !== 'all'
+                            ? 'bg-amber-100 border-amber-400 text-amber-900 font-bold ring-2 ring-amber-400/30'
+                            : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <MoreVertical className="h-4 w-4" />
                       </button>
-                    )}
+
+                      {showOverviewCategoryMenu && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-30"
+                            onClick={() => setShowOverviewCategoryMenu(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
+                            <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                Filter Kategori
+                              </span>
+                              <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
+                                {activePkg?.categories.length || 0} Kategori
+                              </span>
+                            </div>
+                            <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOverviewSelectedCategory('all');
+                                  setShowOverviewCategoryMenu(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                  overviewSelectedCategory === 'all'
+                                    ? 'bg-amber-50 text-amber-900 font-bold'
+                                    : 'text-slate-700 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span>Semua Kategori</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] text-slate-400">({activePkg?.materials.length || 0})</span>
+                                  {overviewSelectedCategory === 'all' && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                </div>
+                              </button>
+                              {activePkg?.categories.map((cat) => {
+                                const count = (activePkg.materials || []).filter((m) => m.categoryId === cat.id).length;
+                                const isSelected = overviewSelectedCategory === cat.id;
+                                return (
+                                  <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setOverviewSelectedCategory(cat.id);
+                                      setShowOverviewCategoryMenu(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                      isSelected
+                                        ? 'bg-amber-50 text-amber-900 font-bold'
+                                        : 'text-slate-700 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    <span className="truncate pr-2">{cat.name}</span>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <span className="text-[11px] text-slate-400">({count})</span>
+                                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {overviewSelectedCategory !== 'all' && (
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-[11px] font-semibold text-slate-500">Filter Kategori:</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-900">
+                      <span>{activePkg?.categories.find((c) => c.id === overviewSelectedCategory)?.name || overviewSelectedCategory}</span>
+                      <button
+                        type="button"
+                        onClick={() => setOverviewSelectedCategory('all')}
+                        className="text-amber-700 hover:text-amber-950 p-0.5 rounded-full hover:bg-amber-200/60"
+                        title="Hapus filter kategori"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  </div>
+                )}
 
                 <div className="overflow-x-auto rounded-xl border border-slate-200">
                   <table className="w-full text-left text-xs min-w-[640px]">
@@ -1008,28 +1120,128 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </p>
                   </div>
 
-                  {/* Search Bar for Stock Table */}
-                  <div className="relative w-full sm:w-80">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Cari nama, kode normalisasi, blok, rak..."
-                      value={stockSearch}
-                      onChange={(e) => setStockSearch(e.target.value)}
-                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                    {stockSearch && (
+                  {/* Search Bar & Titik 3 Category Filter for Stock Table */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-80">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Cari nama, kode normalisasi, blok, rak..."
+                        value={stockSearch}
+                        onChange={(e) => setStockSearch(e.target.value)}
+                        className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                      {stockSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setStockSearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                          aria-label="Bersihkan pencarian stock"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Titik 3 (MoreVertical) Filter Category Button */}
+                    <div className="relative shrink-0">
                       <button
                         type="button"
-                        onClick={() => setStockSearch('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                        aria-label="Bersihkan pencarian"
+                        onClick={() => setShowStockCategoryMenu((prev) => !prev)}
+                        title="Filter Berdasarkan Kategori"
+                        aria-label="Filter berdasarkan kategori"
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl border transition shadow-2xs active:scale-95 ${
+                          stockSelectedCategory !== 'all'
+                            ? 'bg-amber-100 border-amber-400 text-amber-900 font-bold ring-2 ring-amber-400/30'
+                            : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <MoreVertical className="h-4 w-4" />
                       </button>
-                    )}
+
+                      {showStockCategoryMenu && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-30"
+                            onClick={() => setShowStockCategoryMenu(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
+                            <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                Filter Kategori
+                              </span>
+                              <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
+                                {activePkg?.categories.length || 0} Kategori
+                              </span>
+                            </div>
+                            <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setStockSelectedCategory('all');
+                                  setShowStockCategoryMenu(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                  stockSelectedCategory === 'all'
+                                    ? 'bg-amber-50 text-amber-900 font-bold'
+                                    : 'text-slate-700 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span>Semua Kategori</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] text-slate-400">({activePkg?.materials.length || 0})</span>
+                                  {stockSelectedCategory === 'all' && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                </div>
+                              </button>
+                              {activePkg?.categories.map((cat) => {
+                                const count = (activePkg.materials || []).filter((m) => m.categoryId === cat.id).length;
+                                const isSelected = stockSelectedCategory === cat.id;
+                                return (
+                                  <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setStockSelectedCategory(cat.id);
+                                      setShowStockCategoryMenu(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                      isSelected
+                                        ? 'bg-amber-50 text-amber-900 font-bold'
+                                        : 'text-slate-700 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    <span className="truncate pr-2">{cat.name}</span>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <span className="text-[11px] text-slate-400">({count})</span>
+                                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {stockSelectedCategory !== 'all' && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[11px] font-semibold text-slate-500">Filter Kategori:</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-900">
+                      <span>{activePkg?.categories.find((c) => c.id === stockSelectedCategory)?.name || stockSelectedCategory}</span>
+                      <button
+                        type="button"
+                        onClick={() => setStockSelectedCategory('all')}
+                        className="text-amber-700 hover:text-amber-950 p-0.5 rounded-full hover:bg-amber-200/60"
+                        title="Hapus filter kategori"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  </div>
+                )}
 
                 <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white max-h-[460px] overflow-y-auto">
                   <table className="w-full text-left text-xs min-w-[640px]">

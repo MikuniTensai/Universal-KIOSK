@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, Keyboard, PackageOpen, MapPin } from 'lucide-react';
+import { Search, X, Keyboard, PackageOpen, MapPin, MoreVertical, Check } from 'lucide-react';
 import { ImportPackage, KioskConfig, MaterialWithStock } from '../../domain/types';
 import { CatalogService } from './catalogService';
 import { MaterialCard } from './MaterialCard';
@@ -20,6 +20,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showCategoryMenu, setShowCategoryMenu] = useState<boolean>(false);
   const [selectedBlock, setSelectedBlock] = useState<string>('all');
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithStock | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState<boolean>(false);
@@ -60,7 +61,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setKeyboardVisible(true)}
-            className="h-14 sm:h-16 w-full rounded-control border border-slate-200 bg-white pl-12 sm:pl-14 pr-24 sm:pr-32 text-sm sm:text-base lg:text-lg font-medium text-[#0F172A] shadow-sm placeholder:text-slate-400 placeholder:truncate focus:border-[#FACC15] focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20"
+            className="h-14 sm:h-16 w-full rounded-control border border-slate-200 bg-white pl-12 sm:pl-14 pr-36 sm:pr-44 text-sm sm:text-base lg:text-lg font-medium text-[#0F172A] shadow-sm placeholder:text-slate-400 placeholder:truncate focus:border-[#FACC15] focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20"
           />
           <div className="absolute right-3 flex items-center gap-1.5">
             {searchQuery && (
@@ -82,6 +83,87 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             >
               <Keyboard className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
+
+            {/* Titik 3 Filter by Category */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowCategoryMenu(prev => !prev)}
+                className={`flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-control transition active:scale-95 ${
+                  selectedCategory !== 'all'
+                    ? 'bg-[#FACC15] text-[#0F172A] border-2 border-amber-500 font-bold shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+                title="Filter Berdasarkan Kategori"
+                aria-label="Filter berdasarkan kategori"
+              >
+                <MoreVertical className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+
+              {showCategoryMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-30"
+                    onClick={() => setShowCategoryMenu(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-72 max-w-[90vw] rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
+                    <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Filter Kategori
+                      </span>
+                      <span className="text-xs bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
+                        {pkg.categories.length} Kategori
+                      </span>
+                    </div>
+                    <div className="max-h-72 overflow-y-auto py-1 space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory('all');
+                          setShowCategoryMenu(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl transition ${
+                          selectedCategory === 'all'
+                            ? 'bg-[#FACC15] text-[#0F172A] font-bold'
+                            : 'text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span>Semua Kategori</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs opacity-75">({pkg.materials.length})</span>
+                          {selectedCategory === 'all' && <Check className="h-4 w-4" />}
+                        </div>
+                      </button>
+                      {pkg.categories.map((cat) => {
+                        const count = pkg.materials.filter((m) => m.categoryId === cat.id).length;
+                        const isSelected = selectedCategory === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCategory(cat.id);
+                              setShowCategoryMenu(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl transition ${
+                              isSelected
+                                ? 'bg-[#FACC15] text-[#0F172A] font-bold'
+                                : 'text-slate-700 hover:bg-slate-100'
+                            }`}
+                          >
+                            <span className="truncate pr-2">{cat.name}</span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="text-xs opacity-75">({count})</span>
+                              {isSelected && <Check className="h-4 w-4" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

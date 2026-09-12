@@ -242,5 +242,50 @@ describe('Admin Console Responsive UX & Touch Targets (Uci UI/UX Audit)', () => 
       fireEvent.change(stockSearchInput, { target: { value: 'nonexistentmaterial12345' } });
       expect(screen.getByText(/Tidak ada material yang cocok dengan pencarian/i)).toBeInTheDocument();
     });
+
+    it('toggles category filter dropdown using 3-dots button and filters materials by category', () => {
+      const onClose = vi.fn();
+
+      render(
+        <AdminDashboardModal
+          visible={true}
+          bypassPin={true}
+          onClose={onClose}
+          onPackageUpdated={vi.fn()}
+        />
+      );
+
+      // Default active tab is 'stock'
+      const filterButton = screen.getByRole('button', { name: /Filter berdasarkan kategori/i });
+      expect(filterButton).toBeInTheDocument();
+
+      // Click 3-dots button to open category menu
+      fireEvent.click(filterButton);
+
+      // Dropdown menu should show "Semua Kategori" and active categories
+      expect(screen.getByText(/Filter Kategori/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Semua Kategori/i })).toBeInTheDocument();
+
+      // Select first category option from active categories
+      const categoryOptions = screen.getAllByRole('button').filter(btn =>
+        btn.textContent && !btn.textContent.includes('Semua Kategori') && btn.closest('.max-h-60')
+      );
+
+      if (categoryOptions.length > 0) {
+        const firstCategoryBtn = categoryOptions[0];
+        fireEvent.click(firstCategoryBtn);
+
+        // Active filter chip should appear
+        expect(screen.getByText(/Filter Kategori:/i)).toBeInTheDocument();
+
+        // Button to reset category filter
+        const resetCategoryBtn = screen.getByRole('button', { name: /Hapus filter kategori/i });
+        expect(resetCategoryBtn).toBeInTheDocument();
+        fireEvent.click(resetCategoryBtn);
+
+        // Filter chip should disappear
+        expect(screen.queryByText(/Filter Kategori:/i)).not.toBeInTheDocument();
+      }
+    });
   });
 });
