@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, ShieldCheck, Sparkles, Scan, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { ImportPackage, KioskConfig } from '../../domain/types';
 import { WALLPAPER_PRESETS } from '../../data/mockPlnPackage';
 import { DanantaraLogo } from '../../shared/ui/DanantaraLogo';
@@ -40,39 +40,18 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
       {/* Top Banner: Danantara Kiri & PLN Kanan */}
       <div className="flex items-center justify-between z-10 w-full">
         <DanantaraLogo variant="dark" />
-
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 backdrop-blur-md border border-white/20 shadow-sm">
-          <ShieldCheck className="h-4 w-4 text-[#FACC15]" />
-          <span className="text-xs font-bold tracking-wider text-slate-200 uppercase">
-            Holding BUMN Ketenagalistrikan &bull; {config.warehouseCode}
-          </span>
-        </div>
-
-        <PlnLogo variant="dark" />
+        <PlnLogo variant="dark" showSubtitle={false} />
       </div>
 
       {/* Main Center Message (Centered) */}
-      <div className="my-auto flex flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-6 z-10">
-        <div className="inline-flex items-center gap-2 rounded-full bg-[#FACC15]/20 px-5 py-2 border border-[#FACC15]/40 text-[#FACC15] text-xs md:text-sm font-black tracking-widest uppercase shadow-lg">
-          <Sparkles className="h-4 w-4 text-[#FACC15]" />
-          TERMINAL MANDIRI KASSEN WK-215
-        </div>
-
+      <div className="my-auto flex flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-4 z-10">
         <h2 className="text-6xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tight text-white drop-shadow-2xl">
           SELAMAT DATANG
         </h2>
 
         <p className="text-2xl md:text-3xl lg:text-4xl font-black text-[#FACC15] leading-relaxed max-w-3xl drop-shadow-md tracking-wide">
-          PT PLN (Persero) UP3 Malang
+          di Gudang Aris Munandar PLN UP3 Malang
         </p>
-
-        {/* Quick hint for scanner */}
-        <div className="mt-6 flex items-center justify-center gap-3 text-amber-300 bg-black/50 px-8 py-3.5 rounded-2xl border border-amber-500/30 backdrop-blur-md shadow-xl">
-          <Scan className="h-6 w-6 animate-pulse text-[#FACC15]" />
-          <span className="text-base md:text-lg font-semibold text-amber-200">
-            Dekatkan Barcode / QR Material langsung ke scanner kapan saja
-          </span>
-        </div>
       </div>
 
       {/* Bottom Ticker & Tap Prompt */}

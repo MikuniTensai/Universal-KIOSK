@@ -10,7 +10,7 @@ interface PlnLogoProps {
 export const PlnLogo: React.FC<PlnLogoProps> = ({
   variant = 'light',
   className = '',
-  showSubtitle = true,
+  showSubtitle = false,
 }) => {
   const isDark = variant === 'dark';
 
