@@ -19,6 +19,13 @@ if (!fs.existsSync(dataDir)) {
 }
 const syncFile = path.resolve(dataDir, 'kiosk-sync-state.json');
 
+// Simpan PID untuk shutdown instan
+const pidFile = path.resolve(__dirname, 'server.pid');
+fs.writeFileSync(pidFile, String(process.pid), 'utf8');
+process.on('exit', () => {
+  try { if (fs.existsSync(pidFile)) fs.unlinkSync(pidFile); } catch {}
+});
+
 const KIOSK_PORT = 5000;
 const ADMIN_PORT = 5001;
 

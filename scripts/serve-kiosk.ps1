@@ -43,6 +43,18 @@ try {
     # Port belum terpakai, lanjutkan inisialisasi
 }
 
+# 1.1 Cek apakah Bun atau Node tersedia untuk menjalankan server native 0.0.0.0 (Akses LAN Tanpa Batasan URL ACL)
+$bunPath = if (Test-Path "$env:USERPROFILE\.bun\bin\bun.exe") { "$env:USERPROFILE\.bun\bin\bun.exe" } elseif (Get-Command bun -ErrorAction SilentlyContinue) { (Get-Command bun).Source } else { $null }
+$nodePath = if (Get-Command node -ErrorAction SilentlyContinue) { (Get-Command node).Source } else { $null }
+$runtime = if ($bunPath) { $bunPath } elseif ($nodePath) { $nodePath } else { $null }
+
+$dualMjs = Join-Path $PSScriptRoot "serve-dual.mjs"
+if ($runtime -and (Test-Path $dualMjs)) {
+    Write-Host "[INFO] Menjalankan Dual-Port Server (0.0.0.0) via $runtime..."
+    & $runtime $dualMjs
+    exit $LASTEXITCODE
+}
+
 # Simpan PID untuk shutdown instan
 $pidFile = Join-Path $PSScriptRoot "server.pid"
 Set-Content -Path $pidFile -Value $PID -Force
@@ -66,13 +78,8 @@ try {
 
     foreach ($ip in $localIps) {
         $detectedIps += $ip
-        try {
-            $listener.Prefixes.Add("http://${ip}:${Port}/")
-            $listener.Prefixes.Add("http://${ip}:${AdminPort}/")
-            Write-Host "[LAN BIND] http://${ip}:${Port}/ (Kiosk) & http://${ip}:${AdminPort}/ (Admin)"
-        } catch {
-            # Abaikan jika Windows URL ACL membatasi IP tertentu tanpa hak Admin
-        }
+        $listener.Prefixes.Add("http://${ip}:${Port}/")
+        $listener.Prefixes.Add("http://${ip}:${AdminPort}/")
     }
 } catch {
     Write-Host "[WARN] Tidak dapat mendeteksi IP lokal, mengaktifkan loopback mode."
@@ -81,10 +88,21 @@ try {
 try {
     $listener.Start()
 } catch {
-    $msg = $_.Exception.Message
-    Write-Error "[ERROR] Gagal mengaktifkan HttpListener pada port ${Port}/${AdminPort}: $msg"
-    Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
-    exit 1
+    # Jika gagal karena batasan Windows URL ACL pada LAN IP, fallback ke loopback
+    Write-Host "[WARN] Membutuhkan hak Admin untuk bind LAN IP di HttpListener ($($_.Exception.Message)). Beralih ke loopback..."
+    $listener = New-Object System.Net.HttpListener
+    $listener.Prefixes.Add("http://localhost:$Port/")
+    $listener.Prefixes.Add("http://localhost:$AdminPort/")
+    $listener.Prefixes.Add("http://127.0.0.1:$Port/")
+    $listener.Prefixes.Add("http://127.0.0.1:$AdminPort/")
+    try {
+        $listener.Start()
+    } catch {
+        $msg = $_.Exception.Message
+        Write-Error "[ERROR] Gagal mengaktifkan HttpListener pada port ${Port}/${AdminPort}: $msg"
+        Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
+        exit 1
+    }
 }
 
 Write-Host "=========================================================="
