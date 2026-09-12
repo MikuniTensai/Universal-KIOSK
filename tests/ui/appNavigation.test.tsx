@@ -86,12 +86,16 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     expect(screen.getByText(/Posisi Rak & Alamat Lokasi Gudang/i)).toBeInTheDocument();
   });
 
-  it('opens Admin panel with PIN authentication', () => {
+  it('opens Admin panel with PIN authentication via emergency 5-tap gesture', () => {
     render(<App />);
     fireEvent.click(screen.getByText(/Sentuh Layar di Mana Saja untuk Memulai/i));
 
-    // Click shield/admin icon in header
-    fireEvent.click(screen.getByTitle(/Akses Petugas Gudang/i));
+    // Admin button is hidden on public kiosk; emergency access is triggered via 5 taps on PLN logo
+    expect(screen.queryByTitle(/Akses Petugas Gudang/i)).not.toBeInTheDocument();
+    const plnLogo = screen.getByTitle(/PT PLN \(Persero\)/i);
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(plnLogo);
+    }
 
     // PIN modal is displayed
     expect(screen.getByText(/Masukkan PIN Akses/i)).toBeInTheDocument();
@@ -114,8 +118,11 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     render(<App />);
     fireEvent.click(screen.getByText(/Sentuh Layar di Mana Saja untuk Memulai/i));
 
-    // Open Admin
-    fireEvent.click(screen.getByTitle(/Akses Petugas Gudang/i));
+    // Open Admin via 5 taps on PLN logo
+    const plnLogo = screen.getByTitle(/PT PLN \(Persero\)/i);
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(plnLogo);
+    }
     ['1', '2', '3', '4', '5', '6'].forEach(digit => {
       fireEvent.click(screen.getByRole('button', { name: digit }));
     });

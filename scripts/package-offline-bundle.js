@@ -32,16 +32,37 @@ fs.cpSync(path.join(rootDir, 'docs'), path.join(bundleDir, 'docs'), { recursive:
 
 // 5. Buat file petunjuk instalasi cepat
 const readmeText = `# PAKET RILIS OFFLINE KIOSK MANDIRI GUDANG PLN (KASSEN WK-215)
-Versi: 1.0.0
+Versi: 1.1.0 (Dual-Port Architecture & LAN Management)
 Target OS: Windows 10 / 11 64-bit
 
-## Cara Menjalankan Aplikasi di Unit Kassen WK-215:
-1. Pastikan folder ini disalin ke harddisk unit (misal: C:\\PLN-Kiosk\\).
-2. Klik ganda 'scripts/launch-kiosk.bat' untuk meluncurkan aplikasi layar penuh.
-3. Untuk setup otomatis menyala saat boot, klik kanan 'scripts/setup-windows-kiosk.ps1' lalu pilih 'Run with PowerShell'.
-4. Default PIN untuk akses petugas/admin: 123456.
+## 1. Arsitektur Port Terpisah (Dual-Port):
+- **PORT 5000 (Layar Kiosk Publik 21.5")**:
+  - URL: http://localhost:5000/
+  - Tombol admin disembunyikan dari layar publik agar aman dari intip PIN (zero shoulder-surfing).
+  - Jalankan via: 'scripts/launch-kiosk.bat'.
+  - Akses darurat di layar kios: Ketuk logo PLN 5x cepat.
 
-Dokumentasi lengkap terdapat di folder docs/.
+- **PORT 5001 (Portal Administrator & Kontrol LAN)**:
+  - URL Lokal: http://localhost:5001/
+  - Akses Jaringan LAN: http://<IP-Komputer-Kiosk>:5001/ (dari laptop/PC kantor supervisor)
+  - Bebas PIN, langsung membuka Full-Page Management Console:
+    * Manajemen Stok & Quick Add
+    * Tambah/Hapus Material Masuk (Clean Cascade Deletion)
+    * Kelola Hirarki Blok A sampai Z
+    * Impor Paket SAP JSON & Riwayat Snapshot
+    * Pengaturan Sistem Kiosk
+  - Jalankan via: 'scripts/launch-admin.bat' atau 'scripts/launch-admin-windowed.bat'.
+
+## 2. Cara Pemasangan di Unit Kassen WK-215:
+1. Salin seluruh isi folder ini ke harddisk unit (contoh: C:\\PLN-Kiosk\\).
+2. Klik kanan 'scripts/setup-windows-kiosk.ps1' lalu pilih 'Run with PowerShell' (sebagai Administrator).
+   Skrip ini otomatis mendaftarkan auto-start saat Windows booting dan membuat 4 shortcut di Desktop:
+   - Jalankan Kiosk PLN (Port 5000 Fullscreen)
+   - Portal Admin Gudang PLN (Port 5001)
+   - Kiosk PLN (Mode Jendela)
+   - Tutup Kiosk PLN
+
+Dokumentasi teknis lengkap terdapat di folder docs/.
 `;
 
 fs.writeFileSync(path.join(bundleDir, 'BACA_DULU_PETUNJUK_INSTALASI.txt'), readmeText, 'utf8');

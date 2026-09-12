@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Script Pemasangan & Konfigurasi Kiosk Gudang PLN pada Terminal Windows 10/11 (Kassen WK-215).
 .DESCRIPTION
@@ -24,6 +24,7 @@ $DesktopFolder = [Environment]::GetFolderPath("Desktop")
 $DesktopRunPath = Join-Path $DesktopFolder "Jalankan Kiosk PLN.lnk"
 $DesktopStopPath = Join-Path $DesktopFolder "Tutup Kiosk PLN.lnk"
 $DesktopWinPath = Join-Path $DesktopFolder "Kiosk PLN (Mode Jendela).lnk"
+$DesktopAdminPath = Join-Path $DesktopFolder "Portal Admin Gudang PLN (Port 5001).lnk"
 
 $RegRunPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
 $RegRunName = "KioskGudangPLN"
@@ -109,7 +110,20 @@ if (Test-Path $WinScript) {
     $ScWin.Description = "Buka Kiosk dalam Jendela Biasa (Memiliki tombol X penutup)"
     $ScWin.Save()
 }
-Write-Host "[OK] Shortcut Desktop berhasil diperbarui (Jalankan, Tutup, dan Mode Jendela)." -ForegroundColor Green
+
+# D. Portal Admin Gudang PLN (Port 5001)
+$AdminScript = Join-Path $ScriptDir "launch-admin.bat"
+if (Test-Path $AdminScript) {
+    $ScAdmin = $WshShell.CreateShortcut($DesktopAdminPath)
+    $ScAdmin.TargetPath = $AdminScript
+    $ScAdmin.WorkingDirectory = $ScriptDir
+    $ScAdmin.WindowStyle = 1
+    $ScAdmin.IconLocation = "shell32.dll,167" # Network / Admin icon
+    $ScAdmin.Description = "Buka Portal Administrator Gudang PLN (Port 5001 - Manajemen Stok & SAP)"
+    $ScAdmin.Save()
+}
+
+Write-Host "[OK] Shortcut Desktop berhasil diperbarui (Jalankan Kiosk, Tutup Kiosk, Mode Jendela, dan Portal Admin 5001)." -ForegroundColor Green
 
 # 4. Nonaktifkan Touch Edge Gestures jika dijalankan sebagai Administrator
 try {

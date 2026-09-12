@@ -11,6 +11,7 @@ interface HeaderProps {
   onOpenAdmin: () => void;
   lowReachMode?: boolean;
   onToggleLowReach?: () => void;
+  showAdminButton?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,9 +21,27 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAdmin,
   lowReachMode = false,
   onToggleLowReach,
+  showAdminButton = false,
 }) => {
   const [timeStr, setTimeStr] = useState<string>('');
   const [dateStr, setDateStr] = useState<string>('');
+  const secretTapCountRef = React.useRef<number>(0);
+  const secretTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handlePlnLogoTap = () => {
+    secretTapCountRef.current += 1;
+    if (secretTapCountRef.current >= 5) {
+      if (secretTapTimerRef.current) clearTimeout(secretTapTimerRef.current);
+      secretTapCountRef.current = 0;
+      onOpenAdmin();
+      return;
+    }
+
+    if (secretTapTimerRef.current) clearTimeout(secretTapTimerRef.current);
+    secretTapTimerRef.current = setTimeout(() => {
+      secretTapCountRef.current = 0;
+    }, 3000);
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -107,17 +126,23 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          <button
-            onClick={onOpenAdmin}
-            title="Akses Petugas Gudang"
-            className="flex h-12 w-12 items-center justify-center rounded-control border border-slate-200 bg-white text-slate-600 shadow-xs transition active:scale-95 hover:bg-slate-50"
-          >
-            <ShieldCheck className="h-5 w-5" />
-          </button>
+          {showAdminButton && (
+            <button
+              onClick={onOpenAdmin}
+              title="Akses Petugas Gudang"
+              className="flex h-12 w-12 items-center justify-center rounded-control border border-slate-200 bg-white text-slate-600 shadow-xs transition active:scale-95 hover:bg-slate-50"
+            >
+              <ShieldCheck className="h-5 w-5" />
+            </button>
+          )}
         </div>
 
-        {/* Official PLN Logo di Pojok Kanan */}
-        <div className="pl-3 border-l border-slate-200">
+        {/* Official PLN Logo di Pojok Kanan (Ketuk 5x cepat untuk akses darurat jika tombol admin disembunyikan) */}
+        <div
+          onClick={handlePlnLogoTap}
+          title="PT PLN (Persero)"
+          className="pl-3 border-l border-slate-200 cursor-pointer select-none"
+        >
           <PlnLogo variant="light" />
         </div>
       </div>

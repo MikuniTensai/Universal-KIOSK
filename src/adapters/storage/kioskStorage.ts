@@ -92,6 +92,14 @@ export class KioskStorage {
     }
   }
 
+  public setActivePackageDirectly(pkg: ImportPackage): void {
+    this.activePackage = pkg;
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_PACKAGE, JSON.stringify(this.activePackage));
+    }
+  }
+
+
   /**
    * Atomically activates a validated package and moves previous package to history
    */

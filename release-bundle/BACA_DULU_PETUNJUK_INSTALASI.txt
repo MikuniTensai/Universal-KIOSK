@@ -1,42 +1,32 @@
-﻿================================================================================
 # PAKET RILIS OFFLINE KIOSK MANDIRI GUDANG PLN (KASSEN WK-215)
-================================================================================
-Versi     : 1.0.0 (Production Release)
-Target OS : Windows 10 / 11 64-bit
-Lokasi    : C:\PLN-Kiosk\
-Browser   : Microsoft Edge (Mode Kiosk Fullscreen)
+Versi: 1.1.0 (Dual-Port Architecture & LAN Management)
+Target OS: Windows 10 / 11 64-bit
 
-## PANDUAN PENGGUNAAN & PEMELIHARAAN:
+## 1. Arsitektur Port Terpisah (Dual-Port):
+- **PORT 5000 (Layar Kiosk Publik 21.5")**:
+  - URL: http://localhost:5000/
+  - Tombol admin disembunyikan dari layar publik agar aman dari intip PIN (zero shoulder-surfing).
+  - Jalankan via: 'scripts/launch-kiosk.bat'.
+  - Akses darurat di layar kios: Ketuk logo PLN 5x cepat.
 
-1. CARA MENJALANKAN KIOSK:
-   - Opsi A (Utama): Klik ganda icon "Kiosk Gudang PLN" di Desktop Windows.
-   - Opsi B: Klik ganda 'scripts/launch-kiosk.bat' untuk mode layar penuh Kiosk.
-   - Opsi C: Klik ganda 'scripts/launch-kiosk-windowed.bat' jika ingin membuka dalam
-             jendela biasa (untuk pengujian/tinjauan teknis).
+- **PORT 5001 (Portal Administrator & Kontrol LAN)**:
+  - URL Lokal: http://localhost:5001/
+  - Akses Jaringan LAN: http://<IP-Komputer-Kiosk>:5001/ (dari laptop/PC kantor supervisor)
+  - Bebas PIN, langsung membuka Full-Page Management Console:
+    * Manajemen Stok & Quick Add
+    * Tambah/Hapus Material Masuk (Clean Cascade Deletion)
+    * Kelola Hirarki Blok A sampai Z
+    * Impor Paket SAP JSON & Riwayat Snapshot
+    * Pengaturan Sistem Kiosk
+  - Jalankan via: 'scripts/launch-admin.bat' atau 'scripts/launch-admin-windowed.bat'.
 
-2. AUTO-START SAAT KOMPUTER BOOTING (SUDAH TERPASANG):
-   - Kiosk telah didaftarkan ke folder Startup Windows.
-   - Setiap kali mesin Kassen WK-215 dinyalakan, Kiosk akan otomatis meluncur
-     ke layar penuh tanpa perlu campur tangan operator.
-   - Jika ingin mendaftarkan ulang atau memperbarui:
-     Klik ganda 'scripts/setup-windows-kiosk.bat'.
+## 2. Cara Pemasangan di Unit Kassen WK-215:
+1. Salin seluruh isi folder ini ke harddisk unit (contoh: C:\PLN-Kiosk\).
+2. Klik kanan 'scripts/setup-windows-kiosk.ps1' lalu pilih 'Run with PowerShell' (sebagai Administrator).
+   Skrip ini otomatis mendaftarkan auto-start saat Windows booting dan membuat 4 shortcut di Desktop:
+   - Jalankan Kiosk PLN (Port 5000 Fullscreen)
+   - Portal Admin Gudang PLN (Port 5001)
+   - Kiosk PLN (Mode Jendela)
+   - Tutup Kiosk PLN
 
-3. CARA MENGHENTIKAN / KELUAR DARI KIOSK (UNTUK TEKNISI):
-   - Dari layar Kiosk: Tekan keyboard fisik kombinasi [Alt + F4] atau [Ctrl + W].
-   - Atau klik ganda 'scripts/stop-kiosk.bat' untuk mematikan browser dan background server.
-
-4. AKSES PANEL ADMINISTRATOR & PETUGAS:
-   - Sentuh icon gembok / perisai di pojok kanan atas layar Kiosk.
-   - Masukkan PIN Keamanan Petugas: 123456
-   - Panel admin memungkinkan impor katalog SAP baru, pemulihan versi,
-     dan penyesuaian waktu screensaver / nama gudang.
-
-5. FITUR SISTEM:
-   - 100% Mandiri & Offline (Zero Dependency: tidak perlu install Node.js/Python).
-   - Layanan HTTP lokal ultra-ringan berbasis Windows .NET HttpListener bawaan.
-   - Dukungan scanner barcode hardware USB HID (Kassen WK-215).
-   - Mode ramah kursi roda (Low-reach UI).
-   - Screensaver otomatis setelah 60 detik tidak ada aktivitas sentuhan.
-
-Dokumentasi lengkap dan manual troubleshooting tersedia di folder: docs/
-================================================================================
+Dokumentasi teknis lengkap terdapat di folder docs/.

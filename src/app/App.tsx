@@ -20,10 +20,13 @@ import { WarehouseLayoutView } from '../features/layout/WarehouseLayoutView';
 import { CatalogView } from '../features/catalog/CatalogView';
 import { ScanStandbyView } from '../features/scanner/ScanStandbyView';
 import { AdminDashboardModal } from '../features/admin/AdminDashboardModal';
+import { AdminModeService } from '../features/admin/adminModeService';
+import { SyncService } from '../adapters/storage/syncService';
 import { ScanResolveResult, ImportPackage, KioskConfig } from '../domain/types';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../data/mockPlnPackage';
 
 export const App: React.FC = () => {
+  const isDedicatedAdmin = AdminModeService.isAdminPort();
   const [activePackage, setActivePackage] = useState<ImportPackage | null>(kioskStorage.getActivePackage());
   const [config, setConfig] = useState<KioskConfig>(kioskStorage.getConfig());
   const [currentRoute, setCurrentRoute] = useState<'idle' | 'home' | 'layout' | 'programs' | 'catalog' | 'scan'>('idle');
@@ -48,6 +51,8 @@ export const App: React.FC = () => {
 
   // 1. Activity & Idle Timer setup
   useEffect(() => {
+    if (isDedicatedAdmin) return;
+
     idleTimer.updateTimeouts(config.idleSeconds, config.warningSeconds);
     idleTimer.start();
 
@@ -79,10 +84,12 @@ export const App: React.FC = () => {
       window.removeEventListener('touchstart', handleUserActivity);
       window.removeEventListener('keydown', handleUserActivity);
     };
-  }, [config.idleSeconds, config.warningSeconds]);
+  }, [config.idleSeconds, config.warningSeconds, isDedicatedAdmin]);
 
   // 2. Global Scanner listener setup
   useEffect(() => {
+    if (isDedicatedAdmin) return;
+
     const unsubscribeScanner = scannerAdapter.subscribe((result) => {
       idleTimer.recordActivity();
       setTimeoutWarningVisible(false);
@@ -93,10 +100,12 @@ export const App: React.FC = () => {
     return () => {
       unsubscribeScanner();
     };
-  }, []);
+  }, [isDedicatedAdmin]);
 
-  // 3. Kiosk Lockdown (Prevent context menu & dangerous shortcuts)
+  // 3. Kiosk Lockdown (Prevent context menu & dangerous shortcuts on public kiosk)
   useEffect(() => {
+    if (isDedicatedAdmin) return;
+
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
     };
@@ -118,7 +127,29 @@ export const App: React.FC = () => {
       window.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('keydown', handleKeydownLock);
     };
-  }, []);
+  }, [isDedicatedAdmin]);
+
+  // 4. Background Real-time Synchronization between Admin Port and Kiosk Port
+  useEffect(() => {
+    SyncService.startPolling(refreshData, 5000);
+    return () => {
+      SyncService.stopPolling();
+    };
+  }, [refreshData]);
+
+  // Dedicated Admin Mode (Port 5001 / ?mode=admin / LAN Control)
+  // Bypasses PIN, screensaver, and kiosk lockdowns
+  if (isDedicatedAdmin) {
+    return (
+      <AdminDashboardModal
+        visible={true}
+        standalone={true}
+        bypassPin={true}
+        onClose={() => {}}
+        onPackageUpdated={refreshData}
+      />
+    );
+  }
 
   if (!activePackage) {
     return (
@@ -165,6 +196,7 @@ export const App: React.FC = () => {
         config={config}
         currentRoute={currentRoute}
         lowReachMode={lowReachMode}
+        showAdminButton={false}
         onToggleLowReach={() => {
           idleTimer.recordActivity();
           setLowReachMode(prev => !prev);

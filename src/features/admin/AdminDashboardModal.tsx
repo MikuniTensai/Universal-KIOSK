@@ -24,11 +24,16 @@ import {
   Sparkles,
   Plus,
   Trash2,
+  ArrowRight,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
+import { SyncService } from '../../adapters/storage/syncService';
+import { AdminModeService } from './adminModeService';
+import { DanantaraLogo } from '../../shared/ui/DanantaraLogo';
+import { PlnLogo } from '../../shared/ui/PlnLogo';
 import { ImportPackage, KioskConfig, Material } from '../../domain/types';
 import { validateKioskConfig } from '../../domain/validation';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS, plnUp3MalangFullPackage } from '../../data/mockPlnPackage';
@@ -38,17 +43,29 @@ interface AdminDashboardModalProps {
   visible: boolean;
   onClose: () => void;
   onPackageUpdated: () => void;
+  standalone?: boolean;
+  bypassPin?: boolean;
 }
 
 export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   visible,
   onClose,
   onPackageUpdated,
+  standalone = false,
+  bypassPin = false,
 }) => {
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(AdminAuth.isAuthenticated());
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    bypassPin || standalone ? true : AdminAuth.isAuthenticated()
+  );
   const [activeTab, setActiveTab] = useState<'import' | 'history' | 'settings' | 'logs' | 'stock' | 'categories' | 'locations'>('stock');
+
+  const triggerPackageUpdated = () => {
+    onPackageUpdated();
+    SyncService.pushState().catch(() => {});
+  };
+
 
   // Import states
   const [jsonInput, setJsonInput] = useState('');
@@ -100,7 +117,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   // Deletion confirmation state
   const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null);
 
-  if (!visible) return null;
+  if (!visible && !standalone) return null;
 
   const handlePinDigit = (digit: string) => {
     if (pin.length < 6) {
@@ -163,7 +180,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setParsedPackage(null);
       setPackagePreview(null);
       setJsonInput('');
-      onPackageUpdated();
+      triggerPackageUpdated();
     } else {
       setImportErrors([res.message]);
     }
@@ -174,7 +191,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       const res = snapshotManager.restore(datasetVersion);
       if (res.success) {
         setActionSuccessMessage(res.message);
-        onPackageUpdated();
+        triggerPackageUpdated();
       } else {
         alert(res.message);
       }
@@ -189,7 +206,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setConfigErrors([]);
       kioskStorage.saveConfig(configDraft);
       setActionSuccessMessage('Pengaturan kiosk berhasil disimpan.');
-      onPackageUpdated();
+      triggerPackageUpdated();
     }
   };
   const handleAdjustStock = (e: React.FormEvent) => {
@@ -211,7 +228,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         setExact: isExactStock,
       });
       setActionSuccessMessage('Stok material berhasil diperbarui.');
-      onPackageUpdated();
+      triggerPackageUpdated();
     } catch (err: any) {
       setStockError(err.message || 'Gagal memperbarui stok.');
     }
@@ -246,7 +263,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setNewMatSapCode('');
       setNewMatSpec('');
       setNewMatBarcode('');
-      onPackageUpdated();
+      triggerPackageUpdated();
     } catch (err: any) {
       setStockError(err.message || 'Gagal mendaftarkan material baru.');
     }
@@ -263,7 +280,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       kioskStorage.addCategory(newCatName.trim());
       setActionSuccessMessage(`Kategori "${newCatName.trim()}" berhasil ditambahkan.`);
       setNewCatName('');
-      onPackageUpdated();
+      triggerPackageUpdated();
     } catch (err: any) {
       setCatError(err.message || 'Gagal menambahkan kategori.');
     }
@@ -282,7 +299,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setAdminBlocks(WarehouseLayoutService.getBlocks());
       setBlockActionMessage(`Blok "${created.code}" (${created.name}) berhasil ditambahkan.`);
       setAdminNewBlockName('');
-      onPackageUpdated();
+      triggerPackageUpdated();
     } catch (err: any) {
       setBlockActionMessage(err instanceof Error ? err.message : 'Gagal menambah blok');
     }
@@ -292,14 +309,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     const updated = WarehouseLayoutService.initializeAllBlocksAtoZ();
     setAdminBlocks(updated);
     setBlockActionMessage('Seluruh Blok A sampai Z (lengkap dengan Sub-Blok .1-.3 dan Slot .1-.5) berhasil diinisialisasi.');
-    onPackageUpdated();
+    triggerPackageUpdated();
   };
 
   const handleAdminResetDefaults = () => {
     const defaults = WarehouseLayoutService.resetDefaults();
     setAdminBlocks(defaults);
     setBlockActionMessage('Struktur Blok berhasil dikembalikan ke standar awal (Blok A-H).');
-    onPackageUpdated();
+    triggerPackageUpdated();
   };
 
   const handleConfirmDeleteMaterial = () => {
@@ -313,14 +330,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       if (updatedPkg) {
         WarehouseLayoutService.syncWithPackage(updatedPkg);
       }
-      onPackageUpdated();
+      triggerPackageUpdated();
     } catch (err: unknown) {
       setStockError(err instanceof Error ? err.message : 'Gagal menghapus material');
     }
   };
 
   // 1. PIN Keypad View
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !standalone && !bypassPin) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
         <div className="w-full max-w-sm rounded-card bg-white p-6 shadow-2xl border border-slate-200 text-center">
@@ -387,42 +404,92 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const activePkg = kioskStorage.getActivePackage();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-6">
-      <div className="flex flex-col h-[85vh] w-full max-w-5xl rounded-card bg-white shadow-2xl border border-slate-200 overflow-hidden">
-        {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FACC15] text-[#0F172A]">
-              <Lock className="h-5 w-5" />
-            </div>
+    <div className={standalone ? "min-h-screen w-full bg-slate-100 flex flex-col font-sans" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-6"}>
+      {standalone && (
+        <header className="flex h-20 w-full items-center justify-between border-b border-slate-700 bg-slate-900 px-6 lg:px-8 text-white shadow-md shrink-0">
+          <div className="flex items-center gap-4">
+            <DanantaraLogo variant="dark" />
+            <div className="h-8 w-px bg-slate-700 mx-1 hidden sm:block" />
             <div>
-              <h3 className="text-lg font-bold">Panel Administrator Kiosk Gudang PLN</h3>
-              <p className="text-xs text-slate-400">
-                Snapshot Aktif: Versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="rounded bg-amber-400/20 px-2 py-0.5 text-[11px] font-bold text-amber-400 border border-amber-400/30">
+                  PORT 5001 &bull; DEDICATED ADMIN LAN
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  {kioskStorage.getConfig().warehouseCode}
+                </span>
+              </div>
+              <h1 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                Portal Administrator Gudang PLN
+              </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleLogout}
-              className="rounded-control bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700"
-            >
-              Keluar Sesi
-            </button>
-            <button
-              onClick={onClose}
-              aria-label="Tutup Panel Administrator"
-              title="Tutup Panel Administrator"
-              className="flex h-9 w-9 items-center justify-center rounded-control bg-slate-800 text-slate-300 hover:text-white"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden lg:flex flex-col text-right">
+              <span className="text-xs text-slate-300 font-medium">
+                Snapshot: Versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
+              </span>
+              <span className="text-[11px] text-emerald-400 font-mono flex items-center justify-end gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                Real-Time LAN Sync Aktif
+              </span>
+            </div>
 
-        {/* Tabs Bar */}
-        <div className="flex flex-wrap border-b border-slate-200 bg-slate-50 px-6 gap-1">
+            <a
+              href={AdminModeService.getKioskUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-control bg-amber-400 px-3.5 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-amber-300 active:scale-95"
+            >
+              <span>Layar Kiosk (Port 5000)</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+
+            <div className="pl-3 border-l border-slate-700">
+              <PlnLogo variant="dark" />
+            </div>
+          </div>
+        </header>
+      )}
+
+      <div className={standalone ? "flex-1 flex flex-col w-full max-w-[1600px] mx-auto p-4 sm:p-6 overflow-hidden" : "flex flex-col h-[85vh] w-full max-w-5xl rounded-card bg-white shadow-2xl border border-slate-200 overflow-hidden"}>
+        <div className={standalone ? "flex flex-col flex-1 bg-white rounded-card shadow-lg border border-slate-200 overflow-hidden" : "contents"}>
+          {!standalone && (
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FACC15] text-[#0F172A]">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Panel Administrator Kiosk Gudang PLN</h3>
+                  <p className="text-xs text-slate-400">
+                    Snapshot Aktif: Versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleLogout}
+                  className="rounded-control bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+                >
+                  Keluar Sesi
+                </button>
+                <button
+                  onClick={onClose}
+                  aria-label="Tutup Panel Administrator"
+                  title="Tutup Panel Administrator"
+                  className="flex h-9 w-9 items-center justify-center rounded-control bg-slate-800 text-slate-300 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tabs Bar */}
+          <div className="flex flex-wrap border-b border-slate-200 bg-slate-50 px-6 gap-1">
           <button
             onClick={() => { setActiveTab('stock'); setActionSuccessMessage(null); }}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
@@ -1601,6 +1668,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
+

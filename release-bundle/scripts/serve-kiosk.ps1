@@ -1,6 +1,8 @@
-﻿param (
+param (
     [string]$AppDir = "",
-    [int]$Port = 5000
+    [int]$Port = 5000,
+    [int]$AdminPort = 5001,
+    [string]$DataDir = ""
 )
 
 # Tentukan direktori aplikasi secara otomatis jika tidak dispesifikasikan
@@ -20,13 +22,22 @@ if ([string]::IsNullOrWhiteSpace($AppDir) -or -not (Test-Path $AppDir)) {
 
 $AppDir = (Resolve-Path $AppDir).Path
 
+# Direktori runtime data untuk shared state synchronization
+if ([string]::IsNullOrWhiteSpace($DataDir)) {
+    $DataDir = Join-Path $PSScriptRoot "..\data-runtime"
+}
+if (-not (Test-Path $DataDir)) {
+    New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
+}
+$SyncFile = Join-Path $DataDir "kiosk-sync-state.json"
+
 # 1. Cek apakah server pada port ini sudah berjalan
 try {
     $testReq = [System.Net.WebRequest]::Create("http://localhost:$Port/")
     $testReq.Timeout = 1000
     $testResp = $testReq.GetResponse()
     $testResp.Close()
-    Write-Host "[INFO] Server Kiosk lokal sudah berjalan di http://localhost:$Port/"
+    Write-Host "[INFO] Server Kiosk & Admin sudah berjalan di http://localhost:$Port/ dan :$AdminPort"
     exit 0
 } catch {
     # Port belum terpakai, lanjutkan inisialisasi
@@ -36,23 +47,54 @@ try {
 $pidFile = Join-Path $PSScriptRoot "server.pid"
 Set-Content -Path $pidFile -Value $PID -Force
 
-# 2. Inisialisasi HttpListener
+# 2. Inisialisasi HttpListener dengan Dual-Port (Kiosk Port 5000 & Admin Port 5001)
 $listener = New-Object System.Net.HttpListener
+
+# Loopback listener prefixes
 $listener.Prefixes.Add("http://localhost:$Port/")
+$listener.Prefixes.Add("http://localhost:$AdminPort/")
+$listener.Prefixes.Add("http://127.0.0.1:$Port/")
+$listener.Prefixes.Add("http://127.0.0.1:$AdminPort/")
+
+# 3. Deteksi semua IP Lokal jaringan (LAN) agar bisa dikontrol via IP lokal
+$detectedIps = @()
+try {
+    $hostName = [System.Net.Dns]::GetHostName()
+    $localIps = [System.Net.Dns]::GetHostAddresses($hostName) | Where-Object { 
+        $_.AddressFamily -eq [System.Net.Sockets.AddressFamily]::InterNetwork -and -not [System.Net.IPAddress]::IsLoopback($_)
+    } | ForEach-Object { $_.IPAddressToString }
+
+    foreach ($ip in $localIps) {
+        $detectedIps += $ip
+        try {
+            $listener.Prefixes.Add("http://${ip}:${Port}/")
+            $listener.Prefixes.Add("http://${ip}:${AdminPort}/")
+            Write-Host "[LAN BIND] http://${ip}:${Port}/ (Kiosk) & http://${ip}:${AdminPort}/ (Admin)"
+        } catch {
+            # Abaikan jika Windows URL ACL membatasi IP tertentu tanpa hak Admin
+        }
+    }
+} catch {
+    Write-Host "[WARN] Tidak dapat mendeteksi IP lokal, mengaktifkan loopback mode."
+}
 
 try {
     $listener.Start()
 } catch {
     $msg = $_.Exception.Message
-    Write-Error "[ERROR] Gagal mengaktifkan HttpListener pada port ${Port}: $msg"
+    Write-Error "[ERROR] Gagal mengaktifkan HttpListener pada port ${Port}/${AdminPort}: $msg"
     Remove-Item $pidFile -Force -ErrorAction SilentlyContinue
     exit 1
 }
 
 Write-Host "=========================================================="
-Write-Host "  SERVER LOKAL OFFLINE KIOSK GUDANG PLN"
-Write-Host "  Direktori: $AppDir"
-Write-Host "  URL: http://localhost:$Port/"
+Write-Host "  SERVER DUAL-PORT KIOSK & ADMIN GUDANG PLN"
+Write-Host "  Direktori App: $AppDir"
+Write-Host "  Kiosk Display (Publik):   http://localhost:$Port/"
+Write-Host "  Admin Portal (Supervisor): http://localhost:$AdminPort/"
+foreach ($ip in $detectedIps) {
+    Write-Host "  Akses LAN Petugas Gudang: http://${ip}:${AdminPort}/"
+}
 Write-Host "=========================================================="
 
 $mimeTypes = @{
@@ -82,6 +124,75 @@ try {
         $request = $context.Request
         $response = $context.Response
 
+        # Universal CORS Header untuk sinkronisasi antar-port dan LAN
+        $response.AddHeader("Access-Control-Allow-Origin", "*")
+        $response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        $response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept")
+
+        if ($request.HttpMethod -eq "OPTIONS") {
+            $response.StatusCode = 204
+            $response.OutputStream.Close()
+            continue
+        }
+
+        $localPath = $request.Url.LocalPath.ToLower()
+
+        # 1. API: Data Synchronization Antar-Port & Jaringan LAN
+        if ($localPath -eq "/api/sync") {
+            if ($request.HttpMethod -eq "POST") {
+                try {
+                    $reader = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                    $body = $reader.ReadToEnd()
+                    $reader.Close()
+
+                    [System.IO.File]::WriteAllText($SyncFile, $body, [System.Text.Encoding]::UTF8)
+                    $respBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true,"message":"Data berhasil disinkronkan ke server"}')
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.StatusCode = 200
+                    $response.OutputStream.Write($respBytes, 0, $respBytes.Length)
+                } catch {
+                    $errBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":false,"message":"' + $_.Exception.Message + '"}')
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.StatusCode = 500
+                    $response.OutputStream.Write($errBytes, 0, $errBytes.Length)
+                }
+                $response.OutputStream.Close()
+                continue
+            } elseif ($request.HttpMethod -eq "GET") {
+                if (Test-Path $SyncFile) {
+                    $bytes = [System.IO.File]::ReadAllBytes($SyncFile)
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.StatusCode = 200
+                    $response.OutputStream.Write($bytes, 0, $bytes.Length)
+                } else {
+                    $emptyBytes = [System.Text.Encoding]::UTF8.GetBytes('{"hasState":false}')
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $response.StatusCode = 200
+                    $response.OutputStream.Write($emptyBytes, 0, $emptyBytes.Length)
+                }
+                $response.OutputStream.Close()
+                continue
+            }
+        }
+
+        # 2. API: Info Status Server
+        if ($localPath -eq "/api/status") {
+            $statusObj = @{
+                kioskPort = $Port
+                adminPort = $AdminPort
+                serverTime = (Get-Date).ToString("o")
+                localIps = $detectedIps
+            }
+            $jsonStr = $statusObj | ConvertTo-Json
+            $statusBytes = [System.Text.Encoding]::UTF8.GetBytes($jsonStr)
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.StatusCode = 200
+            $response.OutputStream.Write($statusBytes, 0, $statusBytes.Length)
+            $response.OutputStream.Close()
+            continue
+        }
+
+        # 3. Static Files & SPA Fallback
         $cleanPath = $request.Url.LocalPath.TrimStart('/')
         if ([string]::IsNullOrWhiteSpace($cleanPath)) {
             $cleanPath = "index.html"
@@ -100,7 +211,6 @@ try {
             $bytes = [System.IO.File]::ReadAllBytes($filePath)
             $response.ContentType = $mime
             $response.ContentLength64 = $bytes.Length
-            $response.AddHeader("Access-Control-Allow-Origin", "*")
             $response.AddHeader("Cache-Control", "no-cache")
             $response.StatusCode = 200
             $response.OutputStream.Write($bytes, 0, $bytes.Length)
