@@ -32,8 +32,8 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000 -z-10 scale-105"
           style={{ backgroundImage: `url(${wallpaperUrl})` }}
         >
-          {/* High contrast dark overlay for readability and WCAG AAA compliance */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/85 to-slate-900/80 backdrop-blur-[2px]" />
+          {/* High contrast balanced dark overlay for clear visual of Gudang Aris Munandar illustration & text legibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/65 to-slate-950/55 backdrop-blur-[0.5px]" />
         </div>
       )}
 

@@ -13,9 +13,9 @@ import wallpaperWarehouseImg from '../assets/cards/wallpaper_warehouse.webp';
 export const WALLPAPER_PRESETS = {
   warehouse: {
     id: 'warehouse',
-    name: 'Gudang Logistik Modern PLN',
+    name: 'Gudang Aris Munandar PLN UP3 Malang',
     url: wallpaperWarehouseImg,
-    description: 'Lorong rak material gudang dengan pencahayaan hangat',
+    description: 'Ilustrasi resmi Gudang Logistik Aris Munandar PLN UP3 Malang',
   },
   substation: {
     id: 'substation',
