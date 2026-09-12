@@ -1,11 +1,42 @@
+﻿================================================================================
 # PAKET RILIS OFFLINE KIOSK MANDIRI GUDANG PLN (KASSEN WK-215)
-Versi: 1.0.0
-Target OS: Windows 10 / 11 64-bit
+================================================================================
+Versi     : 1.0.0 (Production Release)
+Target OS : Windows 10 / 11 64-bit
+Lokasi    : C:\PLN-Kiosk\
+Browser   : Microsoft Edge (Mode Kiosk Fullscreen)
 
-## Cara Menjalankan Aplikasi di Unit Kassen WK-215:
-1. Pastikan folder ini disalin ke harddisk unit (misal: C:\PLN-Kiosk\).
-2. Klik ganda 'scripts/launch-kiosk.bat' untuk meluncurkan aplikasi layar penuh.
-3. Untuk setup otomatis menyala saat boot, klik kanan 'scripts/setup-windows-kiosk.ps1' lalu pilih 'Run with PowerShell'.
-4. Default PIN untuk akses petugas/admin: 123456.
+## PANDUAN PENGGUNAAN & PEMELIHARAAN:
 
-Dokumentasi lengkap terdapat di folder docs/.
+1. CARA MENJALANKAN KIOSK:
+   - Opsi A (Utama): Klik ganda icon "Kiosk Gudang PLN" di Desktop Windows.
+   - Opsi B: Klik ganda 'scripts/launch-kiosk.bat' untuk mode layar penuh Kiosk.
+   - Opsi C: Klik ganda 'scripts/launch-kiosk-windowed.bat' jika ingin membuka dalam
+             jendela biasa (untuk pengujian/tinjauan teknis).
+
+2. AUTO-START SAAT KOMPUTER BOOTING (SUDAH TERPASANG):
+   - Kiosk telah didaftarkan ke folder Startup Windows.
+   - Setiap kali mesin Kassen WK-215 dinyalakan, Kiosk akan otomatis meluncur
+     ke layar penuh tanpa perlu campur tangan operator.
+   - Jika ingin mendaftarkan ulang atau memperbarui:
+     Klik ganda 'scripts/setup-windows-kiosk.bat'.
+
+3. CARA MENGHENTIKAN / KELUAR DARI KIOSK (UNTUK TEKNISI):
+   - Dari layar Kiosk: Tekan keyboard fisik kombinasi [Alt + F4] atau [Ctrl + W].
+   - Atau klik ganda 'scripts/stop-kiosk.bat' untuk mematikan browser dan background server.
+
+4. AKSES PANEL ADMINISTRATOR & PETUGAS:
+   - Sentuh icon gembok / perisai di pojok kanan atas layar Kiosk.
+   - Masukkan PIN Keamanan Petugas: 123456
+   - Panel admin memungkinkan impor katalog SAP baru, pemulihan versi,
+     dan penyesuaian waktu screensaver / nama gudang.
+
+5. FITUR SISTEM:
+   - 100% Mandiri & Offline (Zero Dependency: tidak perlu install Node.js/Python).
+   - Layanan HTTP lokal ultra-ringan berbasis Windows .NET HttpListener bawaan.
+   - Dukungan scanner barcode hardware USB HID (Kassen WK-215).
+   - Mode ramah kursi roda (Low-reach UI).
+   - Screensaver otomatis setelah 60 detik tidak ada aktivitas sentuhan.
+
+Dokumentasi lengkap dan manual troubleshooting tersedia di folder: docs/
+================================================================================

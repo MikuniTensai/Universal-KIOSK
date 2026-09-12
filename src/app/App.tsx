@@ -239,47 +239,54 @@ export const App: React.FC = () => {
                 </button>
               </div>
 
-              {/* 3 Main Thumbnails Grid - Full Screen Layout */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 flex-1 items-stretch my-2">
+              {/* 3 Main Thumbnails - Vertical Stack Layout (Tiga Kebawah Vertikal) */}
+              <div className="flex flex-col gap-4 lg:gap-5 flex-1 justify-between my-2">
                 {/* Thumbnail A: Program Kerja Gudang PLN */}
                 <button
                   onClick={() => {
                     idleTimer.recordActivity();
                     setCurrentRoute('programs');
                   }}
-                  className="group flex flex-col justify-between rounded-card border-2 border-slate-200 bg-white p-6 lg:p-8 text-left shadow-md transition-all hover:border-[#FACC15] hover:shadow-xl active:scale-[0.99] overflow-hidden h-full"
+                  className="group relative flex flex-1 items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-card border-2 border-slate-200 bg-white p-4 lg:p-6 text-left shadow-md transition-all hover:border-[#FACC15] hover:shadow-xl active:scale-[0.99]"
                 >
-                  <div className="flex flex-col flex-1">
+                  <div className="flex items-center gap-5 lg:gap-7 flex-1 min-w-0">
                     {isPhotoMode && (
-                      <div className="relative -mx-6 -mt-6 lg:-mx-8 lg:-mt-8 mb-5 h-40 lg:h-48 xl:h-56 2xl:h-64 overflow-hidden rounded-t-[18px] bg-slate-900 flex-shrink-0">
+                      <div className="relative h-24 w-36 sm:h-28 sm:w-44 lg:h-32 lg:w-56 shrink-0 overflow-hidden rounded-xl bg-slate-900 shadow">
                         <img
                           src={photoA}
                           alt="Program Kerja"
                           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent" />
-                        <span className="absolute bottom-3 left-4 rounded bg-[#FACC15] px-3 py-1 text-xs font-black uppercase tracking-wider text-[#0F172A] shadow">
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        <span className="absolute bottom-2 left-2 rounded bg-[#FACC15] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#0F172A] shadow">
                           PROGRAM & K3
                         </span>
                       </div>
                     )}
                     {!isPhotoMode && (
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 mb-6 group-hover:bg-[#FACC15] group-hover:text-[#0F172A] transition-colors flex-shrink-0">
-                        <ClipboardList className="h-9 w-9" />
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 group-hover:bg-[#FACC15] group-hover:text-[#0F172A] transition-colors shadow-sm">
+                        <ClipboardList className="h-10 w-10" />
                       </div>
                     )}
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-amber-800">
-                      Thumbnail A
-                    </span>
-                    <h3 className="text-2xl lg:text-3xl font-black text-[#0F172A] mt-1 mb-2">
-                      Program Kerja Gudang PLN
-                    </h3>
-                    <p className="text-sm lg:text-base text-slate-500 leading-relaxed line-clamp-3">
-                      Roadmap target, capaian logistik, jadwal audit, dan standar operasional 5S.
-                    </p>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-amber-800">
+                          Thumbnail A
+                        </span>
+                        <span className="hidden sm:inline-block rounded bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900">
+                          SOP & Edukasi
+                        </span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] mt-0.5 mb-1 truncate">
+                        Program Kerja Gudang PLN
+                      </h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-500 line-clamp-2 leading-relaxed">
+                        Roadmap target, capaian logistik, jadwal audit, dan standar operasional 5S.
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-6 flex h-14 items-center justify-between rounded-xl bg-slate-100 px-5 font-bold text-[#0F172A] group-hover:bg-[#FACC15] transition-all flex-shrink-0">
-                    <span className="text-base font-extrabold">Buka Program Kerja</span>
+                  <div className="flex h-14 flex-shrink-0 items-center gap-3 rounded-xl bg-slate-100 px-5 lg:px-7 font-bold text-[#0F172A] group-hover:bg-[#FACC15] transition-all shadow-sm">
+                    <span className="text-sm lg:text-base font-extrabold whitespace-nowrap">Buka Program Kerja</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
@@ -290,39 +297,46 @@ export const App: React.FC = () => {
                     idleTimer.recordActivity();
                     setCurrentRoute('catalog');
                   }}
-                  className="group flex flex-col justify-between rounded-card border-2 border-slate-200 bg-white p-6 lg:p-8 text-left shadow-md transition-all hover:border-[#FACC15] hover:shadow-xl active:scale-[0.99] overflow-hidden h-full"
+                  className="group relative flex flex-1 items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-card border-2 border-slate-200 bg-white p-4 lg:p-6 text-left shadow-md transition-all hover:border-[#FACC15] hover:shadow-xl active:scale-[0.99]"
                 >
-                  <div className="flex flex-col flex-1">
+                  <div className="flex items-center gap-5 lg:gap-7 flex-1 min-w-0">
                     {isPhotoMode && (
-                      <div className="relative -mx-6 -mt-6 lg:-mx-8 lg:-mt-8 mb-5 h-40 lg:h-48 xl:h-56 2xl:h-64 overflow-hidden rounded-t-[18px] bg-slate-900 flex-shrink-0">
+                      <div className="relative h-24 w-36 sm:h-28 sm:w-44 lg:h-32 lg:w-56 shrink-0 overflow-hidden rounded-xl bg-slate-900 shadow">
                         <img
                           src={photoB}
                           alt="Daftar Item"
                           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent" />
-                        <span className="absolute bottom-3 left-4 rounded bg-[#FACC15] px-3 py-1 text-xs font-black uppercase tracking-wider text-[#0F172A] shadow">
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        <span className="absolute bottom-2 left-2 rounded bg-[#FACC15] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#0F172A] shadow">
                           E-KATALOG MATERIAL
                         </span>
                       </div>
                     )}
                     {!isPhotoMode && (
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 mb-6 group-hover:bg-[#FACC15] group-hover:text-[#0F172A] transition-colors flex-shrink-0">
-                        <Package className="h-9 w-9" />
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700 group-hover:bg-[#FACC15] group-hover:text-[#0F172A] transition-colors shadow-sm">
+                        <Package className="h-10 w-10" />
                       </div>
                     )}
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-blue-800">
-                      Thumbnail B
-                    </span>
-                    <h3 className="text-2xl lg:text-3xl font-black text-[#0F172A] mt-1 mb-2">
-                      Daftar Item & Material Gudang
-                    </h3>
-                    <p className="text-sm lg:text-base text-slate-500 leading-relaxed line-clamp-3">
-                      E-Katalog material distribusi, alat kerja, APD, dan pencarian stok gudang.
-                    </p>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-blue-800">
+                          Thumbnail B
+                        </span>
+                        <span className="hidden sm:inline-block rounded bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-900">
+                          Direktori Inventaris
+                        </span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] mt-0.5 mb-1 truncate">
+                        Daftar Item & Material Gudang
+                      </h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-500 line-clamp-2 leading-relaxed">
+                        E-Katalog material distribusi, alat kerja, APD, dan pencarian stok gudang.
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-6 flex h-14 items-center justify-between rounded-xl bg-slate-100 px-5 font-bold text-[#0F172A] group-hover:bg-[#FACC15] transition-all flex-shrink-0">
-                    <span className="text-base font-extrabold">Lihat Daftar Item</span>
+                  <div className="flex h-14 flex-shrink-0 items-center gap-3 rounded-xl bg-slate-100 px-5 lg:px-7 font-bold text-[#0F172A] group-hover:bg-[#FACC15] transition-all shadow-sm">
+                    <span className="text-sm lg:text-base font-extrabold whitespace-nowrap">Lihat Daftar Item</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
@@ -333,42 +347,49 @@ export const App: React.FC = () => {
                     idleTimer.recordActivity();
                     setCurrentRoute('scan');
                   }}
-                  className="group flex flex-col justify-between rounded-card border-2 border-[#FACC15] bg-gradient-to-br from-amber-50/70 to-white p-6 lg:p-8 text-left shadow-lg transition-all hover:shadow-2xl active:scale-[0.99] relative overflow-hidden h-full"
+                  className="group relative flex flex-1 items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-card border-2 border-[#FACC15] bg-gradient-to-r from-amber-50/80 via-white to-white p-4 lg:p-6 text-left shadow-lg transition-all hover:shadow-2xl active:scale-[0.99]"
                 >
-                  <div className="absolute top-0 right-0 bg-[#FACC15] px-4 py-1.5 rounded-bl-xl text-xs font-black text-[#0F172A] z-10 shadow">
+                  <div className="absolute top-0 right-0 bg-[#FACC15] px-4 py-1 rounded-bl-xl text-xs font-black text-[#0F172A] z-10 shadow">
                     CEK MANDIRI
                   </div>
-                  <div className="flex flex-col flex-1">
+                  <div className="flex items-center gap-5 lg:gap-7 flex-1 min-w-0">
                     {isPhotoMode && (
-                      <div className="relative -mx-6 -mt-6 lg:-mx-8 lg:-mt-8 mb-5 h-40 lg:h-48 xl:h-56 2xl:h-64 overflow-hidden rounded-t-[18px] bg-slate-900 flex-shrink-0">
+                      <div className="relative h-24 w-36 sm:h-28 sm:w-44 lg:h-32 lg:w-56 shrink-0 overflow-hidden rounded-xl bg-slate-900 shadow">
                         <img
                           src={photoC}
                           alt="Scan Barcode"
                           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent" />
-                        <span className="absolute bottom-3 left-4 rounded bg-[#FACC15] px-3 py-1 text-xs font-black uppercase tracking-wider text-[#0F172A] shadow">
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        <span className="absolute bottom-2 left-2 rounded bg-[#FACC15] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#0F172A] shadow">
                           SCANNER 2D SIAGA
                         </span>
                       </div>
                     )}
                     {!isPhotoMode && (
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FACC15] text-[#0F172A] mb-6 shadow-md flex-shrink-0">
-                        <Scan className="h-9 w-9" />
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-[#FACC15] text-[#0F172A] shadow-md">
+                        <Scan className="h-10 w-10" />
                       </div>
                     )}
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-amber-900">
-                      Thumbnail C
-                    </span>
-                    <h3 className="text-2xl lg:text-3xl font-black text-[#0F172A] mt-1 mb-2">
-                      Scan Item (Cek Spesifikasi)
-                    </h3>
-                    <p className="text-sm lg:text-base text-slate-600 leading-relaxed line-clamp-3">
-                      Dekatkan barcode/QR material ke scanner untuk melihat spesifikasi SPLN dan posisi rak gudang.
-                    </p>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-amber-900">
+                          Thumbnail C
+                        </span>
+                        <span className="hidden sm:inline-block rounded bg-amber-200 px-2 py-0.5 text-[11px] font-black text-amber-950">
+                          Barcode & QR Reader
+                        </span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] mt-0.5 mb-1 truncate">
+                        Scan Item (Cek Spesifikasi)
+                      </h3>
+                      <p className="text-xs sm:text-sm lg:text-base text-slate-600 line-clamp-2 leading-relaxed">
+                        Dekatkan barcode/QR material ke scanner untuk melihat spesifikasi SPLN dan posisi rak gudang.
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-6 flex h-14 items-center justify-between rounded-xl bg-[#FACC15] px-5 font-bold text-[#0F172A] group-hover:bg-amber-400 shadow transition-all flex-shrink-0">
-                    <span className="text-base font-extrabold">Mulai Scan Material</span>
+                  <div className="flex h-14 flex-shrink-0 items-center gap-3 rounded-xl bg-[#FACC15] px-5 lg:px-7 font-bold text-[#0F172A] group-hover:bg-amber-400 transition-all shadow">
+                    <span className="text-sm lg:text-base font-extrabold whitespace-nowrap">Mulai Scan Material</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
