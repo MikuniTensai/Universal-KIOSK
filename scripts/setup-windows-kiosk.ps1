@@ -67,12 +67,18 @@ try {
     Write-Warning "Peringatan: Gagal menambahkan Registry Run key."
 }
 
+$PlnIconPath = Join-Path $ScriptDir "pln.ico"
+if (-not (Test-Path $PlnIconPath)) {
+    $PlnIconPath = Join-Path $ScriptDir "..\app\pln.ico"
+}
+$IconTarget = if (Test-Path $PlnIconPath) { "$PlnIconPath,0" } else { "msedge.exe,0" }
+
 # 2. Daftarkan Shortcut di Folder Startup Windows
 $StartupShortcut = $WshShell.CreateShortcut($StartupShortcutPath)
 $StartupShortcut.TargetPath = $AppPath
 $StartupShortcut.WorkingDirectory = $ScriptDir
 $StartupShortcut.WindowStyle = 7 # Minimized launch
-$StartupShortcut.IconLocation = "msedge.exe,0"
+$StartupShortcut.IconLocation = $IconTarget
 $StartupShortcut.Description = "Kiosk Mandiri Gudang PLN (Auto-Start saat Booting)"
 $StartupShortcut.Save()
 Write-Host "[OK] Auto-Start Startup Folder terdaftar di: $StartupShortcutPath" -ForegroundColor Green
@@ -83,7 +89,7 @@ $ScRun = $WshShell.CreateShortcut($DesktopRunPath)
 $ScRun.TargetPath = $AppPath
 $ScRun.WorkingDirectory = $ScriptDir
 $ScRun.WindowStyle = 7
-$ScRun.IconLocation = "msedge.exe,0"
+$ScRun.IconLocation = $IconTarget
 $ScRun.Description = "Luncurkan Kiosk Mandiri Gudang PLN (Layar Penuh)"
 $ScRun.Save()
 
@@ -106,19 +112,22 @@ if (Test-Path $WinScript) {
     $ScWin.TargetPath = $WinScript
     $ScWin.WorkingDirectory = $ScriptDir
     $ScWin.WindowStyle = 1
-    $ScWin.IconLocation = "shell32.dll,14"
+    $ScWin.IconLocation = $IconTarget
     $ScWin.Description = "Buka Kiosk dalam Jendela Biasa (Memiliki tombol X penutup)"
     $ScWin.Save()
 }
 
 # D. Portal Admin Gudang PLN (Port 5001)
 $AdminScript = Join-Path $ScriptDir "launch-admin.bat"
+if (-not (Test-Path $AdminScript)) {
+    $AdminScript = Join-Path $ScriptDir "launch-admin-windowed.bat"
+}
 if (Test-Path $AdminScript) {
     $ScAdmin = $WshShell.CreateShortcut($DesktopAdminPath)
     $ScAdmin.TargetPath = $AdminScript
     $ScAdmin.WorkingDirectory = $ScriptDir
     $ScAdmin.WindowStyle = 1
-    $ScAdmin.IconLocation = "shell32.dll,167" # Network / Admin icon
+    $ScAdmin.IconLocation = $IconTarget
     $ScAdmin.Description = "Buka Portal Administrator Gudang PLN (Port 5001 - Manajemen Stok & SAP)"
     $ScAdmin.Save()
 }
