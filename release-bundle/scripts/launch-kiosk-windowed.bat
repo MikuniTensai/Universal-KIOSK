@@ -40,6 +40,6 @@ IF EXIST "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
 
 :: 5. Buka tab aplikasi tersendiri (mode windowed untuk pengujian/preview dengan tombol X)
 echo [INFO] Membuka Kiosk di jendela aplikasi (windowed)...
-start "" %EDGE_EXE% --user-data-dir="%PROFILE_DIR%" --app="http://localhost:%PORT%" --window-size=1280,800
+start "" %EDGE_EXE% --user-data-dir="%PROFILE_DIR%" --app="http://localhost:%PORT%" --window-size=1280,800 --disable-gpu --disable-software-rasterizer
 
 exit /b 0

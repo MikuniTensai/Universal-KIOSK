@@ -47,8 +47,8 @@ IF EXIST "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
     SET EDGE_EXE="C:\Program Files\Microsoft\Edge\Application\msedge.exe"
 )
 
-:: 6. Luncurkan Microsoft Edge dalam mode Kiosk Fullscreen
+:: 6. Luncurkan Microsoft Edge dalam mode Kiosk Fullscreen (dengan --disable-gpu agar layar fisik Kassen POS bebas black screen)
 echo [INFO] Meluncurkan Kiosk Mandiri PLN pada Kassen WK-215 (Port %PORT%)...
-start "" %EDGE_EXE% --user-data-dir="%PROFILE_DIR%" --kiosk "http://localhost:%PORT%" --edge-kiosk-type=fullscreen --no-first-run --no-default-browser-check --hide-crash-restore-bubble --disable-session-crashed-bubble --disable-pinch --disable-translate --disable-features=TranslateUI,PreloadMediaEngagementData --overscroll-history-navigation=0
+start "" %EDGE_EXE% --user-data-dir="%PROFILE_DIR%" --kiosk "http://localhost:%PORT%" --edge-kiosk-type=fullscreen --no-first-run --no-default-browser-check --hide-crash-restore-bubble --disable-session-crashed-bubble --disable-pinch --disable-translate --disable-features=TranslateUI,PreloadMediaEngagementData --disable-gpu --disable-software-rasterizer --overscroll-history-navigation=0
 
 exit /b 0

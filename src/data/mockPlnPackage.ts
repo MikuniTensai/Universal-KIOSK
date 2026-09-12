@@ -5,12 +5,16 @@ import {
   clientStockSnapshots,
   clientBarcodeAliases,
 } from './clientMaterialsData';
+import cardLayoutImg from '../assets/cards/card_layout.webp';
+import cardSopImg from '../assets/cards/card_sop.webp';
+import cardKatalogImg from '../assets/cards/card_katalog.webp';
+import wallpaperWarehouseImg from '../assets/cards/wallpaper_warehouse.webp';
 
 export const WALLPAPER_PRESETS = {
   warehouse: {
     id: 'warehouse',
     name: 'Gudang Logistik Modern PLN',
-    url: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1920&q=80',
+    url: wallpaperWarehouseImg,
     description: 'Lorong rak material gudang dengan pencahayaan hangat',
   },
   substation: {
@@ -34,9 +38,9 @@ export const WALLPAPER_PRESETS = {
 };
 
 export const DEFAULT_CARD_PHOTOS = {
-  thumbnailA: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80', // Tim teknisi meninjau SOP/program
-  thumbnailB: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80', // Rak gudang material tersusun rapi
-  thumbnailC: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=800&q=80', // Scanner barcode/QR handheld
+  thumbnailA: cardSopImg, // Tim teknisi meninjau SOP/program
+  thumbnailB: cardKatalogImg, // Rak gudang material tersusun rapi
+  thumbnailC: cardLayoutImg, // Visualisasi denah & rak gudang
 };
 
 export const defaultKioskConfig: KioskConfig = {
