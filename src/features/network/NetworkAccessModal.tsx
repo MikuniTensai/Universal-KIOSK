@@ -36,7 +36,11 @@ export const NetworkAccessModal: React.FC<NetworkAccessModalProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshedTime, setLastRefreshedTime] = useState<string>('');
 
+  const isMountedRef = React.useRef(true);
+  const refreshTimeoutRef = React.useRef<any>(null);
+
   useEffect(() => {
+    isMountedRef.current = true;
     if (!visible) return;
 
     // Ambil data terbaru saat modal dibuka
@@ -44,6 +48,7 @@ export const NetworkAccessModal: React.FC<NetworkAccessModalProps> = ({
 
     // Berlangganan event perubahan jaringan
     const unsubscribe = NetworkService.subscribe((info) => {
+      if (!isMountedRef.current) return;
       setNetworkInfo(info);
       setLastRefreshedTime(
         new Date().toLocaleTimeString('id-ID', {
@@ -54,7 +59,11 @@ export const NetworkAccessModal: React.FC<NetworkAccessModalProps> = ({
       );
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMountedRef.current = false;
+      if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
+      unsubscribe();
+    };
   }, [visible]);
 
   if (!visible) return null;
@@ -63,6 +72,7 @@ export const NetworkAccessModal: React.FC<NetworkAccessModalProps> = ({
     setIsRefreshing(true);
     try {
       const updated = await NetworkService.fetchNetworkInfo();
+      if (!isMountedRef.current) return;
       setNetworkInfo(updated);
       setLastRefreshedTime(
         new Date().toLocaleTimeString('id-ID', {
@@ -74,7 +84,11 @@ export const NetworkAccessModal: React.FC<NetworkAccessModalProps> = ({
     } catch (err) {
       console.error('Failed to refresh network info:', err);
     } finally {
-      setTimeout(() => setIsRefreshing(false), 500);
+      refreshTimeoutRef.current = setTimeout(() => {
+        if (isMountedRef.current) {
+          setIsRefreshing(false);
+        }
+      }, 500);
     }
   };
 

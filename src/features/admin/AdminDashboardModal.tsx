@@ -23,6 +23,7 @@ import {
   X,
   MoreVertical,
   Check,
+  Settings,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
@@ -413,7 +414,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
   return (
     <div className={standalone ? "min-h-screen w-full bg-slate-100 flex flex-col font-sans" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-2 sm:p-4"}>
-      <div className={standalone ? "w-full min-h-screen" : "w-full h-full max-w-[1600px] max-h-[96vh] rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-white"}>
+      <div className={standalone ? "w-full min-h-screen" : "w-full h-full max-w-[1800px] max-h-[98vh] rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-white"}>
         <AdminConsoleShell
           activeTab={activeTab}
           onTabChange={(tab) => {
@@ -735,7 +736,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             return (
                               <tr key={mat.id} className="hover:bg-slate-50 transition">
                                 <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
-                                <td className="p-3 font-bold text-slate-900 max-w-xs">{mat.name}</td>
+                                <td className="p-3 font-bold text-slate-900 min-w-[200px]">{mat.name}</td>
                                 <td className="p-3 font-mono font-bold text-sky-700">{mat.code}</td>
                                 <td className="p-3 text-center font-bold text-slate-600">{mat.unit}</td>
                                 <td className="p-3 text-center">
@@ -996,7 +997,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           return (
                             <tr key={m.id} className="hover:bg-slate-50 transition">
                               <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
-                              <td className="p-3 font-bold text-slate-900 max-w-xs">{m.name}</td>
+                              <td className="p-3 font-bold text-slate-900 min-w-[220px]">{m.name}</td>
                               <td className="p-3 font-mono font-bold text-sky-700">{m.code}</td>
                               <td className="p-3 text-center font-bold text-slate-600">{m.unit}</td>
                               <td className="p-3 text-center">
@@ -1071,8 +1072,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
           {/* TAB: CATEGORY MANAGEMENT */}
           {activeTab === 'categories' && (
-            <div className="space-y-6 max-w-4xl">
-              <form onSubmit={handleAddCategory} className="rounded-card border border-slate-200 bg-slate-50 p-5 space-y-4">
+            <div className="space-y-6 w-full">
+              <form onSubmit={handleAddCategory} className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-xs">
                 <h4 className="text-sm font-bold text-slate-800">Form Tambah Kategori Material Baru</h4>
                 {catError && (
                   <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 font-semibold">
@@ -1102,22 +1103,22 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <h4 className="text-sm font-bold text-slate-800">
                   Daftar Kategori Aktif ({activePkg?.categories.length || 0}):
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-3.5">
                   {activePkg?.categories.map((cat) => {
                     const count = activePkg.materials.filter(m => m.categoryId === cat.id).length;
                     return (
-                      <div key={cat.id} className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm">
-                        <div className="flex items-center gap-2.5">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-900 font-bold text-xs">
+                      <div key={cat.id} className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs hover:border-slate-300 transition">
+                        <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-900 font-bold text-xs shrink-0">
                             {cat.name.slice(0, 2).toUpperCase()}
                           </span>
-                          <div>
-                            <span className="text-xs font-bold text-slate-900 block">{cat.name}</span>
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-slate-900 block truncate" title={cat.name}>{cat.name}</span>
                             <span className="text-[10px] text-slate-500">{count} material terkait</span>
                           </div>
                         </div>
-                        <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-semibold">
-                          ID: {cat.id}
+                        <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-semibold shrink-0">
+                          {cat.id}
                         </span>
                       </div>
                     );
@@ -1501,205 +1502,221 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
           {/* TAB 3: SETTINGS */}
           {activeTab === 'settings' && (
-            <div className="space-y-4 max-w-xl">
+            <div className="space-y-6 w-full">
               {configErrors.length > 0 && (
                 <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200">
                   {configErrors.join(', ')}
                 </div>
               )}
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Organisasi</label>
-                <input
-                  type="text"
-                  value={configDraft.organizationName}
-                  onChange={(e) => setConfigDraft({ ...configDraft, organizationName: e.target.value })}
-                  className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Kode Gudang</label>
-                <input
-                  type="text"
-                  value={configDraft.warehouseCode}
-                  onChange={(e) => setConfigDraft({ ...configDraft, warehouseCode: e.target.value })}
-                  className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Zona Waktu IANA</label>
-                  <input
-                    type="text"
-                    value={configDraft.timezone}
-                    onChange={(e) => setConfigDraft({ ...configDraft, timezone: e.target.value })}
-                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Umur Maksimal Stok (Jam)</label>
-                  <input
-                    type="number"
-                    value={configDraft.staleAfterHours ?? ''}
-                    onChange={(e) => setConfigDraft({ ...configDraft, staleAfterHours: e.target.value ? Number(e.target.value) : null })}
-                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Timeout Idle (Detik)</label>
-                  <input
-                    type="number"
-                    value={configDraft.idleSeconds}
-                    onChange={(e) => setConfigDraft({ ...configDraft, idleSeconds: Number(e.target.value) })}
-                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Timeout Warning (Detik)</label>
-                  <input
-                    type="number"
-                    value={configDraft.warningSeconds}
-                    onChange={(e) => setConfigDraft({ ...configDraft, warningSeconds: Number(e.target.value) })}
-                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Visual Customization & Wallpaper Settings */}
-              <div className="rounded-xl border border-amber-300 bg-amber-50/50 p-4 space-y-4">
-                <div className="flex items-center justify-between border-b border-amber-200/70 pb-2">
-                  <h5 className="font-extrabold text-sm text-[#0F172A]">
-                    Tampilan Visual &amp; Wallpaper Kiosk
-                  </h5>
-                  <span className="text-[11px] font-bold text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">
-                    Kustomisasi Petugas
-                  </span>
-                </div>
-
-                {/* Card Style Selector */}
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
-                    Gaya Kartu Menu Utama
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'photo' })}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition min-h-[44px] ${
-                        configDraft.cardStyle === 'photo'
-                          ? 'border-amber-500 bg-white text-[#0F172A] shadow-md ring-2 ring-amber-400/40'
-                          : 'border-slate-200 bg-white/60 text-slate-500 hover:bg-white'
-                      }`}
-                    >
-                      <ImageIcon className="h-4 w-4 text-amber-600" />
-                      <span>Mode Kartu Foto</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'minimal' })}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition min-h-[44px] ${
-                        configDraft.cardStyle === 'minimal'
-                          ? 'border-amber-500 bg-white text-[#0F172A] shadow-md ring-2 ring-amber-400/40'
-                          : 'border-slate-200 bg-white/60 text-slate-500 hover:bg-white'
-                      }`}
-                    >
-                      <LayoutGrid className="h-4 w-4 text-amber-600" />
-                      <span>Mode Minimalis</span>
-                    </button>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+                {/* Kolom 1: Parameter Dasar & Identitas Kiosk */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <Settings className="h-4 w-4 text-[#0369a1]" />
+                    <h5 className="font-extrabold text-sm text-slate-800">
+                      Parameter Operasional &amp; Identitas Kiosk
+                    </h5>
                   </div>
-                </div>
 
-                {/* Preset Wallpaper Selector */}
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    Preset Wallpaper Gudang PLN
-                  </label>
-                  <div className="relative flex items-center">
-                    <Palette className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-600" />
-                    <select
-                      value={configDraft.wallpaperPreset || 'warehouse'}
-                      onChange={(e) => setConfigDraft({ ...configDraft, wallpaperPreset: e.target.value as any })}
-                      className="w-full h-11 appearance-none rounded-xl border border-slate-300 pl-10 pr-10 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    >
-                      {Object.values(WALLPAPER_PRESETS).map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} — {p.description}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  </div>
-                </div>
-
-                {/* Custom Wallpaper URL Input */}
-                <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                    URL Wallpaper Kustom (Opsional)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Kosongkan jika menggunakan preset di atas..."
-                    value={configDraft.customWallpaperUrl || ''}
-                    onChange={(e) => setConfigDraft({ ...configDraft, customWallpaperUrl: e.target.value })}
-                    className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                  />
-                </div>
-
-                {/* Custom Photo URLs for Card A, B, C */}
-                <div className="space-y-2 pt-1 border-t border-amber-200/50">
-                  <span className="text-xs font-bold uppercase tracking-wide text-slate-700 block">
-                    Kustomisasi Foto Banner Kartu:
-                  </span>
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                      Foto Thumbnail A (Program Kerja):
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Organisasi</label>
+                    <input
+                      type="text"
+                      value={configDraft.organizationName}
+                      onChange={(e) => setConfigDraft({ ...configDraft, organizationName: e.target.value })}
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Kode Gudang</label>
+                    <input
+                      type="text"
+                      value={configDraft.warehouseCode}
+                      onChange={(e) => setConfigDraft({ ...configDraft, warehouseCode: e.target.value })}
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Zona Waktu IANA</label>
+                      <input
+                        type="text"
+                        value={configDraft.timezone}
+                        onChange={(e) => setConfigDraft({ ...configDraft, timezone: e.target.value })}
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Umur Maksimal Stok (Jam)</label>
+                      <input
+                        type="number"
+                        value={configDraft.staleAfterHours ?? ''}
+                        onChange={(e) => setConfigDraft({ ...configDraft, staleAfterHours: e.target.value ? Number(e.target.value) : null })}
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Timeout Idle (Detik)</label>
+                      <input
+                        type="number"
+                        value={configDraft.idleSeconds}
+                        onChange={(e) => setConfigDraft({ ...configDraft, idleSeconds: Number(e.target.value) })}
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Timeout Warning (Detik)</label>
+                      <input
+                        type="number"
+                        value={configDraft.warningSeconds}
+                        onChange={(e) => setConfigDraft({ ...configDraft, warningSeconds: Number(e.target.value) })}
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Kolom 2: Visual Customization & Wallpaper Settings */}
+                <div className="rounded-2xl border border-amber-300 bg-amber-50/50 p-5 space-y-4 shadow-xs">
+                  <div className="flex items-center justify-between border-b border-amber-200/70 pb-3">
+                    <h5 className="font-extrabold text-sm text-[#0F172A] flex items-center gap-2">
+                      <Palette className="h-4 w-4 text-amber-700" />
+                      <span>Tampilan Visual &amp; Wallpaper Kiosk</span>
+                    </h5>
+                    <span className="text-[11px] font-bold text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">
+                      Kustomisasi Petugas
+                    </span>
+                  </div>
+
+                  {/* Card Style Selector */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                      Gaya Kartu Menu Utama
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'photo' })}
+                        className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition min-h-[44px] ${
+                          configDraft.cardStyle === 'photo'
+                            ? 'border-amber-500 bg-white text-[#0F172A] shadow-md ring-2 ring-amber-400/40'
+                            : 'border-slate-200 bg-white/60 text-slate-500 hover:bg-white'
+                        }`}
+                      >
+                        <ImageIcon className="h-4 w-4 text-amber-600" />
+                        <span>Mode Kartu Foto</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'minimal' })}
+                        className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition min-h-[44px] ${
+                          configDraft.cardStyle === 'minimal'
+                            ? 'border-amber-500 bg-white text-[#0F172A] shadow-md ring-2 ring-amber-400/40'
+                            : 'border-slate-200 bg-white/60 text-slate-500 hover:bg-white'
+                        }`}
+                      >
+                        <LayoutGrid className="h-4 w-4 text-amber-600" />
+                        <span>Mode Minimalis</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Preset Wallpaper Selector */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                      Preset Wallpaper Gudang PLN
+                    </label>
+                    <div className="relative flex items-center">
+                      <Palette className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-600" />
+                      <select
+                        value={configDraft.wallpaperPreset || 'warehouse'}
+                        onChange={(e) => setConfigDraft({ ...configDraft, wallpaperPreset: e.target.value as any })}
+                        className="w-full h-11 appearance-none rounded-xl border border-slate-300 pl-10 pr-10 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      >
+                        {Object.values(WALLPAPER_PRESETS).map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} — {p.description}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    </div>
+                  </div>
+
+                  {/* Custom Wallpaper URL Input */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                      URL Wallpaper Kustom (Opsional)
                     </label>
                     <input
                       type="text"
-                      value={configDraft.thumbnailAPhoto || ''}
-                      placeholder={DEFAULT_CARD_PHOTOS.thumbnailA}
-                      onChange={(e) => setConfigDraft({ ...configDraft, thumbnailAPhoto: e.target.value })}
+                      placeholder="Kosongkan jika menggunakan preset di atas..."
+                      value={configDraft.customWallpaperUrl || ''}
+                      onChange={(e) => setConfigDraft({ ...configDraft, customWallpaperUrl: e.target.value })}
                       className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                      Foto Thumbnail B (Daftar Material):
-                    </label>
-                    <input
-                      type="text"
-                      value={configDraft.thumbnailBPhoto || ''}
-                      placeholder={DEFAULT_CARD_PHOTOS.thumbnailB}
-                      onChange={(e) => setConfigDraft({ ...configDraft, thumbnailBPhoto: e.target.value })}
-                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
-                      Foto Thumbnail C (Scan Barcode Item):
-                    </label>
-                    <input
-                      type="text"
-                      value={configDraft.thumbnailCPhoto || ''}
-                      placeholder={DEFAULT_CARD_PHOTOS.thumbnailC}
-                      onChange={(e) => setConfigDraft({ ...configDraft, thumbnailCPhoto: e.target.value })}
-                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
+
+                  {/* Custom Photo URLs for Card A, B, C */}
+                  <div className="space-y-2 pt-1 border-t border-amber-200/50">
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-700 block">
+                      Kustomisasi Foto Banner Kartu:
+                    </span>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                        Foto Thumbnail A (Program Kerja):
+                      </label>
+                      <input
+                        type="text"
+                        value={configDraft.thumbnailAPhoto || ''}
+                        placeholder={DEFAULT_CARD_PHOTOS.thumbnailA}
+                        onChange={(e) => setConfigDraft({ ...configDraft, thumbnailAPhoto: e.target.value })}
+                        className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                        Foto Thumbnail B (Daftar Material):
+                      </label>
+                      <input
+                        type="text"
+                        value={configDraft.thumbnailBPhoto || ''}
+                        placeholder={DEFAULT_CARD_PHOTOS.thumbnailB}
+                        onChange={(e) => setConfigDraft({ ...configDraft, thumbnailBPhoto: e.target.value })}
+                        className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                        Foto Thumbnail C (Scan Barcode Item):
+                      </label>
+                      <input
+                        type="text"
+                        value={configDraft.thumbnailCPhoto || ''}
+                        placeholder={DEFAULT_CARD_PHOTOS.thumbnailC}
+                        onChange={(e) => setConfigDraft({ ...configDraft, thumbnailCPhoto: e.target.value })}
+                        className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <button
-                onClick={handleSaveConfig}
-                className="mt-4 flex h-12 items-center justify-center rounded-xl bg-[#FACC15] px-8 text-sm font-black text-[#0F172A] shadow active:scale-95 hover:bg-amber-400 w-full sm:w-auto"
-              >
-                Simpan Konfigurasi
-              </button>
+              {/* Action Button Simpan */}
+              <div className="flex justify-end pt-1">
+                <button
+                  onClick={handleSaveConfig}
+                  className="flex h-12 items-center justify-center rounded-xl bg-[#FACC15] px-8 text-sm font-black text-[#0F172A] shadow-md active:scale-95 hover:bg-amber-400 transition w-full sm:w-auto"
+                >
+                  Simpan Konfigurasi
+                </button>
+              </div>
             </div>
           )}
 
