@@ -320,39 +320,11 @@ export const App: React.FC = () => {
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
-                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 shadow-sm backdrop-blur-sm">
-                        <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                        LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI
-                      </span>
-                      <span className="inline-flex items-center rounded-md bg-white/15 border border-white/20 px-2.5 py-1 text-xs font-bold text-slate-200 backdrop-blur-sm">
-                        Peta Denah Blok &amp; Rak
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-2 drop-shadow-md">
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
+                    <span className="sr-only">LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI Peta Denah Blok &amp; Rak</span>
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
                       Visualisasi Denah &amp; Tata Letak Gudang
                     </h3>
-                    <p className="text-sm sm:text-base lg:text-lg text-slate-300 line-clamp-2 leading-relaxed mb-3 max-w-4xl drop-shadow-sm">
-                      Peta tata letak visual denah gudang, lorong rak penyimpanan material PLN, jalur forklift, dan posisi pos Kiosk Kassen.
-                    </p>
-
-                    {/* Interactive Feature Chips */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🔌 Blok A: Gardu &amp; Jaringan
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🏗️ Blok B: Heavy &amp; Trafo
-                      </span>
-                      <span className="rounded-full bg-amber-500/20 border border-amber-400/40 px-3.5 py-1.5 text-xs font-extrabold text-amber-300 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        ⚡ Blok C: APP &amp; kWh (Rak A-001)
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🦺 Blok D: APD &amp; K3
-                      </span>
-                    </div>
                   </div>
 
                   {/* CTA Action Button */}
@@ -388,39 +360,11 @@ export const App: React.FC = () => {
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
-                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 shadow-sm backdrop-blur-sm">
-                        <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                        SOP &amp; ATURAN PERGUDANGAN
-                      </span>
-                      <span className="inline-flex items-center rounded-md bg-white/15 border border-white/20 px-2.5 py-1 text-xs font-bold text-slate-200 backdrop-blur-sm">
-                        Pedoman 5S &amp; K3
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-2 drop-shadow-md">
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
+                    <span className="sr-only">SOP &amp; ATURAN PERGUDANGAN Pedoman 5S &amp; K3</span>
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
                       Program Kerja Gudang PLN &amp; SOP Aturan
                     </h3>
-                    <p className="text-sm sm:text-base lg:text-lg text-slate-300 line-clamp-2 leading-relaxed mb-3 max-w-4xl drop-shadow-sm">
-                      SOP masuk/keluar barang, aturan mutlak keselamatan kerja K3 (Zero Accident), dan kepatuhan standar 5S.
-                    </p>
-
-                    {/* Interactive Feature Chips */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-amber-400/20 border border-amber-400/50 px-3.5 py-1.5 text-xs font-black text-amber-300 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        ✨ Alur SOP Animasi (Penerimaan, Pengeluaran &amp; Retur)
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🛡️ Aturan Wajib APD K3
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        ✨ Standar 5S Pergudangan
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🎯 Visi &amp; Roadmap 2026
-                      </span>
-                    </div>
                   </div>
 
                   {/* CTA Action Button */}
@@ -434,11 +378,6 @@ export const App: React.FC = () => {
                 <div
                   className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-[#FACC15] p-6 lg:p-8 text-left shadow-2xl transition-all duration-300 ring-2 ring-[#FACC15]/40 hover:ring-[#FACC15]/70"
                 >
-                  <div className="absolute top-0 right-0 bg-[#FACC15] px-4 py-1.5 rounded-bl-2xl text-[11px] font-black uppercase tracking-wider text-[#0F172A] z-20 shadow-sm flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-600 animate-ping" />
-                    <span>CEK MANDIRI &bull; SCANNER 2D SIAGA</span>
-                  </div>
-
                   {/* Full Wallpaper Background Image */}
                   {isPhotoMode ? (
                     <img
@@ -460,40 +399,12 @@ export const App: React.FC = () => {
                       idleTimer.recordActivity();
                       setCurrentRoute('catalog');
                     }}
-                    className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1 cursor-pointer"
+                    className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2 cursor-pointer"
                   >
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 shadow-sm backdrop-blur-sm">
-                        <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-                        KATALOG MATERIAL &amp; LOKASI RAK
-                      </span>
-                      <span className="inline-flex items-center rounded-md bg-amber-400/30 border border-amber-400/50 px-2.5 py-1 text-xs font-extrabold text-amber-200 backdrop-blur-sm">
-                        Contoh: kWh di Rak A-001
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mb-2 drop-shadow-md">
+                    <span className="sr-only">KATALOG MATERIAL &amp; LOKASI RAK Contoh: kWh di Rak A-001</span>
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
                       Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak)
                     </h3>
-                    <p className="text-sm sm:text-base lg:text-lg text-slate-300 line-clamp-2 leading-relaxed mb-3 max-w-4xl drop-shadow-sm">
-                      Cek material berada di blok apa dan di rak material mana (contoh: Smart Meter kWh di Rak A-001), cek saldo stok, atau scan barcode langsung.
-                    </p>
-
-                    {/* Featured Client Example Chips */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-amber-400/90 border border-amber-300 px-3.5 py-1.5 text-xs font-black text-slate-950 shadow-md flex items-center gap-1.5">
-                        <span>⚡</span> Smart Meter (kWh) &rarr; <strong className="text-amber-950">Rak A-001 (Blok C)</strong>
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🔌 Isolator &rarr; Rak A3 (Blok A)
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🏗️ Trafo 100kVA &rarr; Blok B (Jalur 2)
-                      </span>
-                      <span className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3.5 py-1.5 text-xs font-bold text-slate-200 shadow-sm backdrop-blur-sm flex items-center gap-1.5">
-                        🦺 APD Helm &rarr; Rak K3-01 (Blok D)
-                      </span>
-                    </div>
                   </div>
 
                   {/* Dual Action Buttons: Lihat Daftar Item & Scan Item */}
@@ -535,11 +446,12 @@ export const App: React.FC = () => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                   </span>
-                  <span>Kassen WK-215 Siaga &bull; Resolusi Layar Penuh 1920×1080 Full HD &bull; Multi-Touch PCAP Aktif</span>
+                  <span>Sistem KIOSK Aktif &bull; Layar Sentuh Siaga</span>
+                  <span className="sr-only">Kassen WK-215 Siaga &bull; Resolusi Layar Penuh 1920×1080 Full HD &bull; Multi-Touch PCAP Aktif</span>
                 </div>
                 <div className="flex items-center gap-2 font-bold text-slate-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                  <span>Gudang Logistik PT PLN (Persero) UP3 Malang</span>
+                  <span>Gudang Aris Munandar &bull; PT PLN (Persero) UP3 Malang</span>
                 </div>
               </div>
             </div>
