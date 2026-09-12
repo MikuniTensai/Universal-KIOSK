@@ -138,17 +138,18 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
 
     // 2. Test Add Material & Stock Tab
     fireEvent.click(screen.getAllByText(/Kelola & Tambah Stok/i)[0]);
-    fireEvent.click(screen.getByRole('button', { name: /Tambah Material Baru & Barcode/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Tambah Material Baru/i }));
 
-    // Fill form
-    fireEvent.change(screen.getByPlaceholderText(/Contoh: 001999/i), { target: { value: '008899' } });
-    fireEvent.change(screen.getByPlaceholderText(/Kabel Tegangan Menengah 20kV/i), { target: { value: 'Kabel SKTM 3x150mm' } });
-    fireEvent.change(screen.getByPlaceholderText(/PLN-KBL-20KV-2026/i), { target: { value: 'PLN-SKTM-8899' } });
+    // Fill simplified form: nama material, stok, rak, sub rak
+    fireEvent.change(screen.getByPlaceholderText(/Contoh: Kabel XLPE 20kV/i), { target: { value: 'Kabel SKTM 3x150mm' } });
+    fireEvent.change(screen.getByPlaceholderText(/Contoh: 10/i), { target: { value: '10' } });
+    fireEvent.change(screen.getByPlaceholderText(/Contoh: Rak A-01/i), { target: { value: 'Rak A-02' } });
+    fireEvent.change(screen.getByPlaceholderText(/Contoh: Sub Rak 01/i), { target: { value: 'Sub Rak 2' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /Daftarkan Material & Barcode/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Daftarkan Material/i }));
 
     // Verify success banner is displayed in Admin modal
-    expect(screen.getByText(/berhasil didaftarkan beserta barcode/i)).toBeInTheDocument();
+    expect(screen.getByText(/berhasil didaftarkan/i)).toBeInTheDocument();
 
     // Close Admin Panel
     fireEvent.click(screen.getByRole('button', { name: /Tutup Panel Administrator/i }));
@@ -157,7 +158,7 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     fireEvent.click(screen.getByText(/Scan Item \(Cek Spesifikasi\)/i));
 
     // Dynamic preset button should be rendered
-    const dynamicPresetBtn = screen.getByRole('button', { name: /Kabel SKTM 3x150mm \(PLN-SKTM-8899\)/i });
+    const dynamicPresetBtn = screen.getByRole('button', { name: /Kabel SKTM 3x150mm/i });
     expect(dynamicPresetBtn).toBeInTheDocument();
 
     // Click the dynamic preset button to simulate scan

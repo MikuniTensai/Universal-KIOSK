@@ -326,14 +326,14 @@ export class KioskStorage {
    * Mendaftarkan material baru lengkap beserta barcode alias, lokasi rak, dan stok awal
    */
   public addMaterialWithBarcode(params: {
-    code: string;
+    code?: string;
     name: string;
-    categoryId: string;
+    categoryId?: string;
     sapCode?: string;
-    unit: string;
+    unit?: string;
     specification?: string;
     photoPath?: string;
-    barcode: string;
+    barcode?: string;
     zone?: string;
     rack?: string;
     bin?: string;
@@ -343,13 +343,19 @@ export class KioskStorage {
       throw new Error('Tidak ada paket data aktif.');
     }
 
-    const trimmedCode = params.code.trim();
     const trimmedName = params.name.trim();
-    const trimmedBarcode = params.barcode.trim();
-
-    if (!trimmedCode) throw new Error('Kode material tidak boleh kosong.');
     if (!trimmedName) throw new Error('Nama material tidak boleh kosong.');
-    if (!trimmedBarcode) throw new Error('Nilai barcode tidak boleh kosong.');
+
+    let trimmedCode = params.code?.trim() || '';
+    if (!trimmedCode) {
+      const existingNums = this.activePackage.materials
+        .map(m => parseInt(m.code, 10))
+        .filter(n => !isNaN(n));
+      const nextNum = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
+      trimmedCode = String(nextNum).padStart(6, '0');
+    }
+
+    const trimmedBarcode = params.barcode?.trim() || trimmedCode;
 
     // Cek duplikasi kode material
     const codeExists = this.activePackage.materials.some(m => m.code === trimmedCode);
@@ -358,13 +364,16 @@ export class KioskStorage {
     }
 
     const newMaterialId = 'mat-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5);
+    const categoryId = params.categoryId || this.activePackage.categories[0]?.id || 'cat-umum';
+    const unit = params.unit?.trim() || 'Unit';
+
     const newMaterial: Material = {
       id: newMaterialId,
       code: trimmedCode,
       sapCode: params.sapCode?.trim() || null,
       name: trimmedName,
-      categoryId: params.categoryId,
-      unit: params.unit.trim() || 'Unit',
+      categoryId,
+      unit,
       specification: params.specification?.trim() || null,
       photoPath: params.photoPath?.trim() || null,
     };

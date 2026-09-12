@@ -13,7 +13,6 @@ import {
   Boxes,
   FolderPlus,
   PlusCircle,
-  Barcode,
   FolderTree,
   Sparkles,
   Plus,
@@ -102,18 +101,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [adjustBin, setAdjustBin] = useState<string>('A.1.1');
   const [stockError, setStockError] = useState<string | null>(null);
 
-  // New Material states
-  const [newMatCode, setNewMatCode] = useState<string>('');
+  // New Material states (hanya nama material, stok, rak, sub rak)
   const [newMatName, setNewMatName] = useState<string>('');
-  const [newMatCategoryId, setNewMatCategoryId] = useState<string>('');
-  const [newMatSapCode, setNewMatSapCode] = useState<string>('');
-  const [newMatUnit, setNewMatUnit] = useState<string>('Unit');
-  const [newMatSpec, setNewMatSpec] = useState<string>('');
-  const [newMatBarcode, setNewMatBarcode] = useState<string>('');
-  const [newMatZone, setNewMatZone] = useState<string>('Blok A');
-  const [newMatRack, setNewMatRack] = useState<string>('A.1');
-  const [newMatBin, setNewMatBin] = useState<string>('A.1.1');
   const [newMatInitialQty, setNewMatInitialQty] = useState<number>(10);
+  const [newMatRack, setNewMatRack] = useState<string>('Rak A');
+  const [newMatBin, setNewMatBin] = useState<string>('Sub Rak 1');
+  const [newMatCode, setNewMatCode] = useState<string>('');
+  const [newMatBarcode, setNewMatBarcode] = useState<string>('');
 
   // Category Management states
   const [newCatName, setNewCatName] = useState<string>('');
@@ -245,30 +239,24 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     e.preventDefault();
     setStockError(null);
     try {
-      const activePkg = kioskStorage.getActivePackage();
-      const catId = newMatCategoryId || activePkg?.categories[0]?.id;
-      if (!catId) {
-        setStockError('Pilih kategori material.');
+      if (!newMatName.trim()) {
+        setStockError('Nama material tidak boleh kosong.');
         return;
       }
       kioskStorage.addMaterialWithBarcode({
-        code: newMatCode,
-        name: newMatName,
-        categoryId: catId,
-        sapCode: newMatSapCode,
-        unit: newMatUnit,
-        specification: newMatSpec,
-        barcode: newMatBarcode || newMatCode,
-        zone: newMatZone,
-        rack: newMatRack,
-        bin: newMatBin,
-        initialQuantity: Number(newMatInitialQty),
+        code: newMatCode.trim() || undefined,
+        name: newMatName.trim(),
+        barcode: newMatBarcode.trim() || undefined,
+        rack: newMatRack.trim() || 'Rak A',
+        bin: newMatBin.trim() || 'Sub Rak 1',
+        initialQuantity: Number(newMatInitialQty) || 0,
       });
-      setActionSuccessMessage(`Material "${newMatName}" berhasil didaftarkan beserta barcode.`);
-      setNewMatCode('');
+      setActionSuccessMessage(`Material "${newMatName}" berhasil didaftarkan.`);
       setNewMatName('');
-      setNewMatSapCode('');
-      setNewMatSpec('');
+      setNewMatInitialQty(10);
+      setNewMatRack('Rak A');
+      setNewMatBin('Sub Rak 1');
+      setNewMatCode('');
       setNewMatBarcode('');
       setShowStockModal(false);
       triggerPackageUpdated();
@@ -903,10 +891,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         setShowStockModal(true);
                       }}
                       className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#FACC15] px-3.5 text-xs font-bold text-[#0F172A] shadow-2xs hover:bg-amber-400 active:scale-95 transition shrink-0"
-                      title="Buka pop-up tambah material baru & barcode"
+                      title="Buka pop-up tambah material baru"
                     >
                       <Plus className="h-4 w-4" />
-                      <span>Tambah Material Baru &amp; Barcode</span>
+                      <span>Tambah Material Baru</span>
                     </button>
 
                     <button
@@ -1932,7 +1920,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </div>
                 <div>
                   <h3 className="text-base font-black text-slate-900">
-                    {stockMode === 'adjust' ? 'Tambah / Sesuaikan Stok Material' : 'Pendaftaran Material Baru & Barcode'}
+                    {stockMode === 'adjust' ? 'Tambah / Sesuaikan Stok Material' : 'Pendaftaran Material Baru'}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium">
                     Database Logistik Pergudangan PLN UP3 Malang
@@ -1968,7 +1956,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     stockMode === 'new-material' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  2. Tambah Material Baru & Barcode
+                  2. Tambah Material Baru
                 </button>
               </div>
 
@@ -2128,160 +2116,84 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </form>
               ) : (
                 <form onSubmit={handleAddNewMaterial} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Kode Material (Wajib Unik):
-                      </label>
-                      <input
-                        type="text"
-                        value={newMatCode}
-                        onChange={(e) => setNewMatCode(e.target.value)}
-                        placeholder="Contoh: 001999"
-                        required
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Kode SAP:
-                      </label>
-                      <input
-                        type="text"
-                        value={newMatSapCode}
-                        onChange={(e) => setNewMatSapCode(e.target.value)}
-                        placeholder="Contoh: 10009999"
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
+                  {/* 1. Nama Material */}
                   <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Nama Resmi Material:
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                      Nama Material: <span className="text-rose-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={newMatName}
                       onChange={(e) => setNewMatName(e.target.value)}
-                      placeholder="Contoh: Kabel Tegangan Menengah 20kV XLPE 3x150mm"
+                      placeholder="Contoh: Kabel XLPE 20kV 3x150mm"
                       required
-                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      className="w-full h-12 rounded-xl border border-slate-300 px-3.5 text-sm font-semibold text-slate-900 bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none placeholder:text-slate-400 shadow-2xs"
                     />
                   </div>
 
+                  {/* 2. Jumlah Stok */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                      Jumlah Stok Fisik: <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={newMatInitialQty}
+                      onChange={(e) => setNewMatInitialQty(Number(e.target.value))}
+                      placeholder="Contoh: 10"
+                      required
+                      className="w-full h-12 rounded-xl border border-slate-300 px-3.5 text-sm font-bold text-slate-900 bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none shadow-2xs"
+                    />
+                  </div>
+
+                  {/* 3 & 4. Rak & Sub Rak */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Kategori Material:
-                      </label>
-                      <select
-                        value={newMatCategoryId || (activePkg?.categories[0]?.id ?? '')}
-                        onChange={(e) => setNewMatCategoryId(e.target.value)}
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      >
-                        {activePkg?.categories.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Satuan Unit:
+                      <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                        Lokasi Rak: <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="text"
-                        value={newMatUnit}
-                        onChange={(e) => setNewMatUnit(e.target.value)}
-                        placeholder="Unit / Buah / Meter / Set"
+                        value={newMatRack}
+                        onChange={(e) => setNewMatRack(e.target.value)}
+                        placeholder="Contoh: Rak A-01"
                         required
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        className="w-full h-12 rounded-xl border border-slate-300 px-3.5 text-sm font-medium text-slate-900 bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none shadow-2xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                        Sub Rak: <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatBin}
+                        onChange={(e) => setNewMatBin(e.target.value)}
+                        placeholder="Contoh: Sub Rak 01 / Tingkat 1"
+                        required
+                        className="w-full h-12 rounded-xl border border-slate-300 px-3.5 text-sm font-medium text-slate-900 bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none shadow-2xs"
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Nilai Barcode / QR Code Scanner (Wajib):
-                    </label>
-                    <div className="relative flex items-center">
-                      <Barcode className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                      <input
-                        type="text"
-                        value={newMatBarcode}
-                        onChange={(e) => setNewMatBarcode(e.target.value)}
-                        placeholder="Contoh: PLN-KBL-20KV-2026 atau nomor barcode fisik"
-                        required
-                        className="w-full h-11 rounded-xl border border-slate-300 pl-10 pr-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                    <span className="text-[11px] text-slate-500 mt-1 block">
-                      Barcode ini akan otomatis terdaftar dan bisa langsung diuji coba pada modul Scanner Kiosk.
+                  {/* Info Box */}
+                  <div className="rounded-xl bg-amber-50/80 border border-amber-200 p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+                    <Boxes className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                    <span>
+                      Kode material dan nomor registrasi sistem akan digenerate otomatis oleh sistem gudang tanpa perlu input barcode manual.
                     </span>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Standar Spesifikasi Teknis (SPLN / Standar PLN):
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={newMatSpec}
-                      onChange={(e) => setNewMatSpec(e.target.value)}
-                      placeholder="Contoh: SPLN D3.002-1:2007, Tegangan 20kV, Isolasi XLPE tahan cuaca"
-                      className="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                    <span className="text-xs font-bold text-slate-700 block">Alokasi Rak Gudang &amp; Stok Awal:</span>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
-                        <input
-                          type="text"
-                          value={newMatZone}
-                          onChange={(e) => setNewMatZone(e.target.value)}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
-                        <input
-                          type="text"
-                          value={newMatRack}
-                          onChange={(e) => setNewMatRack(e.target.value)}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin</label>
-                        <input
-                          type="text"
-                          value={newMatBin}
-                          onChange={(e) => setNewMatBin(e.target.value)}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Stok Awal</label>
-                        <input
-                          type="number"
-                          value={newMatInitialQty}
-                          onChange={(e) => setNewMatInitialQty(Number(e.target.value))}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-bold focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
+                  {/* Action Buttons */}
                   <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
                       type="submit"
                       className="flex-1 flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 hover:bg-amber-400"
                     >
                       <PlusCircle className="h-4 w-4" />
-                      <span>Daftarkan Material &amp; Barcode</span>
+                      <span>Daftarkan Material</span>
                     </button>
                     <button
                       type="button"

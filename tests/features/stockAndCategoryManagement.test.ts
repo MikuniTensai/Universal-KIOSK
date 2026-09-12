@@ -150,4 +150,33 @@ describe('Stock & Category Management Integration Tests', () => {
       kioskStorage.deleteMaterial('non-existent-id-9999');
     }).toThrow('Material dengan ID "non-existent-id-9999" tidak ditemukan.');
   });
+
+  it('registers material with simplified 4 variables: nama material, stok, rak, sub rak (auto-generating code and barcode)', () => {
+    const mat = kioskStorage.addMaterialWithBarcode({
+      name: 'Isolator Tumpu 20kV Keramik',
+      initialQuantity: 15,
+      rack: 'Rak B-02',
+      bin: 'Sub Rak 3',
+    });
+
+    expect(mat.id).toBeDefined();
+    expect(mat.name).toBe('Isolator Tumpu 20kV Keramik');
+    expect(mat.code).toBeDefined();
+    expect(mat.code.length).toBeGreaterThan(0);
+    expect(mat.unit).toBe('Unit');
+
+    const active = kioskStorage.getActivePackage();
+    const stock = active?.stockSnapshots.find(s => s.materialId === mat.id);
+    expect(stock?.quantity).toBe(15);
+    expect(stock?.available).toBe(15);
+
+    const location = active?.locations.find(l => l.id === stock?.locationId);
+    expect(location?.rack).toBe('Rak B-02');
+    expect(location?.bin).toBe('Sub Rak 3');
+
+    // Barcode alias automatically created from auto-generated code
+    const barcodeAlias = active?.barcodeAliases.find(a => a.value === mat.code);
+    expect(barcodeAlias).toBeDefined();
+    expect(barcodeAlias?.targetId).toBe(mat.id);
+  });
 });
