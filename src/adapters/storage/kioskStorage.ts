@@ -55,7 +55,17 @@ export class KioskStorage {
 
         const rawConfig = localStorage.getItem(STORAGE_KEYS.CONFIG);
         if (rawConfig) {
-          this.config = JSON.parse(rawConfig);
+          const parsedConfig = JSON.parse(rawConfig);
+          if (
+            parsedConfig.organizationName &&
+            (parsedConfig.organizationName.includes('Aris Munandar') ||
+              parsedConfig.organizationName.includes('Warehouse'))
+          ) {
+            parsedConfig.organizationName = 'PT PLN (Persero) UP3 Malang';
+            parsedConfig.warehouseCode = 'UP3 MALANG';
+            localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(parsedConfig));
+          }
+          this.config = parsedConfig;
         } else {
           localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(defaultKioskConfig));
         }

@@ -244,10 +244,13 @@ export const App: React.FC = () => {
                   <Sparkles className="h-3.5 w-3.5 text-amber-600" />
                   <span>Terminal Mandiri Kassen WK-215 (Full HD 1080p)</span>
                 </div>
-                <h2 className="text-3xl lg:text-4xl 2xl:text-[40px] font-black tracking-tight text-[#0F172A] leading-tight text-center">
-                  Selamat Datang di Gudang Aris Munandar PLN UP3 Malang
+                <h2 className="text-4xl lg:text-5xl 2xl:text-6xl font-black tracking-tight text-[#0F172A] leading-tight text-center">
+                  Selamat Datang
                 </h2>
-                <div className="flex flex-wrap items-center justify-center gap-3">
+                <p className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-500 tracking-wide text-center">
+                  PT PLN (Persero) UP3 Malang
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
                   <p className="text-base lg:text-lg text-slate-600 font-medium">
                     Pilih layanan informasi di bawah atau dekatkan barcode material langsung ke scanner.
                   </p>
@@ -560,7 +563,7 @@ export const App: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 font-bold text-slate-700">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                  <span>Gudang Logistik PLN Aris Munandar Malang</span>
+                  <span>Gudang Logistik PT PLN (Persero) UP3 Malang</span>
                 </div>
               </div>
             </div>

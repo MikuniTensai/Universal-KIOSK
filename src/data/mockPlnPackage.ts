@@ -44,8 +44,8 @@ export const DEFAULT_CARD_PHOTOS = {
 };
 
 export const defaultKioskConfig: KioskConfig = {
-  organizationName: 'PT PLN (Persero) UP3 Malang - Gudang Logistik Aris Munandar',
-  warehouseCode: 'GUD-PLN-MLG-AM01',
+  organizationName: 'PT PLN (Persero) UP3 Malang',
+  warehouseCode: 'UP3 MALANG',
   timezone: 'Asia/Jakarta',
   idleSeconds: 60,
   warningSeconds: 10,

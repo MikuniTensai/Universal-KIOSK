@@ -49,7 +49,7 @@ export const PlnLogo: React.FC<PlnLogoProps> = ({
               isDark ? 'text-amber-300/80' : 'text-slate-500'
             }`}
           >
-            LOGISTIK &amp; GUDANG
+            UP3 MALANG
           </span>
         </div>
       )}

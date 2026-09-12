@@ -62,8 +62,8 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
           SELAMAT DATANG
         </h2>
 
-        <p className="text-2xl md:text-3xl font-semibold text-slate-200 leading-relaxed max-w-3xl drop-shadow-md">
-          Gudang Aris Munandar &bull; PT PLN (Persero) UP3 Malang
+        <p className="text-2xl md:text-3xl lg:text-4xl font-black text-[#FACC15] leading-relaxed max-w-3xl drop-shadow-md tracking-wide">
+          PT PLN (Persero) UP3 Malang
         </p>
 
         {/* Quick hint for scanner */}

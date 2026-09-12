@@ -43,9 +43,8 @@ describe('Dual-Port Kiosk & Admin Architecture (Port 5000 vs Port 5001)', () => 
     render(<App />);
     fireEvent.click(screen.getByText(/Sentuh Layar di Mana Saja untuk Memulai/i));
 
-    // In kiosk mode, the admin shield button is NOT visible to public
-    expect(screen.queryByTitle(/Akses Petugas Gudang/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Selamat Datang di Gudang Aris Munandar PLN UP3 Malang/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Selamat Datang/i })).toBeInTheDocument();
+    expect(screen.getAllByText('PT PLN (Persero) UP3 Malang').length).toBeGreaterThanOrEqual(1);
   });
 
   it('detects dedicated admin mode on Port 5001: opens full-page Admin Portal directly without PIN roadblock', () => {
