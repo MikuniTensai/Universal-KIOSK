@@ -729,7 +729,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         </tr>
                       ) : (
                         overviewFilteredMaterials
-                          .slice(0, overviewSearch ? 100 : 12)
+                          .slice(0, overviewSearch ? 100 : 15)
                           .map((mat, idx) => {
                             const { totalQty, blokDisplay, rakDisplay } = getMaterialLocationInfo(mat.id, activePkg);
                             return (
@@ -779,6 +779,21 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       )}
                     </tbody>
                   </table>
+
+                  {/* Table Footer / Jump to Full Stock Management */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-600">
+                    <div>
+                      Menampilkan <strong className="font-bold text-slate-900">{Math.min(overviewFilteredMaterials.length, overviewSearch ? 100 : 15)}</strong> dari <strong className="font-bold text-slate-900">{overviewFilteredMaterials.length}</strong> material
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('stock')}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FACC15] text-[#0F172A] font-bold hover:bg-amber-400 transition text-xs shadow-2xs"
+                    >
+                      <Boxes className="h-3.5 w-3.5" />
+                      <span>Buka Manajemen Stok Lengkap (157 Material) &rarr;</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -787,147 +802,151 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           {/* TAB 1: STOCK & MATERIAL MUTATION */}
           {activeTab === 'stock' && (
             <div className="space-y-4">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                <div>
+              <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-3.5">
+                <div className="min-w-0">
                   <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Boxes className="h-4 w-4 text-amber-600" />
+                    <Boxes className="h-4 w-4 text-amber-600 shrink-0" />
                     <span>Daftar &amp; Kelola Stok Material ({filteredStockMaterials.length} dari {activePkg?.materials.length || 0} Terdaftar):</span>
                   </h4>
-                  <p className="text-[11px] text-slate-500 font-medium">
+                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
                     Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK)
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStockMode('new-material');
-                      setStockError(null);
-                      setShowStockModal(true);
-                    }}
-                    className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#FACC15] px-3.5 text-xs font-bold text-[#0F172A] shadow-2xs hover:bg-amber-400 active:scale-95 transition shrink-0"
-                    title="Buka pop-up tambah material baru & barcode"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Tambah Material Baru &amp; Barcode</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStockMode('adjust');
-                      setStockError(null);
-                      setShowStockModal(true);
-                    }}
-                    className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-white border border-slate-300 px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition shadow-2xs shrink-0"
-                    title="Buka pop-up penyesuaian stok material"
-                  >
-                    <Boxes className="h-4 w-4 text-amber-600" />
-                    <span>Penyesuaian Stok</span>
-                  </button>
-
-                  {/* Search Bar & Titik 3 Category Filter for Stock Table */}
-                  <div className="relative w-full sm:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                    <input
-                      type="text"
-                      placeholder="Cari nama, kode normalisasi, blok, rak..."
-                      value={stockSearch}
-                      onChange={(e) => setStockSearch(e.target.value)}
-                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                    {stockSearch && (
-                      <button
-                        type="button"
-                        onClick={() => setStockSearch('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                        aria-label="Bersihkan pencarian stock"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Titik 3 (MoreVertical) Filter Category Button */}
-                  <div className="relative shrink-0">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
                     <button
                       type="button"
-                      onClick={() => setShowStockCategoryMenu((prev) => !prev)}
-                      title="Filter Berdasarkan Kategori"
-                      aria-label="Filter berdasarkan kategori"
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl border transition shadow-2xs active:scale-95 ${
-                        stockSelectedCategory !== 'all'
-                          ? 'bg-amber-100 border-amber-400 text-amber-900 font-bold ring-2 ring-amber-400/30'
-                          : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                      }`}
+                      onClick={() => {
+                        setStockMode('new-material');
+                        setStockError(null);
+                        setShowStockModal(true);
+                      }}
+                      className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#FACC15] px-3.5 text-xs font-bold text-[#0F172A] shadow-2xs hover:bg-amber-400 active:scale-95 transition shrink-0"
+                      title="Buka pop-up tambah material baru & barcode"
                     >
-                      <MoreVertical className="h-4 w-4" />
+                      <Plus className="h-4 w-4" />
+                      <span>Tambah Material Baru &amp; Barcode</span>
                     </button>
 
-                    {showStockCategoryMenu && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-30"
-                          onClick={() => setShowStockCategoryMenu(false)}
-                        />
-                        <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
-                          <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                              Filter Kategori
-                            </span>
-                            <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
-                              {activePkg?.categories.length || 0} Kategori
-                            </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStockMode('adjust');
+                        setStockError(null);
+                        setShowStockModal(true);
+                      }}
+                      className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-white border border-slate-300 px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition shadow-2xs shrink-0"
+                      title="Buka pop-up penyesuaian stok material"
+                    >
+                      <Boxes className="h-4 w-4 text-amber-600" />
+                      <span>Penyesuaian Stok</span>
+                    </button>
+                  </div>
+
+                  {/* Search Bar & Titik 3 Category Filter for Stock Table */}
+                  <div className="flex items-center gap-2 flex-1 sm:flex-initial min-w-[240px]">
+                    <div className="relative flex-1 sm:w-64 md:w-72">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                      <input
+                        type="text"
+                        placeholder="Cari nama, kode normalisasi, blok, rak..."
+                        value={stockSearch}
+                        onChange={(e) => setStockSearch(e.target.value)}
+                        className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                      {stockSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setStockSearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                          aria-label="Bersihkan pencarian stock"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Titik 3 (MoreVertical) Filter Category Button */}
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setShowStockCategoryMenu((prev) => !prev)}
+                        title="Filter Berdasarkan Kategori"
+                        aria-label="Filter berdasarkan kategori"
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl border transition shadow-2xs active:scale-95 ${
+                          stockSelectedCategory !== 'all'
+                            ? 'bg-amber-100 border-amber-400 text-amber-900 font-bold ring-2 ring-amber-400/30'
+                            : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+
+                      {showStockCategoryMenu && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-30"
+                            onClick={() => setShowStockCategoryMenu(false)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
+                            <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
+                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                Filter Kategori
+                              </span>
+                              <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
+                                {activePkg?.categories.length || 0} Kategori
+                              </span>
+                            </div>
+                            <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setStockSelectedCategory('all');
+                                  setShowStockCategoryMenu(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                  stockSelectedCategory === 'all'
+                                    ? 'bg-amber-50 text-amber-900 font-bold'
+                                    : 'text-slate-700 hover:bg-slate-100'
+                                }`}
+                              >
+                                <span>Semua Kategori</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[11px] text-slate-400">({activePkg?.materials.length || 0})</span>
+                                  {stockSelectedCategory === 'all' && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                </div>
+                              </button>
+                              {activePkg?.categories.map((cat) => {
+                                const count = (activePkg.materials || []).filter((m) => m.categoryId === cat.id).length;
+                                const isSelected = stockSelectedCategory === cat.id;
+                                return (
+                                  <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setStockSelectedCategory(cat.id);
+                                      setShowStockCategoryMenu(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                      isSelected
+                                        ? 'bg-amber-50 text-amber-900 font-bold'
+                                        : 'text-slate-700 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    <span className="truncate pr-2">{cat.name}</span>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      <span className="text-[11px] text-slate-400">({count})</span>
+                                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
-                          <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setStockSelectedCategory('all');
-                                setShowStockCategoryMenu(false);
-                              }}
-                              className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
-                                stockSelectedCategory === 'all'
-                                  ? 'bg-amber-50 text-amber-900 font-bold'
-                                  : 'text-slate-700 hover:bg-slate-100'
-                              }`}
-                            >
-                              <span>Semua Kategori</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[11px] text-slate-400">({activePkg?.materials.length || 0})</span>
-                                {stockSelectedCategory === 'all' && <Check className="h-3.5 w-3.5 text-amber-600" />}
-                              </div>
-                            </button>
-                            {activePkg?.categories.map((cat) => {
-                              const count = (activePkg.materials || []).filter((m) => m.categoryId === cat.id).length;
-                              const isSelected = stockSelectedCategory === cat.id;
-                              return (
-                                <button
-                                  key={cat.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setStockSelectedCategory(cat.id);
-                                    setShowStockCategoryMenu(false);
-                                  }}
-                                  className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
-                                    isSelected
-                                      ? 'bg-amber-50 text-amber-900 font-bold'
-                                      : 'text-slate-700 hover:bg-slate-100'
-                                  }`}
-                                >
-                                  <span className="truncate pr-2">{cat.name}</span>
-                                  <div className="flex items-center gap-1.5 shrink-0">
-                                    <span className="text-[11px] text-slate-400">({count})</span>
-                                    {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
-                                  </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -950,7 +969,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               )}
 
 
-                <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white max-h-[460px] overflow-y-auto">
+                <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
                   <table className="w-full text-left text-xs min-w-[640px]">
                     <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
                       <tr>
@@ -1006,9 +1025,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      setStockMode('adjust');
                                       setAdjustMatId(m.id);
-                                      setStockError(null);
+                                      setStockMode('adjust');
                                       setShowStockModal(true);
                                     }}
                                     className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
@@ -1031,13 +1049,29 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       )}
                     </tbody>
                   </table>
+
+                  {/* Table Summary Footer Bar */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 font-medium">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span>Menampilkan <strong className="text-slate-800 font-bold">{filteredStockMaterials.length}</strong> dari <strong className="text-slate-800 font-bold">{activePkg?.materials.length || 0}</strong> material terdaftar</span>
+                      {stockSelectedCategory !== 'all' && (
+                        <span className="text-amber-800 font-semibold">(filter kategori aktif)</span>
+                      )}
+                      {stockSearch && (
+                        <span className="text-sky-800 font-semibold">(pencarian: "{stockSearch}")</span>
+                      )}
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-mono">
+                      Database Terverifikasi SAP Logistik &bull; Port 5001
+                    </div>
+                  </div>
                 </div>
               </div>
           )}
 
           {/* TAB: CATEGORY MANAGEMENT */}
           {activeTab === 'categories' && (
-            <div className="space-y-6 max-w-2xl">
+            <div className="space-y-6 max-w-4xl">
               <form onSubmit={handleAddCategory} className="rounded-card border border-slate-200 bg-slate-50 p-5 space-y-4">
                 <h4 className="text-sm font-bold text-slate-800">Form Tambah Kategori Material Baru</h4>
                 {catError && (
@@ -1068,7 +1102,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <h4 className="text-sm font-bold text-slate-800">
                   Daftar Kategori Aktif ({activePkg?.categories.length || 0}):
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {activePkg?.categories.map((cat) => {
                     const count = activePkg.materials.filter(m => m.categoryId === cat.id).length;
                     return (
@@ -1209,7 +1243,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   Daftar Blok &amp; Sub-Blok Terdaftar ({adminBlocks.length} Blok):
                 </h5>
 
-                <div className="grid grid-cols-1 gap-3 max-h-[420px] overflow-y-auto pr-1 no-scrollbar">
+                <div className="grid grid-cols-1 gap-4">
                   {adminBlocks.map((block) => (
                     <div
                       key={block.id}

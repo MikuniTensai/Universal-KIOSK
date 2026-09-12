@@ -287,5 +287,57 @@ describe('Admin Console Responsive UX & Touch Targets (Uci UI/UX Audit)', () => 
         expect(screen.queryByText(/Filter Kategori:/i)).not.toBeInTheDocument();
       }
     });
+
+    it('renders Stock tab table full height without max-h-[460px] cutoff and includes summary footer', () => {
+      const onClose = vi.fn();
+
+      const { container } = render(
+        <AdminDashboardModal
+          visible={true}
+          bypassPin={true}
+          onClose={onClose}
+          onPackageUpdated={vi.fn()}
+        />
+      );
+
+      // Verify table is present
+      const table = container.querySelector('table');
+      expect(table).toBeInTheDocument();
+
+      // Verify container does NOT have max-h-[460px] which was cutting off the table
+      const tableContainer = table?.closest('.overflow-x-auto');
+      expect(tableContainer).toBeInTheDocument();
+      expect(tableContainer?.className).not.toContain('max-h-[460px]');
+      expect(tableContainer).toHaveClass('rounded-xl', 'border', 'border-slate-200', 'bg-white');
+
+      // Verify table summary footer is present showing total registered materials
+      expect(screen.getByText(/material terdaftar/i)).toBeInTheDocument();
+      expect(screen.getByText(/Database Terverifikasi SAP Logistik/i)).toBeInTheDocument();
+    });
+
+    it('renders full height list of warehouse blocks without max-h-[420px] constraint in Locations tab', () => {
+      const onClose = vi.fn();
+
+      const { container } = render(
+        <AdminDashboardModal
+          visible={true}
+          bypassPin={true}
+          onClose={onClose}
+          onPackageUpdated={vi.fn()}
+        />
+      );
+
+      // Navigate to Locations tab
+      const locationsNav = screen.getByRole('button', { name: /Tata Letak Blok & Rak/i });
+      fireEvent.click(locationsNav);
+
+      // Verify blocks header
+      expect(screen.getByText(/Daftar Blok & Sub-Blok Terdaftar/i)).toBeInTheDocument();
+
+      // Verify that no block grid container is clipped by max-h-[420px]
+      const clippedContainer = container.querySelector('.max-h-\\[420px\\]');
+      expect(clippedContainer).not.toBeInTheDocument();
+    });
   });
 });
+

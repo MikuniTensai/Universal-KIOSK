@@ -352,15 +352,16 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
                   handleSelectTab('network');
                 }
               }}
-              className="adms-conn-status-pill adms-conn-status-pill--ok cursor-pointer hover:opacity-90 active:scale-95 transition"
+              className="adms-conn-status-pill adms-conn-status-pill--ok cursor-pointer hover:opacity-90 active:scale-95 transition shrink-0"
               title="Klik untuk membuka Panduan Akses WiFi & Alamat IP Lokal Mesin"
             >
               <span className="adms-pulse-dot adms-pulse-dot--green" />
-              <span className="hidden sm:inline font-bold">PORT 5001 &bull; DEDICATED ADMIN LAN</span>
-              <span className="sm:hidden font-bold">Port 5001</span>
+              <span className="hidden xl:inline font-bold">PORT 5001 &bull; DEDICATED ADMIN LAN</span>
+              <span className="hidden sm:inline xl:hidden font-bold">Port 5001 (LAN)</span>
+              <span className="sm:hidden font-bold">5001</span>
             </button>
 
-            <div className="hidden xl:flex items-center text-[11px] text-emerald-600 font-mono font-bold gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+            <div className="hidden 2xl:flex items-center text-[11px] text-emerald-600 font-mono font-bold gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shrink-0">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Real-Time LAN Sync Aktif</span>
             </div>
@@ -370,10 +371,11 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
               href={AdminModeService.getKioskUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="adms-kiosk-jump-btn"
+              className="adms-kiosk-jump-btn shrink-0"
               title="Buka Antarmuka Layar Sentuh Kiosk Port 5000"
             >
-              <span>Layar Kiosk (Port 5000)</span>
+              <span className="hidden sm:inline">Layar Kiosk (Port 5000)</span>
+              <span className="sm:hidden">Kiosk</span>
               <ArrowRight size={13} strokeWidth={2.5} />
             </a>
 
