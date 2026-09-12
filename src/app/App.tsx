@@ -388,8 +388,8 @@ export const App: React.FC = () => {
 
                     {/* Interactive Feature Chips */}
                     <div className="hidden sm:flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-white/10 hover:bg-white/15 border border-white/15 px-3 py-1 text-xs font-semibold text-slate-200 backdrop-blur-md shadow-sm">
-                        📋 SOP Inbound &amp; Outbound
+                      <span className="rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 px-3 py-1 text-xs font-bold text-amber-300 backdrop-blur-md shadow-sm animate-pulse">
+                        ✨ Alur SOP Animasi (Penerimaan, Pengeluaran &amp; Retur)
                       </span>
                       <span className="rounded-full bg-white/10 hover:bg-white/15 border border-white/15 px-3 py-1 text-xs font-semibold text-slate-200 backdrop-blur-md shadow-sm">
                         🛡️ Aturan Wajib APD K3
@@ -475,15 +475,15 @@ export const App: React.FC = () => {
                   </div>
 
                   {/* Dual Action Buttons: Lihat Daftar Item & Scan Item */}
-                  <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0 self-end lg:self-center z-10">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 self-stretch lg:self-center z-10 w-full sm:w-auto">
                     <button
                       onClick={() => {
                         idleTimer.recordActivity();
                         setCurrentRoute('catalog');
                       }}
-                      className="active:scale-95 transition"
+                      className="active:scale-95 transition w-full sm:w-auto"
                     >
-                      <div className="flex h-14 flex-shrink-0 items-center gap-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white px-5 lg:px-6 font-extrabold border border-slate-700/80 shadow-md backdrop-blur-md whitespace-nowrap">
+                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white px-5 lg:px-6 font-extrabold border border-slate-700/80 shadow-md backdrop-blur-md whitespace-nowrap">
                         <span className="text-sm lg:text-base font-extrabold">Lihat Daftar Item</span>
                         <ArrowRight className="h-5 w-5" />
                       </div>
@@ -494,9 +494,9 @@ export const App: React.FC = () => {
                         idleTimer.recordActivity();
                         setCurrentRoute('scan');
                       }}
-                      className="active:scale-95 transition"
+                      className="active:scale-95 transition w-full sm:w-auto"
                     >
-                      <div className="flex h-14 flex-shrink-0 items-center gap-2 rounded-xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-6 font-black hover:bg-amber-400 shadow-xl whitespace-nowrap border-2 border-amber-400 ring-2 ring-[#FACC15]/50">
+                      <div className="flex h-14 flex-shrink-0 w-full items-center justify-center gap-2 rounded-xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-6 font-black hover:bg-amber-400 shadow-xl whitespace-nowrap border-2 border-amber-400 ring-2 ring-[#FACC15]/50">
                         <Scan className="h-5 w-5" />
                         <span className="text-sm lg:text-base font-black">Scan Item (Cek Spesifikasi)</span>
                         <span className="sr-only">Mulai Scan Material</span>

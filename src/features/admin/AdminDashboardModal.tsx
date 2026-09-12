@@ -511,13 +511,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </p>
                   </div>
                   <div className="relative w-full sm:w-64">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Cari kode atau nama material..."
                       value={overviewSearch}
                       onChange={(e) => setOverviewSearch(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-1.5 text-xs font-medium focus:border-sky-500 focus:outline-none"
+                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-3 text-xs sm:text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -630,7 +630,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     <select
                       value={adjustMatId || (activePkg?.materials[0]?.id ?? '')}
                       onChange={(e) => setAdjustMatId(e.target.value)}
-                      className="w-full rounded-control border border-slate-300 p-2.5 text-sm bg-white font-medium text-slate-800"
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     >
                       {activePkg?.materials.map(m => (
                         <option key={m.id} value={m.id}>
@@ -664,8 +664,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setIsExactStock(false)}
-                          className={`flex-1 py-2 rounded-lg text-xs font-bold border transition ${
-                            !isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200'
+                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
+                            !isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                           }`}
                         >
                           + Tambah / - Kurang
@@ -673,8 +673,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setIsExactStock(true)}
-                          className={`flex-1 py-2 rounded-lg text-xs font-bold border transition ${
-                            isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200'
+                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
+                            isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                           }`}
                         >
                           Tetapkan Nilai
@@ -690,7 +690,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         type="number"
                         value={stockDeltaInput}
                         onChange={(e) => setStockDeltaInput(Number(e.target.value))}
-                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-bold text-slate-800"
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-bold text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         placeholder={isExactStock ? "contoh: 50" : "contoh: 10 atau -5"}
                       />
                     </div>
@@ -706,7 +706,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           value={adjustZone}
                           onChange={(e) => setAdjustZone(e.target.value)}
                           placeholder="Zona A"
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -716,7 +716,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           value={adjustRack}
                           onChange={(e) => setAdjustRack(e.target.value)}
                           placeholder="Rak 01"
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -726,7 +726,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           value={adjustBin}
                           onChange={(e) => setAdjustBin(e.target.value)}
                           placeholder="Bin 01"
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -772,7 +772,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         onChange={(e) => setNewMatCode(e.target.value)}
                         placeholder="Contoh: 001999"
                         required
-                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-mono"
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                       />
                     </div>
                     <div>
@@ -784,7 +784,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         value={newMatSapCode}
                         onChange={(e) => setNewMatSapCode(e.target.value)}
                         placeholder="Contoh: 10009999"
-                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-mono"
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -799,7 +799,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       onChange={(e) => setNewMatName(e.target.value)}
                       placeholder="Contoh: Kabel Tegangan Menengah 20kV XLPE 3x150mm"
                       required
-                      className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-medium"
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
 
@@ -811,7 +811,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <select
                         value={newMatCategoryId || (activePkg?.categories[0]?.id ?? '')}
                         onChange={(e) => setNewMatCategoryId(e.target.value)}
-                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm bg-white font-medium"
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                       >
                         {activePkg?.categories.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
@@ -828,7 +828,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         onChange={(e) => setNewMatUnit(e.target.value)}
                         placeholder="Unit / Buah / Meter / Set"
                         required
-                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -838,14 +838,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       Nilai Barcode / QR Code Scanner (Wajib):
                     </label>
                     <div className="relative flex items-center">
-                      <Barcode className="pointer-events-none absolute left-3 h-5 w-5 text-slate-400" />
+                      <Barcode className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                       <input
                         type="text"
                         value={newMatBarcode}
                         onChange={(e) => setNewMatBarcode(e.target.value)}
                         placeholder="Contoh: PLN-KBL-20KV-2026 atau nomor barcode fisik"
                         required
-                        className="w-full rounded-control border border-slate-300 p-2.5 pl-10 text-sm font-mono text-slate-800"
+                        className="w-full h-11 rounded-xl border border-slate-300 pl-10 pr-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                       />
                     </div>
                     <span className="text-[11px] text-slate-500 mt-1 block">
@@ -862,7 +862,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       value={newMatSpec}
                       onChange={(e) => setNewMatSpec(e.target.value)}
                       placeholder="Contoh: SPLN D3.002-1:2007, Tegangan 20kV, Isolasi XLPE tahan cuaca"
-                      className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                      className="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
 
@@ -875,7 +875,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           type="text"
                           value={newMatZone}
                           onChange={(e) => setNewMatZone(e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -884,7 +884,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           type="text"
                           value={newMatRack}
                           onChange={(e) => setNewMatRack(e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -893,7 +893,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           type="text"
                           value={newMatBin}
                           onChange={(e) => setNewMatBin(e.target.value)}
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                       <div>
@@ -902,7 +902,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           type="number"
                           value={newMatInitialQty}
                           onChange={(e) => setNewMatInitialQty(Number(e.target.value))}
-                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white font-bold"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-bold focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -997,7 +997,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     onChange={(e) => setNewCatName(e.target.value)}
                     placeholder="Contoh: Kabel Tegangan Menengah, APD & K3..."
                     required
-                    className="flex-1 rounded-control border border-slate-300 p-3 text-sm bg-white font-medium text-slate-800 focus:border-[#FACC15] focus:outline-none"
+                    className="flex-1 h-12 rounded-xl border border-slate-300 px-4 text-sm bg-white font-medium text-slate-800 focus:border-[#FACC15] focus:ring-2 focus:ring-[#FACC15]/30 focus:outline-none"
                   />
                   <button
                     type="submit"
@@ -1018,12 +1018,17 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     const count = activePkg.materials.filter(m => m.categoryId === cat.id).length;
                     return (
                       <div key={cat.id} className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-amber-400" />
-                          <span className="font-bold text-sm text-slate-800">{cat.name}</span>
+                        <div className="flex items-center gap-2.5">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-900 font-bold text-xs">
+                            {cat.name.slice(0, 2).toUpperCase()}
+                          </span>
+                          <div>
+                            <span className="text-xs font-bold text-slate-900 block">{cat.name}</span>
+                            <span className="text-[10px] text-slate-500">{count} material terkait</span>
+                          </div>
                         </div>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
-                          {count} Material
+                        <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-semibold">
+                          ID: {cat.id}
                         </span>
                       </div>
                     );
@@ -1033,9 +1038,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
           )}
 
-          {/* TAB: WAREHOUSE LOCATIONS & BLOCKS (A-Z) */}
+          {/* TAB 3: LOCATIONS / WAREHOUSE HIERARCHY */}
           {activeTab === 'locations' && (
-            <div className="space-y-6 max-w-4xl overflow-y-auto no-scrollbar pb-10">
+            <div className="space-y-6">
               {blockActionMessage && (
                 <div className="rounded-xl bg-amber-50 border border-amber-300 p-4 text-xs font-bold text-amber-900 flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-amber-600 shrink-0" />
@@ -1043,29 +1048,28 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </div>
               )}
 
-              {/* Action Toolbar & Stats */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              {/* Header Info & Action Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-card border border-slate-200 bg-slate-50 p-4">
                 <div>
                   <h4 className="text-sm font-black text-slate-800 flex items-center gap-2">
                     <FolderTree className="h-4 w-4 text-amber-600" />
-                    <span>Hierarki Tata Letak Gudang: Blok (A-Z) &bull; Sub-Blok (.1-.3) &bull; Slot (.1-.5)</span>
+                    <span>Hierarki Tata Letak Blok &amp; Rak Gudang PLN (A s/d Z)</span>
                   </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Tersedia {adminBlocks.length} Blok Aktif &bull; {adminBlocks.reduce((acc, b) => acc + b.subBlocks.length, 0)} Sub-Blok &bull; {adminBlocks.reduce((acc, b) => acc + b.subBlocks.reduce((sAcc, sb) => sAcc + sb.slots.length, 0), 0)} Slot Rak Fisik.
+                    Struktur dinamis fleksibel: <strong>Blok &rarr; Sub-Blok / Baris &rarr; Slot Rak</strong> (misal A.1.1 - A.1.5 s/d A.3.5, dapat ditambah hingga Blok Z).
                   </p>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={handleAdminInitializeAtoZ}
-                    className="flex h-10 items-center justify-center gap-1.5 px-3.5 rounded-xl bg-[#FACC15] text-[#0F172A] text-xs font-bold shadow-sm hover:bg-amber-400 active:scale-95 transition flex-1 sm:flex-none"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 px-3.5 py-2 text-xs font-bold transition shadow"
                   >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span>Inisialisasi A s/d Z</span>
+                    <Sparkles className="h-3.5 w-3.5 text-[#FACC15]" />
+                    <span>Inisialisasi A-Z</span>
                   </button>
                   <button
                     onClick={handleAdminResetDefaults}
-                    className="flex h-10 items-center justify-center gap-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 active:scale-95 transition flex-1 sm:flex-none"
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 px-3 py-2 text-xs font-bold transition"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span>Reset (A-H)</span>
@@ -1090,7 +1094,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       onChange={(e) => setAdminNewBlockLetter(e.target.value.toUpperCase())}
                       placeholder="I, J, Z..."
                       required
-                      className="w-full rounded-xl border border-slate-300 p-2.5 font-mono font-black text-sm bg-slate-50 focus:bg-white"
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 font-mono font-black text-sm bg-slate-50 focus:bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -1101,7 +1105,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       onChange={(e) => setAdminNewBlockName(e.target.value)}
                       placeholder="Contoh: Area Panel Hubung Bagi 20kV"
                       required
-                      className="w-full rounded-xl border border-slate-300 p-2.5 text-xs bg-slate-50 focus:bg-white font-medium"
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm bg-slate-50 focus:bg-white font-medium focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                   <div className="flex items-end">
@@ -1124,7 +1128,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       max={10}
                       value={adminSubCount}
                       onChange={(e) => setAdminSubCount(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white font-bold"
+                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-bold focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1135,7 +1139,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       max={20}
                       value={adminSlotCount}
                       onChange={(e) => setAdminSlotCount(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white font-bold"
+                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-bold focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                   <div className="sm:col-span-2 flex items-center text-[11px] text-slate-500">
@@ -1421,7 +1425,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   type="text"
                   value={configDraft.organizationName}
                   onChange={(e) => setConfigDraft({ ...configDraft, organizationName: e.target.value })}
-                  className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                  className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                 />
               </div>
 
@@ -1431,7 +1435,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   type="text"
                   value={configDraft.warehouseCode}
                   onChange={(e) => setConfigDraft({ ...configDraft, warehouseCode: e.target.value })}
-                  className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                  className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                 />
               </div>
 
@@ -1442,7 +1446,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     type="text"
                     value={configDraft.timezone}
                     onChange={(e) => setConfigDraft({ ...configDraft, timezone: e.target.value })}
-                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1451,7 +1455,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     type="number"
                     value={configDraft.staleAfterHours ?? ''}
                     onChange={(e) => setConfigDraft({ ...configDraft, staleAfterHours: e.target.value ? Number(e.target.value) : null })}
-                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1463,7 +1467,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     type="number"
                     value={configDraft.idleSeconds}
                     onChange={(e) => setConfigDraft({ ...configDraft, idleSeconds: Number(e.target.value) })}
-                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1472,7 +1476,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     type="number"
                     value={configDraft.warningSeconds}
                     onChange={(e) => setConfigDraft({ ...configDraft, warningSeconds: Number(e.target.value) })}
-                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                    className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1481,7 +1485,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               <div className="rounded-xl border border-amber-300 bg-amber-50/50 p-4 space-y-4">
                 <div className="flex items-center justify-between border-b border-amber-200/70 pb-2">
                   <h5 className="font-extrabold text-sm text-[#0F172A]">
-                    Tampilan Visual & Wallpaper Kiosk
+                    Tampilan Visual &amp; Wallpaper Kiosk
                   </h5>
                   <span className="text-[11px] font-bold text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">
                     Kustomisasi Petugas
@@ -1497,45 +1501,41 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'photo' })}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition ${
-                        configDraft.cardStyle !== 'minimal'
-                          ? 'bg-[#FACC15] text-[#0F172A] border-[#FACC15] shadow-md ring-2 ring-amber-400'
-                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition min-h-[44px] ${
+                        configDraft.cardStyle === 'photo'
+                          ? 'border-amber-500 bg-white text-[#0F172A] shadow-md ring-2 ring-amber-400/40'
+                          : 'border-slate-200 bg-white/60 text-slate-500 hover:bg-white'
                       }`}
                     >
-                      <ImageIcon className="h-4 w-4 text-[#0F172A]" />
-                      <span>Kartu Bergambar Foto Nyata</span>
+                      <ImageIcon className="h-4 w-4 text-amber-600" />
+                      <span>Mode Kartu Foto</span>
                     </button>
-
                     <button
                       type="button"
                       onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'minimal' })}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition ${
+                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition min-h-[44px] ${
                         configDraft.cardStyle === 'minimal'
-                          ? 'bg-[#FACC15] text-[#0F172A] border-[#FACC15] shadow-md ring-2 ring-amber-400'
-                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                          ? 'border-amber-500 bg-white text-[#0F172A] shadow-md ring-2 ring-amber-400/40'
+                          : 'border-slate-200 bg-white/60 text-slate-500 hover:bg-white'
                       }`}
                     >
-                      <LayoutGrid className="h-4 w-4 text-slate-600" />
-                      <span>Kartu Minimalis Ikon</span>
+                      <LayoutGrid className="h-4 w-4 text-amber-600" />
+                      <span>Mode Minimalis</span>
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    *Mode bergambar sangat memudahkan petugas senior dan tamu mengenali menu secara visual sekilas.
-                  </p>
                 </div>
 
-                {/* Wallpaper Preset Selector */}
+                {/* Preset Wallpaper Selector */}
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
-                    Pilihan Wallpaper Layar Awal (Screensaver & Beranda)
+                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                    Preset Wallpaper Gudang PLN
                   </label>
                   <div className="relative flex items-center">
-                    <Palette className="pointer-events-none absolute left-3.5 h-4 w-4 text-slate-400" />
+                    <Palette className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-600" />
                     <select
                       value={configDraft.wallpaperPreset || 'warehouse'}
                       onChange={(e) => setConfigDraft({ ...configDraft, wallpaperPreset: e.target.value as any })}
-                      className="w-full appearance-none rounded-control border border-slate-300 py-2.5 pl-10 pr-10 text-sm bg-white font-medium text-slate-800 focus:border-[#FACC15] focus:outline-none"
+                      className="w-full h-11 appearance-none rounded-xl border border-slate-300 pl-10 pr-10 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     >
                       {Object.values(WALLPAPER_PRESETS).map((p) => (
                         <option key={p.id} value={p.id}>
@@ -1543,7 +1543,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="pointer-events-none absolute right-3.5 h-4 w-4 text-slate-400" />
+                    <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   </div>
                 </div>
 
@@ -1557,7 +1557,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     placeholder="Kosongkan jika menggunakan preset di atas..."
                     value={configDraft.customWallpaperUrl || ''}
                     onChange={(e) => setConfigDraft({ ...configDraft, customWallpaperUrl: e.target.value })}
-                    className="w-full rounded-control border border-slate-300 p-2 text-xs font-mono"
+                    className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                   />
                 </div>
 
@@ -1575,7 +1575,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       value={configDraft.thumbnailAPhoto || ''}
                       placeholder={DEFAULT_CARD_PHOTOS.thumbnailA}
                       onChange={(e) => setConfigDraft({ ...configDraft, thumbnailAPhoto: e.target.value })}
-                      className="w-full rounded-control border border-slate-300 p-1.5 text-xs font-mono"
+                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1587,7 +1587,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       value={configDraft.thumbnailBPhoto || ''}
                       placeholder={DEFAULT_CARD_PHOTOS.thumbnailB}
                       onChange={(e) => setConfigDraft({ ...configDraft, thumbnailBPhoto: e.target.value })}
-                      className="w-full rounded-control border border-slate-300 p-1.5 text-xs font-mono"
+                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1599,7 +1599,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       value={configDraft.thumbnailCPhoto || ''}
                       placeholder={DEFAULT_CARD_PHOTOS.thumbnailC}
                       onChange={(e) => setConfigDraft({ ...configDraft, thumbnailCPhoto: e.target.value })}
-                      className="w-full rounded-control border border-slate-300 p-1.5 text-xs font-mono"
+                      className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1607,7 +1607,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
               <button
                 onClick={handleSaveConfig}
-                className="mt-4 flex h-12 items-center rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow active:scale-95"
+                className="mt-4 flex h-12 items-center justify-center rounded-xl bg-[#FACC15] px-8 text-sm font-black text-[#0F172A] shadow active:scale-95 hover:bg-amber-400 w-full sm:w-auto"
               >
                 Simpan Konfigurasi
               </button>

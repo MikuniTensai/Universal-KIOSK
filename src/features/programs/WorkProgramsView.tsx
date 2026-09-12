@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Target, Sparkles, ShieldAlert, CheckCircle2, ArrowLeft, FileText, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { AnimatedSopExplorer } from './AnimatedSopExplorer';
 
 interface WorkProgramsViewProps {
   onBack: () => void;
@@ -64,85 +65,9 @@ export const WorkProgramsView: React.FC<WorkProgramsViewProps> = ({ onBack }) =>
 
       {/* Content Area */}
       <div className="flex-1 rounded-card bg-white p-6 lg:p-8 shadow-sm border border-slate-200">
-        {/* TAB 1: SOP MASUK & KELUAR MATERIAL */}
+        {/* TAB 1: SOP MASUK & KELUAR MATERIAL (ANIMATED EXPLORER) */}
         {activeTab === 'sop' && (
-          <div className="space-y-6">
-            <div className="border-b border-slate-100 pb-4">
-              <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-md border border-amber-300">
-                PROSEDUR STANDAR OPERASIONAL (SOP)
-              </span>
-              <h3 className="text-2xl font-black text-[#0F172A] mt-2">
-                SOP Tata Kelola Masuk &amp; Keluar Material Gudang Logistik
-              </h3>
-              <p className="text-sm text-slate-600 mt-1">
-                Kepatuhan mutlak alur logistik sesuai regulasi Direksi PLN dan integrasi sistem SAP ERP Terpadu.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* SOP 01: Penerimaan Barang */}
-              <div className="rounded-2xl border-2 border-blue-100 bg-blue-50/30 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-base shadow-sm">
-                    01
-                  </span>
-                  <div>
-                    <h4 className="text-lg font-black text-blue-950">SOP Penerimaan Material (Inbound)</h4>
-                    <span className="text-xs text-blue-700 font-semibold">Vendor &bull; Pabrikan &bull; Kiriman UP3 Lain</span>
-                  </div>
-                </div>
-                <ol className="space-y-3 text-xs lg:text-sm text-slate-700">
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">1</span>
-                    <span><strong>Verifikasi Dokumen:</strong> Cocokkan Surat Jalan (DO), Purchase Order (PO), dan sertifikat hasil uji pabrikan SPLN.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">2</span>
-                    <span><strong>Pemeriksaan Fisik &amp; Kualitas:</strong> Lakukan visual check (segel, baut tangki trafo, body meteran tidak retak).</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">3</span>
-                    <span><strong>Pemasangan Barcode 2D:</strong> Tempelkan label barcode tahan cuaca pada material sebelum masuk rak.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">4</span>
-                    <span><strong>Penempatan Sesuai Alamat Rak:</strong> Letakkan material persis pada Blok &amp; Rak yang dialokasikan di sistem (misal: kWh di Rak A-001).</span>
-                  </li>
-                </ol>
-              </div>
-
-              {/* SOP 02: Pengeluaran Barang */}
-              <div className="rounded-2xl border-2 border-amber-100 bg-amber-50/30 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600 text-white font-extrabold text-base shadow-sm">
-                    02
-                  </span>
-                  <div>
-                    <h4 className="text-lg font-black text-amber-950">SOP Pengeluaran Material (Outbound)</h4>
-                    <span className="text-xs text-amber-700 font-semibold">Pelayanan Teknik (Yantek) &bull; Pemeliharaan &bull; Gangguan</span>
-                  </div>
-                </div>
-                <ol className="space-y-3 text-xs lg:text-sm text-slate-700">
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">1</span>
-                    <span><strong>Penerbitan Reservasi / PK:</strong> Petugas lapangan menunjukkan nomor Perintah Kerja (PK) atau Surat Permintaan Material (SPM) sah.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">2</span>
-                    <span><strong>Scanning Barcode Pengeluaran:</strong> Petugas gudang memindai barcode material untuk pemotongan saldo stok di sistem.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">3</span>
-                    <span><strong>Berita Acara Serah Terima (BAST):</strong> Tandatangani dokumen serah terima fisik material bersama tim lapangan.</span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="h-5 w-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">4</span>
-                    <span><strong>Prosedur Retur / Sisa Pakai:</strong> Material lebih atau bekas bongkaran wajib dilaporkan kembali dalam 1x24 jam untuk pencatatan retur.</span>
-                  </li>
-                </ol>
-              </div>
-            </div>
-          </div>
+          <AnimatedSopExplorer />
         )}
 
         {/* TAB 2: ATURAN K3 & KESELAMATAN */}

@@ -46,13 +46,13 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] p-8 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col min-h-full bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 overflow-y-auto no-scrollbar">
       {/* Top Search & Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6 shrink-0">
-        {/* Search Input Box (Height 56px) */}
+      <div className="flex flex-col md:flex-row gap-4 mb-5 shrink-0">
+        {/* Search Input Box (Height 56px / 64px) */}
         <div className="relative flex-1 flex items-center">
           <div className="pointer-events-none absolute left-4 text-slate-400">
-            <Search className="h-6 w-6" />
+            <Search className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <input
             type="text"
@@ -60,25 +60,27 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setKeyboardVisible(true)}
-            className="h-16 w-full rounded-control border border-slate-200 bg-white pl-14 pr-32 text-base lg:text-lg font-medium text-[#0F172A] shadow-sm placeholder:text-slate-400 focus:border-[#FACC15] focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20"
+            className="h-14 sm:h-16 w-full rounded-control border border-slate-200 bg-white pl-12 sm:pl-14 pr-24 sm:pr-32 text-sm sm:text-base lg:text-lg font-medium text-[#0F172A] shadow-sm placeholder:text-slate-400 placeholder:truncate focus:border-[#FACC15] focus:outline-none focus:ring-4 focus:ring-[#FACC15]/20"
           />
           <div className="absolute right-3 flex items-center gap-1.5">
             {searchQuery && (
               <button
                 onClick={handleClear}
                 className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 active:bg-slate-100"
+                aria-label="Bersihkan pencarian"
               >
                 <X className="h-5 w-5" />
               </button>
             )}
             <button
               onClick={() => setKeyboardVisible(prev => !prev)}
-              className={`flex h-12 w-12 items-center justify-center rounded-control transition active:scale-95 ${
+              className={`flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-control transition active:scale-95 ${
                 keyboardVisible ? 'bg-[#FACC15] text-[#0F172A]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
               title="Keyboard Sentuh"
+              aria-label="Tampilkan Keyboard Sentuh"
             >
-              <Keyboard className="h-6 w-6" />
+              <Keyboard className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
           </div>
         </div>
@@ -105,7 +107,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           <button
             key={idx}
             onClick={() => setSearchQuery(item.query)}
-            className="flex h-9 items-center rounded-full bg-white border border-slate-200 px-3.5 font-bold text-slate-700 shadow-2xs hover:border-[#FACC15] hover:bg-amber-50 active:scale-95 transition whitespace-nowrap"
+            className="flex min-h-[38px] items-center rounded-full bg-white border border-slate-200 px-3.5 font-bold text-slate-700 shadow-2xs hover:border-[#FACC15] hover:bg-amber-50 active:scale-95 transition whitespace-nowrap"
           >
             {item.label}
           </button>

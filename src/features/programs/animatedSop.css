@@ -1,0 +1,164 @@
+/* ==========================================================================
+   ANIMATED SOP FLOW & INFOGRAPHIC EXPLORER
+   Universal-KIOSK • PT PLN (Persero) UP3 Malang
+   Design System: Uci UI/UX Anti-Slop Discipline & Tactile Touch Interface
+   ========================================================================== */
+
+/* 1. Pulsing Energy Wave for Active Step */
+@keyframes sopPulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.45), 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(2, 132, 199, 0), 0 16px 32px -4px rgba(2, 132, 199, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0), 0 10px 25px -5px rgba(2, 132, 199, 0.25);
+  }
+}
+
+@keyframes sopPulseGlowAmber {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.45), 0 10px 25px -5px rgba(217, 119, 6, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(217, 119, 6, 0), 0 16px 32px -4px rgba(217, 119, 6, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0), 0 10px 25px -5px rgba(217, 119, 6, 0.25);
+  }
+}
+
+@keyframes sopPulseGlowEmerald {
+  0% {
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.45), 0 10px 25px -5px rgba(5, 150, 105, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(5, 150, 105, 0), 0 16px 32px -4px rgba(5, 150, 105, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0), 0 10px 25px -5px rgba(5, 150, 105, 0.25);
+  }
+}
+
+/* 2. Flowing Electric Current Along SVG Connector Lines */
+@keyframes sopCurrentFlow {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sop-current-wire {
+  stroke-dasharray: 6, 6;
+  animation: sopCurrentFlow 1.2s linear infinite;
+}
+
+/* 3. Smooth Shimmer for Auto-Play Progress Bar */
+@keyframes sopShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.sop-progress-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: sopShimmer 2s infinite;
+}
+
+/* 4. Active Step Badge Floating Pulse */
+@keyframes sopBadgeFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+
+.sop-active-floating {
+  animation: sopBadgeFloat 2.5s ease-in-out infinite;
+}
+
+/* 5. Poster Infographic Frame with Subtle Glow */
+.sop-poster-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background-color: #0f172a;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(226, 232, 240, 0.8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sop-poster-frame:hover {
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3), 0 0 0 2px var(--sop-theme-border, #0284c7);
+}
+
+/* 6. Active Step Node Pill */
+.sop-step-node {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sop-step-node--active-penerimaan {
+  animation: sopPulseGlow 2s infinite;
+  border-color: #0284c7 !important;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+  color: #ffffff !important;
+  transform: scale(1.04);
+}
+
+.sop-step-node--active-pengeluaran {
+  animation: sopPulseGlowAmber 2s infinite;
+  border-color: #d97706 !important;
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+  color: #ffffff !important;
+  transform: scale(1.04);
+}
+
+.sop-step-node--active-pengembalian {
+  animation: sopPulseGlowEmerald 2s infinite;
+  border-color: #059669 !important;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  transform: scale(1.04);
+}
+
+/* 7. Lightbox Modal Animations */
+@keyframes sopFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sop-lightbox-content {
+  animation: sopFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 8. Touch friendly tap target enforcement */
+.sop-touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+  .sop-touch-target {
+    min-height: 52px;
+  }
+}

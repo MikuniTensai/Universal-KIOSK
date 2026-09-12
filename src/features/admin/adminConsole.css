@@ -497,22 +497,23 @@
   align-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: #0284c7;
+  gap: 6px;
+  background: var(--adms-primary);
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  padding: 6px 11px;
-  font-size: 11px;
+  padding: 8px 13px;
+  min-height: 36px;
+  font-size: 11.5px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
+  box-shadow: 0 1px 3px rgba(3, 105, 161, 0.3);
   transition: all 0.15s ease;
 }
 
 .adms-banner-direct-btn:hover {
-  background: #0369a1;
+  background: var(--adms-primary-hover);
   transform: translateY(-1px);
 }
 
@@ -520,8 +521,10 @@
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: 50%;
   border: 1px solid #e2e8f0;
   background: #ffffff;
@@ -565,20 +568,24 @@
 
 .adms-auth-tab {
   flex: 1;
+  min-height: 38px;
   padding: 7px 10px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   border: none;
   background: transparent;
   color: #64748b;
   border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.16s ease;
 }
 
 .adms-auth-tab.active {
   background: #ffffff;
-  color: #0284c7;
+  color: var(--adms-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -600,9 +607,9 @@
 }
 
 .adms-pin-dot.filled {
-  background: #0284c7;
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+  background: var(--adms-primary);
+  border-color: var(--adms-primary);
+  box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.2);
   transform: scale(1.1);
 }
 
@@ -628,6 +635,7 @@
 
 .adms-keypad-btn {
   height: 48px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -648,7 +656,7 @@
 }
 
 .adms-keypad-btn:active {
-  background: #0284c7;
+  background: var(--adms-primary);
   color: #ffffff;
   transform: scale(0.96);
 }
@@ -683,43 +691,55 @@
 
 .adms-form-input {
   width: 100%;
+  min-height: 44px;
   padding: 10px 14px;
   border: 1.5px solid #cbd5e1;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 14px;
   color: #0f172a;
   background: #ffffff;
   outline: none;
   font-family: inherit;
+  box-sizing: border-box;
   transition: all 0.16s ease;
 }
 
+@media (max-width: 768px) {
+  .adms-form-input {
+    min-height: 48px;
+    font-size: 16px; /* Prevents iOS auto-zoom on input focus */
+  }
+}
+
 .adms-form-input:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  border-color: var(--adms-primary);
+  box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.18);
 }
 
 .adms-password-input {
-  padding-right: 40px;
+  padding-right: 46px;
 }
 
 .adms-password-toggle-btn {
   position: absolute;
-  right: 10px;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  padding: 4px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: color 0.15s ease;
 }
 
 .adms-password-toggle-btn:hover {
-  color: #0284c7;
+  color: var(--adms-primary);
 }
 
 /* Options Row */
@@ -733,46 +753,49 @@
 .adms-remember-label {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   cursor: pointer;
+  min-height: 36px;
 }
 
 .adms-custom-checkbox {
-  width: 15px;
-  height: 15px;
-  accent-color: #0284c7;
+  width: 17px;
+  height: 17px;
+  accent-color: var(--adms-primary);
   cursor: pointer;
 }
 
 .adms-remember-text {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #475569;
   user-select: none;
 }
 
 .adms-forgot-link {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
-  color: #0284c7;
+  color: var(--adms-primary);
   text-decoration: none;
+  padding: 6px 4px;
   transition: color 0.15s ease;
 }
 
 .adms-forgot-link:hover {
-  color: #0369a1;
+  color: var(--adms-primary-hover);
   text-decoration: underline;
 }
 
 /* Submit Button - Vibrant PLN Electric Blue */
 .adms-submit-btn {
   width: 100%;
+  min-height: 48px;
   margin-top: 2px;
-  padding: 11px 16px;
-  background: #0284c7;
+  padding: 12px 16px;
+  background: var(--adms-primary);
   color: #ffffff;
   border: none;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -1117,15 +1140,19 @@
   background: none;
   border: none;
   color: var(--adms-text-muted);
-  padding: 4px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: 8px;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 1024px) {
   .adms-sidebar-close-btn {
     display: flex;
-    align-items: center;
-    justify-content: center;
   }
 }
 
@@ -1155,7 +1182,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 12px;
+  padding: 10px 12px;
+  min-height: 44px;
   border-radius: var(--adms-radius-md);
   color: #475569;
   font-size: 13px;
@@ -1299,7 +1327,9 @@
   background: none;
   border: 1px solid var(--adms-surface-border);
   border-radius: 8px;
-  padding: 6px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px;
   color: var(--adms-text-body);
   cursor: pointer;
   flex-shrink: 0;
@@ -1498,8 +1528,10 @@
 }
 
 .adms-refresh-circle-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   border-radius: 50%;
   border: 1px solid var(--adms-surface-border);
   background: var(--adms-surface);
@@ -1542,6 +1574,7 @@
   .adms-kiosk-jump-btn {
     padding: 6px 10px;
     font-size: 11px;
+    min-height: 36px;
   }
   .adms-kiosk-jump-btn span {
     display: none;
@@ -1570,7 +1603,12 @@
     display: none;
   }
   .adms-topbar-logout-btn {
-    padding: 5px;
+    padding: 6px;
+    min-width: 36px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-left: 0;
   }
   .adms-user-profile-pill {
@@ -1578,8 +1616,10 @@
     gap: 4px;
   }
   .adms-refresh-circle-btn {
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
   }
   .adms-dashboard-body {
     padding: 12px 8px;

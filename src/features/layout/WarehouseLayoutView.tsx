@@ -183,7 +183,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
               <button
                 key={b.id}
                 onClick={() => handleSelectBlock(b.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold transition shrink-0 border-2 ${
+                className={`flex min-h-[44px] items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold transition shrink-0 border-2 active:scale-95 ${
                   isSelected
                     ? 'bg-[#0F172A] text-[#FACC15] border-[#FACC15] shadow-md scale-105'
                     : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
@@ -204,7 +204,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
 
           <button
             onClick={() => setShowAddBlockModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-amber-800 bg-amber-50 border-2 border-dashed border-amber-300 hover:bg-amber-100 shrink-0 transition"
+            className="flex min-h-[44px] items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-amber-800 bg-amber-50 border-2 border-dashed border-amber-300 hover:bg-amber-100 shrink-0 transition active:scale-95"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>+ Blok Baru</span>
@@ -310,10 +310,10 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
 
                     <button
                       onClick={() => handleAddSlot(subBlock.code)}
-                      className="text-[10px] font-bold text-slate-400 hover:text-amber-400 flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 transition"
+                      className="min-h-[32px] text-[11px] font-bold text-slate-300 hover:text-amber-300 flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 transition"
                       title={`Tambah slot ke baris ${subBlock.code}`}
                     >
-                      <Plus className="h-3 w-3" />
+                      <Plus className="h-3.5 w-3.5 text-amber-400" />
                       <span>+ Slot ({subBlock.code}.{subBlock.slots.length + 1})</span>
                     </button>
                   </div>
@@ -327,7 +327,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                         <button
                           key={slot.code}
                           onClick={() => setSelectedSlot(slot)}
-                          className={`flex flex-col p-2 rounded-lg text-left transition border ${
+                          className={`flex flex-col p-2.5 min-h-[50px] rounded-xl text-left transition border active:scale-95 ${
                             isSlotActive
                               ? 'bg-[#FACC15] text-[#0F172A] border-white shadow-md scale-105 ring-2 ring-amber-400'
                               : isOccupied
@@ -505,7 +505,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
               </div>
               <button
                 onClick={() => setShowAddBlockModal(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-95 transition"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -529,7 +529,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                   onChange={(e) => setNewBlockLetter(e.target.value.toUpperCase())}
                   placeholder="Contoh: I atau Z"
                   required
-                  className="w-full rounded-xl border border-slate-300 p-3 text-base font-mono font-black text-slate-900 focus:border-amber-500 focus:outline-none"
+                  className="w-full h-12 rounded-xl border border-slate-300 px-4 text-base font-mono font-black text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
                 />
               </div>
 
@@ -543,7 +543,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                   onChange={(e) => setNewBlockName(e.target.value)}
                   placeholder="Contoh: Gardu Hubung &amp; Trafo Khusus"
                   required
-                  className="w-full rounded-xl border border-slate-300 p-3 text-sm font-medium text-slate-900 focus:border-amber-500 focus:outline-none"
+                  className="w-full h-12 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
                 />
               </div>
 
@@ -558,7 +558,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                     max={10}
                     value={newBlockSubCount}
                     onChange={(e) => setNewBlockSubCount(Number(e.target.value))}
-                    className="w-full rounded-xl border border-slate-300 p-2.5 font-bold text-slate-900"
+                    className="w-full h-11 rounded-xl border border-slate-300 px-3 font-bold text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
                     Misal 3 baris: {newBlockLetter || '?'}.1, {newBlockLetter || '?'}.2, {newBlockLetter || '?'}.3
@@ -574,7 +574,7 @@ export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
                     max={20}
                     value={newBlockSlotCount}
                     onChange={(e) => setNewBlockSlotCount(Number(e.target.value))}
-                    className="w-full rounded-xl border border-slate-300 p-2.5 font-bold text-slate-900"
+                    className="w-full h-11 rounded-xl border border-slate-300 px-3 font-bold text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
                     Misal 5 slot: {newBlockLetter || '?'}.1.1 s/d {newBlockLetter || '?'}.1.5

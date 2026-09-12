@@ -91,30 +91,30 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
       return (
         <div className="flex flex-col min-h-full bg-[#F8FAFC] p-8 overflow-y-auto no-scrollbar">
           {/* Header Action */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 px-5 py-2.5 rounded-control border border-emerald-300 shadow-sm">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-              <span className="font-bold text-base">Hasil Pemindaian Barcode Material</span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2 text-emerald-800 bg-emerald-50 px-4 sm:px-5 py-2.5 rounded-control border border-emerald-300 shadow-sm">
+              <CheckCircle2 className="h-5 sm:h-6 w-5 sm:w-6 text-emerald-600 shrink-0" />
+              <span className="font-bold text-sm sm:text-base">Hasil Pemindaian Barcode Material</span>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={() => setMobileModalVisible(true)}
-                className="flex h-14 items-center gap-2 rounded-control bg-sky-700 text-white px-5 text-base font-bold shadow-md hover:bg-sky-800 active:scale-95"
+                className="flex h-12 sm:h-14 items-center justify-center gap-2 rounded-xl bg-sky-700 text-white px-4 sm:px-5 text-sm sm:text-base font-bold shadow-md hover:bg-sky-800 active:scale-95 transition-all flex-1 sm:flex-initial"
               >
                 <Smartphone className="h-5 w-5 text-sky-200" />
                 <span>Bawa ke HP</span>
               </button>
               <button
                 onClick={onClearScanResult}
-                className="flex h-14 items-center gap-2 rounded-control bg-[#FACC15] px-6 text-base font-bold text-[#0F172A] shadow-md active:scale-95 active:bg-[#EAB308]"
+                className="flex h-12 sm:h-14 items-center justify-center gap-2 rounded-xl bg-[#FACC15] px-4 sm:px-6 text-sm sm:text-base font-bold text-[#0F172A] shadow-md active:scale-95 hover:bg-amber-400 transition-all flex-1 sm:flex-initial"
               >
                 <RefreshCw className="h-5 w-5" />
                 <span>Scan Lain</span>
               </button>
               <button
                 onClick={onBack}
-                className="flex h-14 items-center gap-2 rounded-control bg-white border border-slate-300 px-6 text-base font-bold text-slate-700 shadow-sm active:scale-95"
+                className="flex h-12 sm:h-14 items-center justify-center gap-2 rounded-xl bg-white border border-slate-300 px-4 sm:px-6 text-sm sm:text-base font-bold text-slate-700 shadow-sm active:scale-95 hover:bg-slate-50 transition-all flex-1 sm:flex-initial"
               >
                 <ArrowLeft className="h-5 w-5" />
                 <span>Menu Utama</span>
@@ -333,19 +333,19 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] p-8 items-center justify-between no-scrollbar overflow-y-auto">
       {/* Top Banner */}
-      <div className="w-full flex items-center justify-between max-w-6xl shrink-0">
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 max-w-6xl shrink-0">
         <div>
-          <h2 className="text-3xl font-black text-[#0F172A] tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-[#0F172A] tracking-tight">
             Scan Item (Cek Spesifikasi Mandiri)
           </h2>
-          <p className="text-sm font-medium text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm font-medium text-slate-500 mt-1">
             Arahkan barcode atau QR material ke pemindai optik di bawah layar terminal Kassen WK-215
           </p>
         </div>
 
         <button
           onClick={onBack}
-          className="flex h-14 items-center gap-2 rounded-control bg-white border border-slate-200 px-6 text-base font-bold text-slate-700 shadow-sm active:scale-95 active:bg-slate-100 shrink-0"
+          className="flex h-12 sm:h-14 items-center justify-center gap-2 rounded-xl bg-white border border-slate-200 px-5 sm:px-6 text-sm sm:text-base font-bold text-slate-700 shadow-sm active:scale-95 hover:bg-slate-50 shrink-0"
         >
           <ArrowLeft className="h-5 w-5" />
           <span>Kembali</span>
@@ -388,7 +388,7 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
       </div>
 
       {/* Bottom Simulator & Manual Code Entry (For Testing & Verification) */}
-      <div className="w-full max-w-6xl rounded-control bg-white p-4 border border-slate-200 shadow-sm shrink-0">
+      <div className="w-full max-w-6xl rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-sm shrink-0">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
             <Sparkles className="h-4 w-4 text-amber-500" />
@@ -402,31 +402,31 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
             <button
               key={preset.code}
               onClick={() => onSimulateScan(preset.code)}
-              className="rounded-control bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 border border-amber-200 hover:bg-amber-100 active:scale-95"
+              className="min-h-[38px] rounded-xl bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-900 border border-amber-200 hover:bg-amber-100 active:scale-95 transition"
             >
               {preset.label} ({preset.code})
             </button>
           ))}
           <button
             onClick={() => onSimulateScan('KODE-SALAH-999')}
-            className="rounded-control bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-800 border border-rose-200 hover:bg-rose-100 active:scale-95"
+            className="min-h-[38px] rounded-xl bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-800 border border-rose-200 hover:bg-rose-100 active:scale-95 transition"
           >
             Simulasi Tidak Terdaftar
           </button>
         </div>
 
         {/* Manual typing fallback */}
-        <form onSubmit={handleManualSubmit} className="flex gap-2">
+        <form onSubmit={handleManualSubmit} className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             placeholder="Atau ketik nilai barcode / nomor serial..."
             value={manualCode}
             onChange={(e) => setManualCode(e.target.value)}
-            className="h-12 flex-1 rounded-control border border-slate-200 bg-slate-50 px-4 text-sm font-mono text-slate-800 focus:bg-white focus:border-[#FACC15] focus:outline-none"
+            className="h-12 flex-1 rounded-xl border border-slate-300 bg-slate-50 px-4 text-sm font-mono text-slate-800 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-300 focus:outline-none transition"
           />
           <button
             type="submit"
-            className="h-12 px-5 rounded-control bg-[#FACC15] text-sm font-bold text-[#0F172A] shadow active:scale-95"
+            className="h-12 px-6 rounded-xl bg-[#FACC15] text-sm font-bold text-[#0F172A] shadow active:scale-95 hover:bg-amber-400 transition"
           >
             Tes Scan
           </button>

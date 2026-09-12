@@ -29,18 +29,18 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   return (
     <div
       data-testid="virtual-keyboard"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A] p-4 shadow-2xl transition-transform border-t-2 border-[#FACC15]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#0F172A] p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] shadow-2xl transition-transform border-t-2 border-[#FACC15]"
     >
       <div className="mx-auto max-w-4xl">
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2.5 flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
             Keyboard Sentuh Kiosk
           </span>
           <button
             onClick={onClose}
-            className="flex items-center gap-1 rounded-control bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-200 active:bg-slate-700"
+            className="flex min-h-[38px] items-center gap-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-200 border border-slate-700 active:scale-95 transition-all"
           >
-            <X className="h-4 w-4" /> Tutup
+            <X className="h-4 w-4 text-amber-400" /> <span>Tutup</span>
           </button>
         </div>
 
