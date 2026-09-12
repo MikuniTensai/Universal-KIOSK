@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Home, ShieldCheck, Clock, Accessibility, Wifi } from 'lucide-react';
+import React from 'react';
+import { Home, ShieldCheck, Accessibility, Wifi } from 'lucide-react';
 import { KioskConfig } from '../../domain/types';
 import { DanantaraLogo } from './DanantaraLogo';
 import { PlnLogo } from './PlnLogo';
@@ -25,8 +25,6 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleLowReach,
   showAdminButton = false,
 }) => {
-  const [timeStr, setTimeStr] = useState<string>('');
-  const [dateStr, setDateStr] = useState<string>('');
   const secretTapCountRef = React.useRef<number>(0);
   const secretTapTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -45,36 +43,6 @@ export const Header: React.FC<HeaderProps> = ({
     }, 3000);
   };
 
-  useEffect(() => {
-    const updateTime = () => {
-      try {
-        const now = new Date();
-        const timeFormatter = new Intl.DateTimeFormat('id-ID', {
-          timeZone: config.timezone || 'Asia/Jakarta',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        });
-        const dateFormatter = new Intl.DateTimeFormat('id-ID', {
-          timeZone: config.timezone || 'Asia/Jakarta',
-          weekday: 'long',
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        });
-        setTimeStr(timeFormatter.format(now));
-        setDateStr(dateFormatter.format(now));
-      } catch {
-        setTimeStr(new Date().toLocaleTimeString());
-      }
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, [config.timezone]);
-
   return (
     <header className="flex h-20 w-full items-center justify-between border-b border-kiosk-border bg-white px-6 shadow-sm z-20">
       {/* Pojok Kiri: Logo Danantara */}
@@ -85,18 +53,6 @@ export const Header: React.FC<HeaderProps> = ({
             {config.warehouseCode}
           </span>
         </div>
-      </div>
-
-      {/* Center: Clock, Date & Organization Name */}
-      <div className="hidden md:flex flex-col items-center justify-center text-center px-4">
-        <div className="flex items-center gap-2 rounded-control bg-slate-50 px-3.5 py-1.5 border border-slate-200 shadow-xs">
-          <Clock className="h-3.5 w-3.5 text-amber-600" />
-          <span className="text-xs text-slate-500 font-medium">{dateStr}</span>
-          <span className="text-xs font-bold text-slate-800 font-mono">{timeStr} WIB</span>
-        </div>
-        <p className="text-[11px] font-medium text-slate-400 mt-1 line-clamp-1 max-w-sm lg:max-w-md">
-          {config.organizationName}
-        </p>
       </div>
 
       {/* Pojok Kanan: Logo PLN & Navigasi / Kontrol */}
