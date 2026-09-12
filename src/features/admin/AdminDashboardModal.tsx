@@ -40,6 +40,7 @@ import { AdminLoginScreen, AdminLoginUser } from './AdminLoginScreen';
 import { AdminConsoleShell, AdminModuleTab } from './AdminConsoleShell';
 import { NetworkInfoCard } from '../network/NetworkInfoCard';
 import { NetworkAccessModal } from '../network/NetworkAccessModal';
+import { ContentService } from '../programs/contentService';
 
 interface AdminDashboardModalProps {
   visible: boolean;
@@ -2497,6 +2498,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             src={adjustPhotoPath || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.photoPath || '')}
                             alt="Foto Produk"
                             className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = ContentService.getFallbackImage();
+                            }}
                           />
                         ) : (
                           <ImageIcon className="h-6 w-6 text-slate-400" />
@@ -2720,6 +2724,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                             src={newMatPhotoPath}
                             alt="Preview"
                             className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = ContentService.getFallbackImage();
+                            }}
                           />
                         ) : (
                           <ImageIcon className="h-6 w-6 text-slate-400" />

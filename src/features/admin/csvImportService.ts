@@ -1,6 +1,7 @@
 import { ImportPackage, Material, Location, StockSnapshot, BarcodeAlias, Category } from '../../domain/types';
 import { samplePlnPackage } from '../../data/mockPlnPackage';
 import { computePackageHash } from '../../domain/hash';
+import wallpaperWarehouseImg from '../../assets/cards/wallpaper_warehouse.webp';
 
 export interface ParsedMaterialRow {
   no: number;
@@ -25,6 +26,7 @@ export interface CsvImportStats {
 }
 
 const DEFAULT_PHOTOS = {
+  defaultWarehouse: wallpaperWarehouseImg,
   trafo: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
   isolator: 'https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?auto=format&fit=crop&w=600&q=80',
   meter: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80',
@@ -32,7 +34,7 @@ const DEFAULT_PHOTOS = {
   fco: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80',
   k3: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80',
   box: 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80',
-  hardware: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=600&q=80',
+  hardware: wallpaperWarehouseImg,
 };
 
 export class CsvImportService {

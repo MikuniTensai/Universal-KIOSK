@@ -125,9 +125,9 @@ describe('ContentService Tests', () => {
     expect(active.some(item => item.title.includes('Budaya K3'))).toBe(true);
   });
 
-  it('provides a safe fallback image SVG string', () => {
+  it('provides a safe fallback image asset matching warehouse photo preset', () => {
     const fallback = ContentService.getFallbackImage();
-    expect(fallback).toContain('data:image/svg+xml');
-    expect(fallback).toContain('PLN');
+    expect(fallback).toBeTruthy();
+    expect(fallback).toContain('wallpaper_warehouse');
   });
 });

@@ -1,4 +1,5 @@
 import { ContentItem, ImportPackage } from '../../domain/types';
+import wallpaperWarehouseImg from '../../assets/cards/wallpaper_warehouse.webp';
 
 export class ContentService {
   /**
@@ -24,8 +25,9 @@ export class ContentService {
 
   /**
    * Safe fallback for media assets (images / video)
+   * Menggunakan foto default Gudang PLN Aris Munandar (WhatsApp Image 2026-09-12 at 16.56.14.jpeg)
    */
   public static getFallbackImage(): string {
-    return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23FEFCE8" width="400" height="300"/><text fill="%23854D0E" font-family="sans-serif" font-size="18" font-weight="bold" x="50%25" y="50%25" text-anchor="middle">PT PLN (Persero) Logistik</text></svg>';
+    return wallpaperWarehouseImg;
   }
 }
