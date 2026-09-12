@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   ArrowRight,
-  Sparkles,
   Image as ImageIcon,
   LayoutGrid,
 } from 'lucide-react';
@@ -245,23 +244,16 @@ export const App: React.FC = () => {
 
               {/* Welcome Header (Centered) */}
               <div className="flex flex-col items-center justify-center text-center gap-2 mb-4">
-                <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-amber-900 shadow-sm">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                  </span>
-                  <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-                  <span>Terminal Mandiri Kassen WK-215 (Full HD 1080p)</span>
-                </div>
                 <h2 className="text-4xl lg:text-5xl 2xl:text-6xl font-black tracking-tight text-[#0F172A] leading-tight text-center">
                   Selamat Datang
                 </h2>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-black text-amber-500 tracking-wide text-center">
-                  PT PLN (Persero) UP3 Malang
+                  di Gudang Aris Munandar PLN UP3 Malang
                 </p>
+                <span className="sr-only">PT PLN (Persero) UP3 Malang</span>
                 <div className="flex flex-wrap items-center justify-center gap-3 mt-1">
                   <p className="text-base lg:text-lg text-slate-600 font-medium">
-                    Pilih layanan informasi di bawah atau dekatkan barcode material langsung ke scanner.
+                    Pilih layanan informasi di bawah.
                   </p>
                   <button
                     onClick={() => {
