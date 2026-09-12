@@ -1,0 +1,1158 @@
+import React, { useState } from 'react';
+import {
+  X,
+  Lock,
+  Upload,
+  History,
+  Settings,
+  Activity,
+  CheckCircle2,
+  AlertCircle,
+  AlertTriangle,
+  FileText,
+  RotateCcw,
+  Delete,
+  Image as ImageIcon,
+  LayoutGrid,
+  Palette,
+  ChevronDown,
+  Boxes,
+  FolderPlus,
+  PlusCircle,
+  Barcode,
+} from 'lucide-react';
+import { AdminAuth } from './adminAuth';
+import { ImportService, PackagePreviewSummary } from './importService';
+import { snapshotManager } from './snapshotManager';
+import { kioskStorage } from '../../adapters/storage/kioskStorage';
+import { ImportPackage, KioskConfig } from '../../domain/types';
+import { validateKioskConfig } from '../../domain/validation';
+import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../../data/mockPlnPackage';
+
+interface AdminDashboardModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onPackageUpdated: () => void;
+}
+
+export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
+  visible,
+  onClose,
+  onPackageUpdated,
+}) => {
+  const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(AdminAuth.isAuthenticated());
+  const [activeTab, setActiveTab] = useState<'import' | 'history' | 'settings' | 'logs' | 'stock' | 'categories'>('stock');
+
+  // Import states
+  const [jsonInput, setJsonInput] = useState('');
+  const [parsedPackage, setParsedPackage] = useState<ImportPackage | null>(null);
+  const [packagePreview, setPackagePreview] = useState<PackagePreviewSummary | null>(null);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
+
+  // Settings states
+  const [configDraft, setConfigDraft] = useState<KioskConfig>(kioskStorage.getConfig());
+  const [configErrors, setConfigErrors] = useState<string[]>([]);
+
+  // Stock Management states
+  const [stockMode, setStockMode] = useState<'adjust' | 'new-material'>('adjust');
+  const [adjustMatId, setAdjustMatId] = useState<string>('');
+  const [stockDeltaInput, setStockDeltaInput] = useState<number>(10);
+  const [isExactStock, setIsExactStock] = useState<boolean>(false);
+  const [adjustZone, setAdjustZone] = useState<string>('Zona A');
+  const [adjustRack, setAdjustRack] = useState<string>('Rak 01');
+  const [adjustBin, setAdjustBin] = useState<string>('Bin 01');
+  const [stockError, setStockError] = useState<string | null>(null);
+
+  // New Material states
+  const [newMatCode, setNewMatCode] = useState<string>('');
+  const [newMatName, setNewMatName] = useState<string>('');
+  const [newMatCategoryId, setNewMatCategoryId] = useState<string>('');
+  const [newMatSapCode, setNewMatSapCode] = useState<string>('');
+  const [newMatUnit, setNewMatUnit] = useState<string>('Unit');
+  const [newMatSpec, setNewMatSpec] = useState<string>('');
+  const [newMatBarcode, setNewMatBarcode] = useState<string>('');
+  const [newMatZone, setNewMatZone] = useState<string>('Zona A');
+  const [newMatRack, setNewMatRack] = useState<string>('Rak 01');
+  const [newMatBin, setNewMatBin] = useState<string>('Bin 01');
+  const [newMatInitialQty, setNewMatInitialQty] = useState<number>(10);
+
+  // Category Management states
+  const [newCatName, setNewCatName] = useState<string>('');
+  const [catError, setCatError] = useState<string | null>(null);
+
+  if (!visible) return null;
+
+  const handlePinDigit = (digit: string) => {
+    if (pin.length < 6) {
+      const newPin = pin + digit;
+      setPin(newPin);
+      if (newPin.length === 6) {
+        if (AdminAuth.authenticate(newPin)) {
+          setIsAuthenticated(true);
+          setPinError(false);
+          setPin('');
+        } else {
+          setPinError(true);
+          setTimeout(() => {
+            setPin('');
+            setPinError(false);
+          }, 800);
+        }
+      }
+    }
+  };
+
+  const handlePinBackspace = () => {
+    setPin(prev => prev.slice(0, -1));
+  };
+
+  const handleLogout = () => {
+    AdminAuth.logout();
+    setIsAuthenticated(false);
+    setPin('');
+  };
+
+  const handleValidatePackage = async () => {
+    setImportErrors([]);
+    setImportWarnings([]);
+    setActionSuccessMessage(null);
+
+    const active = kioskStorage.getActivePackage();
+    const result = await ImportService.parseAndValidate(jsonInput, active);
+
+    if (!result.validation.isValid) {
+      setImportErrors(result.validation.errors.map(e => `${e.field}: ${e.message}`));
+      setParsedPackage(null);
+      setPackagePreview(null);
+    } else {
+      setParsedPackage(result.pkg);
+      setPackagePreview(result.preview || null);
+      setImportWarnings(result.validation.warnings);
+    }
+  };
+
+  const handleActivatePackage = () => {
+    if (!parsedPackage) return;
+    const res = snapshotManager.activate(parsedPackage);
+    if (res.success) {
+      setActionSuccessMessage(res.message);
+      setParsedPackage(null);
+      setPackagePreview(null);
+      setJsonInput('');
+      onPackageUpdated();
+    } else {
+      setImportErrors([res.message]);
+    }
+  };
+
+  const handleRestore = (datasetVersion: number) => {
+    if (window.confirm(`Yakin ingin memulihkan (restore) dataset versi ${datasetVersion}?`)) {
+      const res = snapshotManager.restore(datasetVersion);
+      if (res.success) {
+        setActionSuccessMessage(res.message);
+        onPackageUpdated();
+      } else {
+        alert(res.message);
+      }
+    }
+  };
+
+  const handleSaveConfig = () => {
+    const val = validateKioskConfig(configDraft);
+    if (!val.isValid) {
+      setConfigErrors(val.errors.map(e => e.message));
+    } else {
+      setConfigErrors([]);
+      kioskStorage.saveConfig(configDraft);
+      setActionSuccessMessage('Pengaturan kiosk berhasil disimpan.');
+      onPackageUpdated();
+    }
+  };
+  const handleAdjustStock = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStockError(null);
+    try {
+      const activePkg = kioskStorage.getActivePackage();
+      const targetId = adjustMatId || activePkg?.materials[0]?.id;
+      if (!targetId) {
+        setStockError('Pilih material terlebih dahulu.');
+        return;
+      }
+      kioskStorage.addOrAdjustStock({
+        materialId: targetId,
+        zone: adjustZone,
+        rack: adjustRack,
+        bin: adjustBin,
+        quantityDelta: Number(stockDeltaInput),
+        setExact: isExactStock,
+      });
+      setActionSuccessMessage('Stok material berhasil diperbarui.');
+      onPackageUpdated();
+    } catch (err: any) {
+      setStockError(err.message || 'Gagal memperbarui stok.');
+    }
+  };
+
+  const handleAddNewMaterial = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStockError(null);
+    try {
+      const activePkg = kioskStorage.getActivePackage();
+      const catId = newMatCategoryId || activePkg?.categories[0]?.id;
+      if (!catId) {
+        setStockError('Pilih kategori material.');
+        return;
+      }
+      kioskStorage.addMaterialWithBarcode({
+        code: newMatCode,
+        name: newMatName,
+        categoryId: catId,
+        sapCode: newMatSapCode,
+        unit: newMatUnit,
+        specification: newMatSpec,
+        barcode: newMatBarcode || newMatCode,
+        zone: newMatZone,
+        rack: newMatRack,
+        bin: newMatBin,
+        initialQuantity: Number(newMatInitialQty),
+      });
+      setActionSuccessMessage(`Material "${newMatName}" berhasil didaftarkan beserta barcode.`);
+      setNewMatCode('');
+      setNewMatName('');
+      setNewMatSapCode('');
+      setNewMatSpec('');
+      setNewMatBarcode('');
+      onPackageUpdated();
+    } catch (err: any) {
+      setStockError(err.message || 'Gagal mendaftarkan material baru.');
+    }
+  };
+
+  const handleAddCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCatError(null);
+    try {
+      if (!newCatName.trim()) {
+        setCatError('Nama kategori wajib diisi.');
+        return;
+      }
+      kioskStorage.addCategory(newCatName.trim());
+      setActionSuccessMessage(`Kategori "${newCatName.trim()}" berhasil ditambahkan.`);
+      setNewCatName('');
+      onPackageUpdated();
+    } catch (err: any) {
+      setCatError(err.message || 'Gagal menambahkan kategori.');
+    }
+  };
+
+  // 1. PIN Keypad View
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+        <div className="w-full max-w-sm rounded-card bg-white p-6 shadow-2xl border border-slate-200 text-center">
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Otorisasi Petugas
+            </span>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+            <Lock className="h-7 w-7" />
+          </div>
+
+          <h3 className="text-xl font-bold text-[#0F172A]">Masukkan PIN Akses</h3>
+          <p className="text-xs text-slate-500 mb-6 mt-1">Default PIN: 123456</p>
+
+          {/* PIN Indicators */}
+          <div className="flex justify-center gap-3 mb-6">
+            {[0, 1, 2, 3, 4, 5].map((idx) => (
+              <div
+                key={idx}
+                className={`h-4 w-4 rounded-full border-2 transition-all ${
+                  idx < pin.length
+                    ? 'bg-[#FACC15] border-amber-500 scale-110'
+                    : 'border-slate-300 bg-slate-100'
+                } ${pinError ? 'bg-rose-500 border-rose-600 animate-shake' : ''}`}
+              />
+            ))}
+          </div>
+
+          {/* Keypad */}
+          <div className="grid grid-cols-3 gap-2.5 max-w-[260px] mx-auto">
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'DEL'].map((btn) => (
+              <button
+                key={btn}
+                onClick={() => {
+                  if (btn === 'C') setPin('');
+                  else if (btn === 'DEL') handlePinBackspace();
+                  else handlePinDigit(btn);
+                }}
+                className="flex h-14 items-center justify-center rounded-control bg-slate-100 text-xl font-bold text-slate-800 shadow-sm transition active:scale-95 active:bg-[#FACC15]"
+              >
+                {btn === 'DEL' ? (
+                  <Delete className="h-6 w-6 text-slate-700" />
+                ) : btn === 'C' ? (
+                  <span className="text-rose-600 font-extrabold text-lg">C</span>
+                ) : (
+                  btn
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Full Admin Dashboard
+  const history = kioskStorage.getPackageHistory();
+  const logs = kioskStorage.getLogs();
+  const activePkg = kioskStorage.getActivePackage();
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-6">
+      <div className="flex flex-col h-[85vh] w-full max-w-5xl rounded-card bg-white shadow-2xl border border-slate-200 overflow-hidden">
+        {/* Top Header */}
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-900 px-6 py-4 text-white">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#FACC15] text-[#0F172A]">
+              <Lock className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">Panel Administrator Kiosk Gudang PLN</h3>
+              <p className="text-xs text-slate-400">
+                Snapshot Aktif: Versi {activePkg?.datasetVersion || '-'} &bull; {activePkg?.sourceName || '-'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleLogout}
+              className="rounded-control bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+            >
+              Keluar Sesi
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="Tutup Panel Administrator"
+              title="Tutup Panel Administrator"
+              className="flex h-9 w-9 items-center justify-center rounded-control bg-slate-800 text-slate-300 hover:text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs Bar */}
+        <div className="flex flex-wrap border-b border-slate-200 bg-slate-50 px-6 gap-1">
+          <button
+            onClick={() => { setActiveTab('stock'); setActionSuccessMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'stock' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Boxes className="h-4 w-4" />
+            <span>Kelola & Tambah Stok</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('categories'); setActionSuccessMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'categories' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <FolderPlus className="h-4 w-4" />
+            <span>Kelola Kategori</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('import'); setActionSuccessMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'import' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Upload className="h-4 w-4" />
+            <span>Impor Paket Baru</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('history'); setActionSuccessMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'history' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <History className="h-4 w-4" />
+            <span>Riwayat & Restore ({history.length})</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('settings'); setActionSuccessMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'settings' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Settings className="h-4 w-4" />
+            <span>Pengaturan Kiosk</span>
+          </button>
+          <button
+            onClick={() => { setActiveTab('logs'); setActionSuccessMessage(null); }}
+            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-bold transition ${
+              activeTab === 'logs' ? 'border-[#FACC15] text-[#0F172A] bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Activity className="h-4 w-4" />
+            <span>Log Diagnostik ({logs.length})</span>
+          </button>
+        </div>
+
+        {/* Tab Body */}
+        <div className="flex-1 overflow-y-auto p-6 no-scrollbar">
+          {actionSuccessMessage && (
+            <div className="mb-4 flex items-center gap-2 rounded-control bg-emerald-50 p-4 text-sm font-bold text-emerald-800 border border-emerald-200">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <span>{actionSuccessMessage}</span>
+            </div>
+          )}
+
+          {/* TAB: STOCK MANAGEMENT */}
+          {activeTab === 'stock' && (
+            <div className="space-y-6">
+              <div className="flex gap-2 border-b border-slate-200 pb-3">
+                <button
+                  type="button"
+                  onClick={() => { setStockMode('adjust'); setStockError(null); }}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    stockMode === 'adjust' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  1. Tambah / Sesuaikan Stok Material
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setStockMode('new-material'); setStockError(null); }}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    stockMode === 'new-material' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  2. Tambah Material Baru & Barcode
+                </button>
+              </div>
+
+              {stockError && (
+                <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 font-semibold">
+                  {stockError}
+                </div>
+              )}
+
+              {stockMode === 'adjust' ? (
+                <form onSubmit={handleAdjustStock} className="space-y-4 max-w-xl">
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Pilih Material:
+                    </label>
+                    <select
+                      value={adjustMatId || (activePkg?.materials[0]?.id ?? '')}
+                      onChange={(e) => setAdjustMatId(e.target.value)}
+                      className="w-full rounded-control border border-slate-300 p-2.5 text-sm bg-white font-medium text-slate-800"
+                    >
+                      {activePkg?.materials.map(m => (
+                        <option key={m.id} value={m.id}>
+                          [{m.code}] {m.name} ({m.unit})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {(() => {
+                    const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
+                    const mat = activePkg?.materials.find(m => m.id === currentMatId);
+                    if (!mat) return null;
+                    const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === mat.id) || [];
+                    const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                    return (
+                      <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 space-y-1">
+                        <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
+                        <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
+                        <p>Total Stok Saat Ini: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Metode Penyesuaian:
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsExactStock(false)}
+                          className={`flex-1 py-2 rounded-lg text-xs font-bold border transition ${
+                            !isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          + Tambah / - Kurang
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsExactStock(true)}
+                          className={`flex-1 py-2 rounded-lg text-xs font-bold border transition ${
+                            isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          Tetapkan Nilai
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        {isExactStock ? 'Nilai Stok Pasti:' : 'Jumlah Penambahan (+/-):'}
+                      </label>
+                      <input
+                        type="number"
+                        value={stockDeltaInput}
+                        onChange={(e) => setStockDeltaInput(Number(e.target.value))}
+                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-bold text-slate-800"
+                        placeholder={isExactStock ? "contoh: 50" : "contoh: 10 atau -5"}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <span className="text-xs font-bold text-slate-700 block">Lokasi Rak Penyimpanan di Gudang:</span>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
+                        <input
+                          type="text"
+                          value={adjustZone}
+                          onChange={(e) => setAdjustZone(e.target.value)}
+                          placeholder="Zona A"
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
+                        <input
+                          type="text"
+                          value={adjustRack}
+                          onChange={(e) => setAdjustRack(e.target.value)}
+                          placeholder="Rak 01"
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin / Kotak</label>
+                        <input
+                          type="text"
+                          value={adjustBin}
+                          onChange={(e) => setAdjustBin(e.target.value)}
+                          placeholder="Bin 01"
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Simpan Perubahan Stok</span>
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleAddNewMaterial} className="space-y-4 max-w-2xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Kode Material (Wajib Unik):
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatCode}
+                        onChange={(e) => setNewMatCode(e.target.value)}
+                        placeholder="Contoh: 001999"
+                        required
+                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Kode SAP:
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatSapCode}
+                        onChange={(e) => setNewMatSapCode(e.target.value)}
+                        placeholder="Contoh: 10009999"
+                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Nama Resmi Material:
+                    </label>
+                    <input
+                      type="text"
+                      value={newMatName}
+                      onChange={(e) => setNewMatName(e.target.value)}
+                      placeholder="Contoh: Kabel Tegangan Menengah 20kV XLPE 3x150mm"
+                      required
+                      className="w-full rounded-control border border-slate-300 p-2.5 text-sm font-medium"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Kategori Material:
+                      </label>
+                      <select
+                        value={newMatCategoryId || (activePkg?.categories[0]?.id ?? '')}
+                        onChange={(e) => setNewMatCategoryId(e.target.value)}
+                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm bg-white font-medium"
+                      >
+                        {activePkg?.categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Satuan Unit:
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatUnit}
+                        onChange={(e) => setNewMatUnit(e.target.value)}
+                        placeholder="Unit / Buah / Meter / Set"
+                        required
+                        className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Nilai Barcode / QR Code Scanner (Wajib):
+                    </label>
+                    <div className="relative flex items-center">
+                      <Barcode className="pointer-events-none absolute left-3 h-5 w-5 text-slate-400" />
+                      <input
+                        type="text"
+                        value={newMatBarcode}
+                        onChange={(e) => setNewMatBarcode(e.target.value)}
+                        placeholder="Contoh: PLN-KBL-20KV-2026 atau nomor barcode fisik"
+                        required
+                        className="w-full rounded-control border border-slate-300 p-2.5 pl-10 text-sm font-mono text-slate-800"
+                      />
+                    </div>
+                    <span className="text-[11px] text-slate-500 mt-1 block">
+                      Barcode ini akan otomatis terdaftar dan bisa langsung diuji coba pada modul Scanner Kiosk.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Standar Spesifikasi Teknis (SPLN / Standar PLN):
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={newMatSpec}
+                      onChange={(e) => setNewMatSpec(e.target.value)}
+                      placeholder="Contoh: SPLN D3.002-1:2007, Tegangan 20kV, Isolasi XLPE tahan cuaca"
+                      className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <span className="text-xs font-bold text-slate-700 block">Alokasi Rak Gudang & Stok Awal:</span>
+                    <div className="grid grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
+                        <input
+                          type="text"
+                          value={newMatZone}
+                          onChange={(e) => setNewMatZone(e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
+                        <input
+                          type="text"
+                          value={newMatRack}
+                          onChange={(e) => setNewMatRack(e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin</label>
+                        <input
+                          type="text"
+                          value={newMatBin}
+                          onChange={(e) => setNewMatBin(e.target.value)}
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Stok Awal</label>
+                        <input
+                          type="number"
+                          value={newMatInitialQty}
+                          onChange={(e) => setNewMatInitialQty(Number(e.target.value))}
+                          className="w-full rounded-lg border border-slate-300 p-2 text-xs bg-white font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    <span>Daftarkan Material & Barcode</span>
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* TAB: CATEGORY MANAGEMENT */}
+          {activeTab === 'categories' && (
+            <div className="space-y-6 max-w-2xl">
+              <form onSubmit={handleAddCategory} className="rounded-card border border-slate-200 bg-slate-50 p-5 space-y-4">
+                <h4 className="text-sm font-bold text-slate-800">Form Tambah Kategori Material Baru</h4>
+                {catError && (
+                  <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 font-semibold">
+                    {catError}
+                  </div>
+                )}
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={newCatName}
+                    onChange={(e) => setNewCatName(e.target.value)}
+                    placeholder="Contoh: Kabel Tegangan Menengah, APD & K3..."
+                    required
+                    className="flex-1 rounded-control border border-slate-300 p-3 text-sm bg-white font-medium text-slate-800 focus:border-[#FACC15] focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="flex h-12 items-center gap-2 rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 shrink-0"
+                  >
+                    <FolderPlus className="h-4 w-4" />
+                    <span>Tambah Kategori</span>
+                  </button>
+                </div>
+              </form>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-bold text-slate-800">
+                  Daftar Kategori Aktif ({activePkg?.categories.length || 0}):
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {activePkg?.categories.map((cat) => {
+                    const count = activePkg.materials.filter(m => m.categoryId === cat.id).length;
+                    return (
+                      <div key={cat.id} className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-amber-400" />
+                          <span className="font-bold text-sm text-slate-800">{cat.name}</span>
+                        </div>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                          {count} Material
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 1: IMPORT */}
+          {activeTab === 'import' && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">
+                  Tempel JSON Paket Data Ekspor Logistik:
+                </label>
+                <textarea
+                  rows={8}
+                  value={jsonInput}
+                  onChange={(e) => setJsonInput(e.target.value)}
+                  placeholder="Paste JSON ImportPackage di sini..."
+                  className="w-full rounded-control border border-slate-300 p-3 font-mono text-xs text-slate-800 focus:border-[#FACC15] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleValidatePackage}
+                  disabled={!jsonInput.trim()}
+                  className="flex h-12 items-center gap-2 rounded-control bg-slate-900 px-6 text-sm font-bold text-white shadow active:scale-95 disabled:opacity-50"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span>Validasi & Pratinjau Paket</span>
+                </button>
+
+                {packagePreview && (
+                  <button
+                    onClick={handleActivatePackage}
+                    className="flex h-12 items-center gap-2 rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow-md active:scale-95"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    <span>Aktivasi Paket Sekarang (Atomik)</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Errors & Warnings */}
+              {importErrors.length > 0 && (
+                <div className="rounded-control bg-rose-50 p-4 border border-rose-200 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-rose-800 uppercase">
+                    <AlertCircle className="h-4 w-4" /> Kesalahan Validasi:
+                  </div>
+                  <ul className="text-xs text-rose-700 list-disc list-inside">
+                    {importErrors.map((err, idx) => (
+                      <li key={idx}>{err}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {importWarnings.length > 0 && (
+                <div className="rounded-control bg-amber-50 p-4 border border-amber-200 space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 uppercase">
+                    <AlertTriangle className="h-4 w-4" /> Peringatan:
+                  </div>
+                  <ul className="text-xs text-amber-700 list-disc list-inside">
+                    {importWarnings.map((warn, idx) => (
+                      <li key={idx}>{warn}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Preview Card */}
+              {packagePreview && (
+                <div className="rounded-control bg-slate-50 p-5 border border-slate-200 space-y-4">
+                  <h4 className="text-sm font-bold text-slate-800">Ringkasan Pratinjau Paket Tervalidasi</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="bg-white p-3 rounded border border-slate-200">
+                      <span className="text-xs text-slate-500">Versi Dataset</span>
+                      <p className="font-bold text-slate-900 text-lg">{packagePreview.datasetVersion}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded border border-slate-200">
+                      <span className="text-xs text-slate-500">Total Material</span>
+                      <p className="font-bold text-slate-900 text-lg">{packagePreview.materialCount}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded border border-slate-200">
+                      <span className="text-xs text-slate-500">Kategori</span>
+                      <p className="font-bold text-slate-900 text-lg">{packagePreview.categoryCount}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded border border-slate-200">
+                      <span className="text-xs text-slate-500">Lokasi / Stok</span>
+                      <p className="font-bold text-slate-900 text-lg">{packagePreview.stockSnapshotCount}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: HISTORY & RESTORE */}
+          {activeTab === 'history' && (
+            <div className="space-y-4">
+              <h4 className="text-sm font-bold text-slate-800">Daftar Snapshot Sebelumnya</h4>
+              {history.length === 0 ? (
+                <div className="p-8 text-center text-sm text-slate-500 bg-slate-50 rounded-control border border-slate-200">
+                  Belum ada riwayat snapshot tersimpan.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {history.map((pkg) => (
+                    <div
+                      key={pkg.datasetVersion}
+                      className="flex items-center justify-between rounded-control border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-slate-800 px-2 py-0.5 font-mono text-xs font-bold text-white">
+                            Versi {pkg.datasetVersion}
+                          </span>
+                          <span className="text-sm font-bold text-slate-800">
+                            {pkg.sourceName}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Waktu Sumber: {new Date(pkg.sourceAt).toLocaleString('id-ID')} &bull; Total {pkg.materials.length} Material
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => handleRestore(pkg.datasetVersion)}
+                        className="flex h-11 items-center gap-2 rounded-control bg-white border border-slate-300 px-4 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-100 active:scale-95"
+                      >
+                        <RotateCcw className="h-4 w-4 text-amber-600" />
+                        <span>Pulihkan (Restore)</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: SETTINGS */}
+          {activeTab === 'settings' && (
+            <div className="space-y-4 max-w-xl">
+              {configErrors.length > 0 && (
+                <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200">
+                  {configErrors.join(', ')}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Organisasi</label>
+                <input
+                  type="text"
+                  value={configDraft.organizationName}
+                  onChange={(e) => setConfigDraft({ ...configDraft, organizationName: e.target.value })}
+                  className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Kode Gudang</label>
+                <input
+                  type="text"
+                  value={configDraft.warehouseCode}
+                  onChange={(e) => setConfigDraft({ ...configDraft, warehouseCode: e.target.value })}
+                  className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Zona Waktu IANA</label>
+                  <input
+                    type="text"
+                    value={configDraft.timezone}
+                    onChange={(e) => setConfigDraft({ ...configDraft, timezone: e.target.value })}
+                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Umur Maksimal Stok (Jam)</label>
+                  <input
+                    type="number"
+                    value={configDraft.staleAfterHours ?? ''}
+                    onChange={(e) => setConfigDraft({ ...configDraft, staleAfterHours: e.target.value ? Number(e.target.value) : null })}
+                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Timeout Idle (Detik)</label>
+                  <input
+                    type="number"
+                    value={configDraft.idleSeconds}
+                    onChange={(e) => setConfigDraft({ ...configDraft, idleSeconds: Number(e.target.value) })}
+                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Timeout Warning (Detik)</label>
+                  <input
+                    type="number"
+                    value={configDraft.warningSeconds}
+                    onChange={(e) => setConfigDraft({ ...configDraft, warningSeconds: Number(e.target.value) })}
+                    className="w-full rounded-control border border-slate-300 p-2.5 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Visual Customization & Wallpaper Settings */}
+              <div className="rounded-xl border border-amber-300 bg-amber-50/50 p-4 space-y-4">
+                <div className="flex items-center justify-between border-b border-amber-200/70 pb-2">
+                  <h5 className="font-extrabold text-sm text-[#0F172A]">
+                    Tampilan Visual & Wallpaper Kiosk
+                  </h5>
+                  <span className="text-[11px] font-bold text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">
+                    Kustomisasi Petugas
+                  </span>
+                </div>
+
+                {/* Card Style Selector */}
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                    Gaya Kartu Menu Utama
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'photo' })}
+                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition ${
+                        configDraft.cardStyle !== 'minimal'
+                          ? 'bg-[#FACC15] text-[#0F172A] border-[#FACC15] shadow-md ring-2 ring-amber-400'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <ImageIcon className="h-4 w-4 text-[#0F172A]" />
+                      <span>Kartu Bergambar Foto Nyata</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setConfigDraft({ ...configDraft, cardStyle: 'minimal' })}
+                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition ${
+                        configDraft.cardStyle === 'minimal'
+                          ? 'bg-[#FACC15] text-[#0F172A] border-[#FACC15] shadow-md ring-2 ring-amber-400'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <LayoutGrid className="h-4 w-4 text-slate-600" />
+                      <span>Kartu Minimalis Ikon</span>
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    *Mode bergambar sangat memudahkan petugas senior dan tamu mengenali menu secara visual sekilas.
+                  </p>
+                </div>
+
+                {/* Wallpaper Preset Selector */}
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                    Pilihan Wallpaper Layar Awal (Screensaver & Beranda)
+                  </label>
+                  <div className="relative flex items-center">
+                    <Palette className="pointer-events-none absolute left-3.5 h-4 w-4 text-slate-400" />
+                    <select
+                      value={configDraft.wallpaperPreset || 'warehouse'}
+                      onChange={(e) => setConfigDraft({ ...configDraft, wallpaperPreset: e.target.value as any })}
+                      className="w-full appearance-none rounded-control border border-slate-300 py-2.5 pl-10 pr-10 text-sm bg-white font-medium text-slate-800 focus:border-[#FACC15] focus:outline-none"
+                    >
+                      {Object.values(WALLPAPER_PRESETS).map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} — {p.description}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3.5 h-4 w-4 text-slate-400" />
+                  </div>
+                </div>
+
+                {/* Custom Wallpaper URL Input */}
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                    URL Wallpaper Kustom (Opsional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Kosongkan jika menggunakan preset di atas..."
+                    value={configDraft.customWallpaperUrl || ''}
+                    onChange={(e) => setConfigDraft({ ...configDraft, customWallpaperUrl: e.target.value })}
+                    className="w-full rounded-control border border-slate-300 p-2 text-xs font-mono"
+                  />
+                </div>
+
+                {/* Custom Photo URLs for Card A, B, C */}
+                <div className="space-y-2 pt-1 border-t border-amber-200/50">
+                  <span className="text-xs font-bold uppercase tracking-wide text-slate-700 block">
+                    Kustomisasi Foto Banner Kartu:
+                  </span>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                      Foto Thumbnail A (Program Kerja):
+                    </label>
+                    <input
+                      type="text"
+                      value={configDraft.thumbnailAPhoto || ''}
+                      placeholder={DEFAULT_CARD_PHOTOS.thumbnailA}
+                      onChange={(e) => setConfigDraft({ ...configDraft, thumbnailAPhoto: e.target.value })}
+                      className="w-full rounded-control border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                      Foto Thumbnail B (Daftar Material):
+                    </label>
+                    <input
+                      type="text"
+                      value={configDraft.thumbnailBPhoto || ''}
+                      placeholder={DEFAULT_CARD_PHOTOS.thumbnailB}
+                      onChange={(e) => setConfigDraft({ ...configDraft, thumbnailBPhoto: e.target.value })}
+                      className="w-full rounded-control border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">
+                      Foto Thumbnail C (Scan Barcode Item):
+                    </label>
+                    <input
+                      type="text"
+                      value={configDraft.thumbnailCPhoto || ''}
+                      placeholder={DEFAULT_CARD_PHOTOS.thumbnailC}
+                      onChange={(e) => setConfigDraft({ ...configDraft, thumbnailCPhoto: e.target.value })}
+                      className="w-full rounded-control border border-slate-300 p-1.5 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleSaveConfig}
+                className="mt-4 flex h-12 items-center rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow active:scale-95"
+              >
+                Simpan Konfigurasi
+              </button>
+            </div>
+          )}
+
+          {/* TAB 4: LOGS */}
+          {activeTab === 'logs' && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-slate-800">Catatan Aktivitas & Diagnostik Sistem (Sanitized)</h4>
+              <div className="max-h-[50vh] overflow-y-auto rounded-control border border-slate-200 bg-slate-900 p-4 font-mono text-xs text-slate-200 space-y-2">
+                {logs.length === 0 ? (
+                  <div className="text-slate-500">Belum ada catatan log.</div>
+                ) : (
+                  logs.map((l) => (
+                    <div key={l.id} className="flex gap-2">
+                      <span className="text-slate-400 shrink-0">
+                        {new Date(l.timestamp).toLocaleTimeString('id-ID')}
+                      </span>
+                      <span
+                        className={`font-bold shrink-0 ${
+                          l.level === 'error' ? 'text-rose-400' : l.level === 'warn' ? 'text-amber-400' : 'text-emerald-400'
+                        }`}
+                      >
+                        [{l.level.toUpperCase()}]
+                      </span>
+                      <span className="text-amber-300 shrink-0">[{l.component}]:</span>
+                      <span className="text-slate-200">{l.message}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

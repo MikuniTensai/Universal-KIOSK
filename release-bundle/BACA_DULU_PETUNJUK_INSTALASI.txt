@@ -1,0 +1,11 @@
+# PAKET RILIS OFFLINE KIOSK MANDIRI GUDANG PLN (KASSEN WK-215)
+Versi: 1.0.0
+Target OS: Windows 10 / 11 64-bit
+
+## Cara Menjalankan Aplikasi di Unit Kassen WK-215:
+1. Pastikan folder ini disalin ke harddisk unit (misal: C:\PLN-Kiosk\).
+2. Klik ganda 'scripts/launch-kiosk.bat' untuk meluncurkan aplikasi layar penuh.
+3. Untuk setup otomatis menyala saat boot, klik kanan 'scripts/setup-windows-kiosk.ps1' lalu pilih 'Run with PowerShell'.
+4. Default PIN untuk akses petugas/admin: 123456.
+
+Dokumentasi lengkap terdapat di folder docs/.

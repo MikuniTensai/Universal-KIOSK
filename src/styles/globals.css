@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  body {
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overscroll-behavior: none;
+  }
+}
+
+/* Custom animations for Kiosk */
+@keyframes pulse-beam {
+  0%, 100% {
+    opacity: 0.2;
+    transform: translateY(-20px);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(20px);
+  }
+}
+
+.animate-pulse-beam {
+  animation: pulse-beam 2.5s infinite ease-in-out;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 25s linear infinite;
+}
+
+/* Hide scrollbars for ultra clean touch interface */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
