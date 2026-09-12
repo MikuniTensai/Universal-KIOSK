@@ -68,6 +68,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [stockSearch, setStockSearch] = useState('');
   const [stockSelectedCategory, setStockSelectedCategory] = useState<string>('all');
   const [showStockCategoryMenu, setShowStockCategoryMenu] = useState<boolean>(false);
+  const [showStockModal, setShowStockModal] = useState<boolean>(false);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   const triggerPackageUpdated = () => {
@@ -212,6 +213,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         setExact: isExactStock,
       });
       setActionSuccessMessage('Stok material berhasil diperbarui.');
+      setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
       setStockError(err.message || 'Gagal memperbarui stok.');
@@ -247,6 +249,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setNewMatSapCode('');
       setNewMatSpec('');
       setNewMatBarcode('');
+      setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
       setStockError(err.message || 'Gagal mendaftarkan material baru.');
@@ -445,7 +448,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <button
                   type="button"
                   className="adms-action-pill"
-                  onClick={() => { setActiveTab('stock'); setStockMode('adjust'); }}
+                  onClick={() => { setActiveTab('stock'); setStockMode('adjust'); setShowStockModal(true); }}
                 >
                   <Boxes size={15} strokeWidth={2} />
                   <span>Penyesuaian Cepat Stok</span>
@@ -454,7 +457,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <button
                   type="button"
                   className="adms-action-pill"
-                  onClick={() => { setActiveTab('stock'); setStockMode('new-material'); }}
+                  onClick={() => { setActiveTab('stock'); setStockMode('new-material'); setShowStockModal(true); }}
                 >
                   <PlusCircle size={15} strokeWidth={2} />
                   <span>Pendaftaran Material Baru</span>
@@ -763,6 +766,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                       setAdjustMatId(mat.id);
                                       setActiveTab('stock');
                                       setStockMode('adjust');
+                                      setShowStockModal(true);
                                     }}
                                     className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
                                   >
@@ -782,466 +786,169 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
           {/* TAB 1: STOCK & MATERIAL MUTATION */}
           {activeTab === 'stock' && (
-            <div className="space-y-6">
-              <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-                <button
-                  type="button"
-                  onClick={() => { setStockMode('adjust'); setStockError(null); }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
-                    stockMode === 'adjust' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  1. Tambah / Sesuaikan Stok Material
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setStockMode('new-material'); setStockError(null); }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
-                    stockMode === 'new-material' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  2. Tambah Material Baru & Barcode
-                </button>
-              </div>
-
-              {stockError && (
-                <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 font-semibold">
-                  {stockError}
+            <div className="space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Boxes className="h-4 w-4 text-amber-600" />
+                    <span>Daftar &amp; Kelola Stok Material ({filteredStockMaterials.length} dari {activePkg?.materials.length || 0} Terdaftar):</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK)
+                  </p>
                 </div>
-              )}
 
-              {stockMode === 'adjust' ? (
-                <form onSubmit={handleAdjustStock} className="space-y-4 max-w-xl">
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Pilih Material:
-                    </label>
-                    <select
-                      value={adjustMatId || (activePkg?.materials[0]?.id ?? '')}
-                      onChange={(e) => setAdjustMatId(e.target.value)}
-                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    >
-                      {activePkg?.materials.map(m => (
-                        <option key={m.id} value={m.id}>
-                          [{m.code}] {m.name} ({m.unit})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {(() => {
-                    const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
-                    const mat = activePkg?.materials.find(m => m.id === currentMatId);
-                    if (!mat) return null;
-                    const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === mat.id) || [];
-                    const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
-                    return (
-                      <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 space-y-1">
-                        <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
-                        <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
-                        <p>Total Stok Saat Ini: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
-                      </div>
-                    );
-                  })()}
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Metode Penyesuaian:
-                      </label>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setIsExactStock(false)}
-                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
-                            !isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                          }`}
-                        >
-                          + Tambah / - Kurang
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsExactStock(true)}
-                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
-                            isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                          }`}
-                        >
-                          Tetapkan Nilai
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        {isExactStock ? 'Nilai Stok Pasti:' : 'Jumlah Penambahan (+/-):'}
-                      </label>
-                      <input
-                        type="number"
-                        value={stockDeltaInput}
-                        onChange={(e) => setStockDeltaInput(Number(e.target.value))}
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-bold text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        placeholder={isExactStock ? "contoh: 50" : "contoh: 10 atau -5"}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                    <span className="text-xs font-bold text-slate-700 block">Lokasi Rak Penyimpanan di Gudang:</span>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
-                        <input
-                          type="text"
-                          value={adjustZone}
-                          onChange={(e) => setAdjustZone(e.target.value)}
-                          placeholder="Zona A"
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
-                        <input
-                          type="text"
-                          value={adjustRack}
-                          onChange={(e) => setAdjustRack(e.target.value)}
-                          placeholder="Rak 01"
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin / Kotak</label>
-                        <input
-                          type="text"
-                          value={adjustBin}
-                          onChange={(e) => setAdjustBin(e.target.value)}
-                          placeholder="Bin 01"
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="submit"
-                      className="flex-1 flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 hover:bg-amber-400"
-                    >
-                      <CheckCircle2 className="h-4 w-4" />
-                      <span>Simpan Perubahan Stok</span>
-                    </button>
-
-                    {(() => {
-                      const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
-                      const mat = activePkg?.materials.find(m => m.id === currentMatId);
-                      if (!mat) return null;
-                      return (
-                        <button
-                          type="button"
-                          onClick={() => setMaterialToDelete(mat)}
-                          className="flex h-12 items-center justify-center gap-2 rounded-control bg-rose-50 border border-rose-300 px-5 text-sm font-bold text-rose-700 shadow-sm transition active:scale-95 hover:bg-rose-100"
-                          title={`Hapus material ${mat.name} dari database`}
-                        >
-                          <Trash2 className="h-4 w-4 text-rose-600" />
-                          <span>Hapus Material Ini</span>
-                        </button>
-                      );
-                    })()}
-                  </div>
-                </form>
-              ) : (
-                <form onSubmit={handleAddNewMaterial} className="space-y-4 max-w-2xl">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Kode Material (Wajib Unik):
-                      </label>
-                      <input
-                        type="text"
-                        value={newMatCode}
-                        onChange={(e) => setNewMatCode(e.target.value)}
-                        placeholder="Contoh: 001999"
-                        required
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Kode SAP:
-                      </label>
-                      <input
-                        type="text"
-                        value={newMatSapCode}
-                        onChange={(e) => setNewMatSapCode(e.target.value)}
-                        placeholder="Contoh: 10009999"
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Nama Resmi Material:
-                    </label>
-                    <input
-                      type="text"
-                      value={newMatName}
-                      onChange={(e) => setNewMatName(e.target.value)}
-                      placeholder="Contoh: Kabel Tegangan Menengah 20kV XLPE 3x150mm"
-                      required
-                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Kategori Material:
-                      </label>
-                      <select
-                        value={newMatCategoryId || (activePkg?.categories[0]?.id ?? '')}
-                        onChange={(e) => setNewMatCategoryId(e.target.value)}
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      >
-                        {activePkg?.categories.map(c => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Satuan Unit:
-                      </label>
-                      <input
-                        type="text"
-                        value={newMatUnit}
-                        onChange={(e) => setNewMatUnit(e.target.value)}
-                        placeholder="Unit / Buah / Meter / Set"
-                        required
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Nilai Barcode / QR Code Scanner (Wajib):
-                    </label>
-                    <div className="relative flex items-center">
-                      <Barcode className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                      <input
-                        type="text"
-                        value={newMatBarcode}
-                        onChange={(e) => setNewMatBarcode(e.target.value)}
-                        placeholder="Contoh: PLN-KBL-20KV-2026 atau nomor barcode fisik"
-                        required
-                        className="w-full h-11 rounded-xl border border-slate-300 pl-10 pr-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                    </div>
-                    <span className="text-[11px] text-slate-500 mt-1 block">
-                      Barcode ini akan otomatis terdaftar dan bisa langsung diuji coba pada modul Scanner Kiosk.
-                    </span>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Standar Spesifikasi Teknis (SPLN / Standar PLN):
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={newMatSpec}
-                      onChange={(e) => setNewMatSpec(e.target.value)}
-                      placeholder="Contoh: SPLN D3.002-1:2007, Tegangan 20kV, Isolasi XLPE tahan cuaca"
-                      className="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                    <span className="text-xs font-bold text-slate-700 block">Alokasi Rak Gudang & Stok Awal:</span>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
-                        <input
-                          type="text"
-                          value={newMatZone}
-                          onChange={(e) => setNewMatZone(e.target.value)}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
-                        <input
-                          type="text"
-                          value={newMatRack}
-                          onChange={(e) => setNewMatRack(e.target.value)}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin</label>
-                        <input
-                          type="text"
-                          value={newMatBin}
-                          onChange={(e) => setNewMatBin(e.target.value)}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Stok Awal</label>
-                        <input
-                          type="number"
-                          value={newMatInitialQty}
-                          onChange={(e) => setNewMatInitialQty(Number(e.target.value))}
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-bold focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStockMode('new-material');
+                      setStockError(null);
+                      setShowStockModal(true);
+                    }}
+                    className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-[#FACC15] px-3.5 text-xs font-bold text-[#0F172A] shadow-2xs hover:bg-amber-400 active:scale-95 transition shrink-0"
+                    title="Buka pop-up tambah material baru & barcode"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Tambah Material Baru &amp; Barcode</span>
+                  </button>
 
                   <button
-                    type="submit"
-                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 w-full sm:w-auto"
+                    type="button"
+                    onClick={() => {
+                      setStockMode('adjust');
+                      setStockError(null);
+                      setShowStockModal(true);
+                    }}
+                    className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-white border border-slate-300 px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition shadow-2xs shrink-0"
+                    title="Buka pop-up penyesuaian stok material"
                   >
-                    <PlusCircle className="h-4 w-4" />
-                    <span>Daftarkan Material & Barcode</span>
+                    <Boxes className="h-4 w-4 text-amber-600" />
+                    <span>Penyesuaian Stok</span>
                   </button>
-                </form>
-              )}
-
-              {/* Material Inventory Table & Delete Actions */}
-              <div className="pt-6 border-t border-slate-200 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                      <Boxes className="h-4 w-4 text-amber-600" />
-                      <span>Daftar &amp; Kelola Stok Material ({filteredStockMaterials.length} dari {activePkg?.materials.length || 0} Terdaftar):</span>
-                    </h4>
-                    <p className="text-[11px] text-slate-500 font-medium">
-                      Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK)
-                    </p>
-                  </div>
 
                   {/* Search Bar & Titik 3 Category Filter for Stock Table */}
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="relative w-full sm:w-80">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                      <input
-                        type="text"
-                        placeholder="Cari nama, kode normalisasi, blok, rak..."
-                        value={stockSearch}
-                        onChange={(e) => setStockSearch(e.target.value)}
-                        className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                      />
-                      {stockSearch && (
-                        <button
-                          type="button"
-                          onClick={() => setStockSearch('')}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                          aria-label="Bersihkan pencarian stock"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Titik 3 (MoreVertical) Filter Category Button */}
-                    <div className="relative shrink-0">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Cari nama, kode normalisasi, blok, rak..."
+                      value={stockSearch}
+                      onChange={(e) => setStockSearch(e.target.value)}
+                      className="w-full h-10 rounded-xl border border-slate-300 pl-9 pr-8 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    />
+                    {stockSearch && (
                       <button
                         type="button"
-                        onClick={() => setShowStockCategoryMenu((prev) => !prev)}
-                        title="Filter Berdasarkan Kategori"
-                        aria-label="Filter berdasarkan kategori"
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl border transition shadow-2xs active:scale-95 ${
-                          stockSelectedCategory !== 'all'
-                            ? 'bg-amber-100 border-amber-400 text-amber-900 font-bold ring-2 ring-amber-400/30'
-                            : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                        }`}
+                        onClick={() => setStockSearch('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                        aria-label="Bersihkan pencarian stock"
                       >
-                        <MoreVertical className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5" />
                       </button>
+                    )}
+                  </div>
 
-                      {showStockCategoryMenu && (
-                        <>
-                          <div
-                            className="fixed inset-0 z-30"
-                            onClick={() => setShowStockCategoryMenu(false)}
-                          />
-                          <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
-                            <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
-                              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                                Filter Kategori
-                              </span>
-                              <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
-                                {activePkg?.categories.length || 0} Kategori
-                              </span>
-                            </div>
-                            <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setStockSelectedCategory('all');
-                                  setShowStockCategoryMenu(false);
-                                }}
-                                className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
-                                  stockSelectedCategory === 'all'
-                                    ? 'bg-amber-50 text-amber-900 font-bold'
-                                    : 'text-slate-700 hover:bg-slate-100'
-                                }`}
-                              >
-                                <span>Semua Kategori</span>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-[11px] text-slate-400">({activePkg?.materials.length || 0})</span>
-                                  {stockSelectedCategory === 'all' && <Check className="h-3.5 w-3.5 text-amber-600" />}
-                                </div>
-                              </button>
-                              {activePkg?.categories.map((cat) => {
-                                const count = (activePkg.materials || []).filter((m) => m.categoryId === cat.id).length;
-                                const isSelected = stockSelectedCategory === cat.id;
-                                return (
-                                  <button
-                                    key={cat.id}
-                                    type="button"
-                                    onClick={() => {
-                                      setStockSelectedCategory(cat.id);
-                                      setShowStockCategoryMenu(false);
-                                    }}
-                                    className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
-                                      isSelected
-                                        ? 'bg-amber-50 text-amber-900 font-bold'
-                                        : 'text-slate-700 hover:bg-slate-100'
-                                    }`}
-                                  >
-                                    <span className="truncate pr-2">{cat.name}</span>
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                      <span className="text-[11px] text-slate-400">({count})</span>
-                                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
-                                    </div>
-                                  </button>
-                                );
-                              })}
-                            </div>
+                  {/* Titik 3 (MoreVertical) Filter Category Button */}
+                  <div className="relative shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setShowStockCategoryMenu((prev) => !prev)}
+                      title="Filter Berdasarkan Kategori"
+                      aria-label="Filter berdasarkan kategori"
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl border transition shadow-2xs active:scale-95 ${
+                        stockSelectedCategory !== 'all'
+                          ? 'bg-amber-100 border-amber-400 text-amber-900 font-bold ring-2 ring-amber-400/30'
+                          : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
+
+                    {showStockCategoryMenu && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-30"
+                          onClick={() => setShowStockCategoryMenu(false)}
+                        />
+                        <div className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl z-40 animate-in fade-in zoom-in-95 duration-100 text-left">
+                          <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between mb-1">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                              Filter Kategori
+                            </span>
+                            <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-semibold">
+                              {activePkg?.categories.length || 0} Kategori
+                            </span>
                           </div>
-                        </>
-                      )}
-                    </div>
+                          <div className="max-h-60 overflow-y-auto py-1 space-y-0.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStockSelectedCategory('all');
+                                setShowStockCategoryMenu(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                stockSelectedCategory === 'all'
+                                  ? 'bg-amber-50 text-amber-900 font-bold'
+                                  : 'text-slate-700 hover:bg-slate-100'
+                              }`}
+                            >
+                              <span>Semua Kategori</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[11px] text-slate-400">({activePkg?.materials.length || 0})</span>
+                                {stockSelectedCategory === 'all' && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                              </div>
+                            </button>
+                            {activePkg?.categories.map((cat) => {
+                              const count = (activePkg.materials || []).filter((m) => m.categoryId === cat.id).length;
+                              const isSelected = stockSelectedCategory === cat.id;
+                              return (
+                                <button
+                                  key={cat.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setStockSelectedCategory(cat.id);
+                                    setShowStockCategoryMenu(false);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition ${
+                                    isSelected
+                                      ? 'bg-amber-50 text-amber-900 font-bold'
+                                      : 'text-slate-700 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  <span className="truncate pr-2">{cat.name}</span>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <span className="text-[11px] text-slate-400">({count})</span>
+                                    {isSelected && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
+              </div>
 
-                {stockSelectedCategory !== 'all' && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[11px] font-semibold text-slate-500">Filter Kategori:</span>
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-900">
-                      <span>{activePkg?.categories.find((c) => c.id === stockSelectedCategory)?.name || stockSelectedCategory}</span>
-                      <button
-                        type="button"
-                        onClick={() => setStockSelectedCategory('all')}
-                        className="text-amber-700 hover:text-amber-950 p-0.5 rounded-full hover:bg-amber-200/60"
-                        title="Hapus filter kategori"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  </div>
-                )}
+              {stockSelectedCategory !== 'all' && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-slate-500">Filter Kategori:</span>
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-900">
+                    <span>{activePkg?.categories.find((c) => c.id === stockSelectedCategory)?.name || stockSelectedCategory}</span>
+                    <button
+                      type="button"
+                      onClick={() => setStockSelectedCategory('all')}
+                      className="text-amber-700 hover:text-amber-950 p-0.5 rounded-full hover:bg-amber-200/60"
+                      title="Hapus filter kategori"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                </div>
+              )}
+
 
                 <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white max-h-[460px] overflow-y-auto">
                   <table className="w-full text-left text-xs min-w-[640px]">
@@ -1301,6 +1008,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                     onClick={() => {
                                       setStockMode('adjust');
                                       setAdjustMatId(m.id);
+                                      setStockError(null);
+                                      setShowStockModal(true);
                                     }}
                                     className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
                                   >
@@ -1324,7 +1033,6 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   </table>
                 </div>
               </div>
-            </div>
           )}
 
           {/* TAB: CATEGORY MANAGEMENT */}
@@ -2014,9 +1722,395 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
           )}
 
+      {/* Pop-up Modal Tambah / Sesuaikan Stok Material & Barcode */}
+      {showStockModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowStockModal(false);
+              setStockError(null);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-900 border border-amber-300">
+                  <Boxes className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    {stockMode === 'adjust' ? 'Tambah / Sesuaikan Stok Material' : 'Pendaftaran Material Baru & Barcode'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Database Logistik Pergudangan PLN UP3 Malang
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setShowStockModal(false); setStockError(null); }}
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition"
+                aria-label="Tutup pop-up"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 overflow-y-auto space-y-5">
+              <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+                <button
+                  type="button"
+                  onClick={() => { setStockMode('adjust'); setStockError(null); }}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    stockMode === 'adjust' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  1. Tambah / Sesuaikan Stok Material
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setStockMode('new-material'); setStockError(null); }}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                    stockMode === 'new-material' ? 'bg-[#FACC15] text-[#0F172A] shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  2. Tambah Material Baru & Barcode
+                </button>
+              </div>
+
+              {stockError && (
+                <div className="rounded-control bg-rose-50 p-3 text-xs text-rose-700 border border-rose-200 font-semibold">
+                  {stockError}
+                </div>
+              )}
+
+              {stockMode === 'adjust' ? (
+                <form onSubmit={handleAdjustStock} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Pilih Material:
+                    </label>
+                    <select
+                      value={adjustMatId || (activePkg?.materials[0]?.id ?? '')}
+                      onChange={(e) => setAdjustMatId(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    >
+                      {activePkg?.materials.map(m => (
+                        <option key={m.id} value={m.id}>
+                          [{m.code}] {m.name} ({m.unit})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {(() => {
+                    const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
+                    const mat = activePkg?.materials.find(m => m.id === currentMatId);
+                    if (!mat) return null;
+                    const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === mat.id) || [];
+                    const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                    return (
+                      <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 space-y-1">
+                        <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
+                        <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
+                        <p>Total Stok Saat Ini: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Metode Penyesuaian:
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsExactStock(false)}
+                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
+                            !isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          + Tambah / - Kurang
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsExactStock(true)}
+                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
+                            isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          Tetapkan Nilai
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        {isExactStock ? 'Nilai Stok Pasti:' : 'Jumlah Penambahan (+/-):'}
+                      </label>
+                      <input
+                        type="number"
+                        value={stockDeltaInput}
+                        onChange={(e) => setStockDeltaInput(Number(e.target.value))}
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-bold text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        placeholder={isExactStock ? "contoh: 50" : "contoh: 10 atau -5"}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <span className="text-xs font-bold text-slate-700 block">Lokasi Rak Penyimpanan di Gudang:</span>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
+                        <input
+                          type="text"
+                          value={adjustZone}
+                          onChange={(e) => setAdjustZone(e.target.value)}
+                          placeholder="Zona A"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
+                        <input
+                          type="text"
+                          value={adjustRack}
+                          onChange={(e) => setAdjustRack(e.target.value)}
+                          placeholder="Rak 01"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin / Kotak</label>
+                        <input
+                          type="text"
+                          value={adjustBin}
+                          onChange={(e) => setAdjustBin(e.target.value)}
+                          placeholder="Bin 01"
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      className="flex-1 flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 hover:bg-amber-400"
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Simpan Perubahan Stok</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setShowStockModal(false); setStockError(null); }}
+                      className="flex h-12 items-center justify-center rounded-control bg-slate-100 hover:bg-slate-200 px-5 text-sm font-bold text-slate-700 transition active:scale-95"
+                    >
+                      Batal
+                    </button>
+
+                    {(() => {
+                      const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
+                      const mat = activePkg?.materials.find(m => m.id === currentMatId);
+                      if (!mat) return null;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMaterialToDelete(mat);
+                          }}
+                          className="flex h-12 items-center justify-center gap-2 rounded-control bg-rose-50 border border-rose-300 px-4 text-sm font-bold text-rose-700 shadow-sm transition active:scale-95 hover:bg-rose-100"
+                          title={`Hapus material ${mat.name} dari database`}
+                        >
+                          <Trash2 className="h-4 w-4 text-rose-600" />
+                          <span>Hapus Material Ini</span>
+                        </button>
+                      );
+                    })()}
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleAddNewMaterial} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Kode Material (Wajib Unik):
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatCode}
+                        onChange={(e) => setNewMatCode(e.target.value)}
+                        placeholder="Contoh: 001999"
+                        required
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Kode SAP:
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatSapCode}
+                        onChange={(e) => setNewMatSapCode(e.target.value)}
+                        placeholder="Contoh: 10009999"
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Nama Resmi Material:
+                    </label>
+                    <input
+                      type="text"
+                      value={newMatName}
+                      onChange={(e) => setNewMatName(e.target.value)}
+                      placeholder="Contoh: Kabel Tegangan Menengah 20kV XLPE 3x150mm"
+                      required
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Kategori Material:
+                      </label>
+                      <select
+                        value={newMatCategoryId || (activePkg?.categories[0]?.id ?? '')}
+                        onChange={(e) => setNewMatCategoryId(e.target.value)}
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      >
+                        {activePkg?.categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                        Satuan Unit:
+                      </label>
+                      <input
+                        type="text"
+                        value={newMatUnit}
+                        onChange={(e) => setNewMatUnit(e.target.value)}
+                        placeholder="Unit / Buah / Meter / Set"
+                        required
+                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Nilai Barcode / QR Code Scanner (Wajib):
+                    </label>
+                    <div className="relative flex items-center">
+                      <Barcode className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                      <input
+                        type="text"
+                        value={newMatBarcode}
+                        onChange={(e) => setNewMatBarcode(e.target.value)}
+                        placeholder="Contoh: PLN-KBL-20KV-2026 atau nomor barcode fisik"
+                        required
+                        className="w-full h-11 rounded-xl border border-slate-300 pl-10 pr-3 text-sm font-mono text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                      />
+                    </div>
+                    <span className="text-[11px] text-slate-500 mt-1 block">
+                      Barcode ini akan otomatis terdaftar dan bisa langsung diuji coba pada modul Scanner Kiosk.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Standar Spesifikasi Teknis (SPLN / Standar PLN):
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={newMatSpec}
+                      onChange={(e) => setNewMatSpec(e.target.value)}
+                      placeholder="Contoh: SPLN D3.002-1:2007, Tegangan 20kV, Isolasi XLPE tahan cuaca"
+                      className="w-full rounded-xl border border-slate-300 p-3 text-sm text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <span className="text-xs font-bold text-slate-700 block">Alokasi Rak Gudang &amp; Stok Awal:</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
+                        <input
+                          type="text"
+                          value={newMatZone}
+                          onChange={(e) => setNewMatZone(e.target.value)}
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
+                        <input
+                          type="text"
+                          value={newMatRack}
+                          onChange={(e) => setNewMatRack(e.target.value)}
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin</label>
+                        <input
+                          type="text"
+                          value={newMatBin}
+                          onChange={(e) => setNewMatBin(e.target.value)}
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Stok Awal</label>
+                        <input
+                          type="number"
+                          value={newMatInitialQty}
+                          onChange={(e) => setNewMatInitialQty(Number(e.target.value))}
+                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-bold focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      className="flex-1 flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 hover:bg-amber-400"
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                      <span>Daftarkan Material &amp; Barcode</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowStockModal(false); setStockError(null); }}
+                      className="flex h-12 items-center justify-center rounded-control bg-slate-100 hover:bg-slate-200 px-5 text-sm font-bold text-slate-700 transition active:scale-95"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal Konfirmasi Hapus Material */}
       {materialToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3 text-rose-600">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100">
