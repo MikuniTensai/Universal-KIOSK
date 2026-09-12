@@ -2,6 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { createSyncStateReader, matchesEtag } from './sync-state.mjs';
 
@@ -196,6 +197,44 @@ function createServerHandler(portName, portNumber) {
           localIps: netInfo.allIps,
         })
       );
+      return;
+    }
+
+    // 2.1 API: System Control (Shutdown, Restart, Exit Kiosk)
+    if (pathname === '/api/system/shutdown') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Menjalankan shutdown komputer...' }));
+      setTimeout(() => {
+        if (process.platform === 'win32') {
+          exec('shutdown.exe /s /t 1 /c "Dimatikan oleh Kiosk PLN"');
+        } else {
+          exec('shutdown -h now');
+        }
+      }, 500);
+      return;
+    }
+
+    if (pathname === '/api/system/restart') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Menjalankan restart komputer...' }));
+      setTimeout(() => {
+        if (process.platform === 'win32') {
+          exec('shutdown.exe /r /t 1 /c "Dimulai ulang oleh Kiosk PLN"');
+        } else {
+          exec('reboot');
+        }
+      }, 500);
+      return;
+    }
+
+    if (pathname === '/api/system/exit-kiosk') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Menutup aplikasi Kiosk PLN...' }));
+      setTimeout(() => {
+        if (process.platform === 'win32') {
+          exec('taskkill /F /IM msedge.exe');
+        }
+      }, 500);
       return;
     }
 

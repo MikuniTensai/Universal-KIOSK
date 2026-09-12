@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, ShieldCheck, Accessibility, Wifi } from 'lucide-react';
+import { Home, ShieldCheck, Accessibility, Wifi, Power } from 'lucide-react';
 import { KioskConfig } from '../../domain/types';
 import { DanantaraLogo } from './DanantaraLogo';
 import { PlnLogo } from './PlnLogo';
@@ -10,6 +10,7 @@ interface HeaderProps {
   onNavigate: (route: string) => void;
   onOpenAdmin: () => void;
   onOpenNetwork?: () => void;
+  onOpenShutdown?: () => void;
   lowReachMode?: boolean;
   onToggleLowReach?: () => void;
   showAdminButton?: boolean;
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigate,
   onOpenAdmin,
   onOpenNetwork,
+  onOpenShutdown,
   lowReachMode = false,
   onToggleLowReach,
   showAdminButton = false,
@@ -101,6 +103,17 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex h-12 w-12 items-center justify-center rounded-control border border-slate-200 bg-white text-slate-600 shadow-xs transition active:scale-95 hover:bg-slate-50"
             >
               <ShieldCheck className="h-5 w-5" />
+            </button>
+          )}
+
+          {onOpenShutdown && (
+            <button
+              onClick={onOpenShutdown}
+              title="Menu Daya & Matikan Komputer (Shutdown)"
+              aria-label="Menu Daya & Matikan Komputer"
+              className="flex h-12 w-12 items-center justify-center rounded-control border border-red-200 bg-red-50 text-red-600 shadow-xs transition active:scale-95 hover:bg-red-100 hover:border-red-300"
+            >
+              <Power className="h-5 w-5" />
             </button>
           )}
         </div>

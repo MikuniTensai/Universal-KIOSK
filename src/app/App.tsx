@@ -17,6 +17,7 @@ import { ScanStandbyView } from '../features/scanner/ScanStandbyView';
 import { AdminDashboardModal } from '../features/admin/AdminDashboardModal';
 import { AdminModeService } from '../features/admin/adminModeService';
 import { NetworkAccessModal } from '../features/network/NetworkAccessModal';
+import { ShutdownMenuModal } from '../features/system/ShutdownMenuModal';
 import { SyncService } from '../adapters/storage/syncService';
 import { ScanResolveResult, ImportPackage, KioskConfig } from '../domain/types';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../data/mockPlnPackage';
@@ -37,6 +38,9 @@ export const App: React.FC = () => {
 
   // Network access info modal state (WiFi & Dynamic IP LAN Access)
   const [networkModalVisible, setNetworkModalVisible] = useState(false);
+
+  // Shutdown & System Power menu modal state
+  const [shutdownModalVisible, setShutdownModalVisible] = useState(false);
 
   // Scan state
   const [lastScanResult, setLastScanResult] = useState<ScanResolveResult | null>(null);
@@ -179,6 +183,10 @@ export const App: React.FC = () => {
             idleTimer.recordActivity();
             setCurrentRoute('home');
           }}
+          onOpenShutdown={() => {
+            idleTimer.recordActivity();
+            setShutdownModalVisible(true);
+          }}
         />
         <AdminDashboardModal
           visible={adminModalVisible}
@@ -189,6 +197,10 @@ export const App: React.FC = () => {
           visible={networkModalVisible}
           onClose={() => setNetworkModalVisible(false)}
           warehouseCode={config.warehouseCode}
+        />
+        <ShutdownMenuModal
+          isOpen={shutdownModalVisible}
+          onClose={() => setShutdownModalVisible(false)}
         />
       </>
     );
@@ -217,6 +229,10 @@ export const App: React.FC = () => {
         onOpenNetwork={() => {
           idleTimer.recordActivity();
           setNetworkModalVisible(true);
+        }}
+        onOpenShutdown={() => {
+          idleTimer.recordActivity();
+          setShutdownModalVisible(true);
         }}
       />
 
@@ -627,6 +643,12 @@ export const App: React.FC = () => {
         visible={networkModalVisible}
         onClose={() => setNetworkModalVisible(false)}
         warehouseCode={config.warehouseCode}
+      />
+
+      {/* Shutdown & System Power Menu Modal */}
+      <ShutdownMenuModal
+        isOpen={shutdownModalVisible}
+        onClose={() => setShutdownModalVisible(false)}
       />
 
       {/* Low Reach Accessibility Indicator */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight, Power } from 'lucide-react';
 import { ImportPackage, KioskConfig } from '../../domain/types';
 import { WALLPAPER_PRESETS } from '../../data/mockPlnPackage';
 import { DanantaraLogo } from '../../shared/ui/DanantaraLogo';
@@ -9,12 +9,14 @@ interface IdleScreensaverProps {
   pkg: ImportPackage;
   config: KioskConfig;
   onStart: () => void;
+  onOpenShutdown?: () => void;
 }
 
 export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
   pkg,
   config,
   onStart,
+  onOpenShutdown,
 }) => {
   const wallpaperUrl =
     config.customWallpaperUrl ||
@@ -40,7 +42,23 @@ export const IdleScreensaver: React.FC<IdleScreensaverProps> = ({
       {/* Top Banner: Danantara Kiri & PLN Kanan */}
       <div className="flex items-center justify-between z-10 w-full">
         <DanantaraLogo variant="dark" />
-        <PlnLogo variant="dark" showSubtitle={false} />
+        <div className="flex items-center gap-4">
+          {onOpenShutdown && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenShutdown();
+              }}
+              title="Menu Daya & Matikan Komputer"
+              aria-label="Menu Daya & Matikan Komputer"
+              className="flex h-11 items-center gap-2 rounded-xl bg-black/40 border border-white/20 px-3.5 text-xs font-bold text-red-400 backdrop-blur-md transition active:scale-95 hover:bg-black/60 hover:text-red-300"
+            >
+              <Power className="h-4 w-4 text-red-400" />
+              <span className="hidden sm:inline">Daya / Keluar</span>
+            </button>
+          )}
+          <PlnLogo variant="dark" showSubtitle={false} />
+        </div>
       </div>
 
       {/* Main Center Message (Centered) */}

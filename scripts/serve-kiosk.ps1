@@ -252,6 +252,40 @@ try {
             continue
         }
 
+        # 2.1 API: System Control (Shutdown, Restart, Exit Kiosk)
+        if ($localPath -eq "/api/system/shutdown") {
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true,"message":"Menjalankan shutdown komputer..."}')
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.StatusCode = 200
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.OutputStream.Close()
+            Start-Sleep -Milliseconds 500
+            & shutdown.exe /s /t 1 /c "Dimatikan oleh Kiosk PLN"
+            continue
+        }
+
+        if ($localPath -eq "/api/system/restart") {
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true,"message":"Menjalankan restart komputer..."}')
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.StatusCode = 200
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.OutputStream.Close()
+            Start-Sleep -Milliseconds 500
+            & shutdown.exe /r /t 1 /c "Dimulai ulang oleh Kiosk PLN"
+            continue
+        }
+
+        if ($localPath -eq "/api/system/exit-kiosk") {
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true,"message":"Menutup aplikasi Kiosk PLN..."}')
+            $response.ContentType = "application/json; charset=utf-8"
+            $response.StatusCode = 200
+            $response.OutputStream.Write($bytes, 0, $bytes.Length)
+            $response.OutputStream.Close()
+            Start-Sleep -Milliseconds 500
+            & taskkill.exe /F /IM msedge.exe
+            continue
+        }
+
         # 3. Static Files & SPA Fallback
         $cleanPath = $request.Url.LocalPath.TrimStart('/')
         if ([string]::IsNullOrWhiteSpace($cleanPath)) {
