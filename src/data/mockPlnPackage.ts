@@ -259,7 +259,7 @@ export const plnUp3MalangFullPackage: ImportPackage = {
   datasetVersion: 3,
   sourceName: 'PLN ERP SAP Logistik Terpadu UP3 Malang (export_material NEW(1).csv)',
   sourceAt: '2026-09-12T08:00:00+07:00',
-  packageHash: 'pln-snapshot-v3-hash-20260912-blok-rak',
+  packageHash: 'pln-snapshot-v4-hash-20260912-excel-aligned',
   categories: samplePlnPackage.categories,
   locations: [
     ...samplePlnPackage.locations,

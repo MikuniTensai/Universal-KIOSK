@@ -59,31 +59,20 @@ dataLines.forEach((line) => {
   const normCode = row[2];
   const unitRaw = row[3] || 'BH';
   const stock = parseInt(row[4], 10) || 0;
-  const blok = row[5] || 'C';
-  const rakCol6 = row[6] || '-';
-  const rakCol7 = row[7] || '';
-
-  // Determine accurate rack code:
-  // If Column 7 has a value (e.g. 'H12', 'A11'), use it.
-  // Else if Column 6 has a value not '-', use it.
-  // Otherwise '-' (Tanpa Rak / Area Terbuka).
-  let rackCode = '-';
-  if (rakCol7.trim()) {
-    rackCode = rakCol7.trim();
-  } else if (rakCol6.trim() && rakCol6.trim() !== '-') {
-    rackCode = rakCol6.trim();
-  }
+  const blok = (row[5] || 'C').trim();
+  const rak = (row[6] || '-').trim() || '-';
+  const subRak = (row[7] || '').trim() || '-';
 
   // Location key
-  const locId = `loc-${blok.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${rackCode !== '-' ? rackCode.toLowerCase().replace(/[^a-z0-9]/g, '-') : 'open'}`;
+  const locId = `loc-${blok.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${rak.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${subRak.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
 
   if (!locationsMap.has(locId)) {
     const isBululawang = blok.toUpperCase().includes('BULULAWANG');
     const zoneName = isBululawang
-      ? 'Gudang Bululawang (Penyimpanan Luar)'
-      : `Blok ${blok} (Gudang Aris Munandar)`;
-    const rackName = rackCode !== '-' ? `Rak ${rackCode}` : `Area Terbuka Blok ${blok}`;
-    const binName = rackCode !== '-' ? rackCode : 'Luar Rak';
+      ? 'Gudang Bululawang'
+      : `Blok ${blok}`;
+    const rackName = rak;
+    const binName = subRak;
 
     locationsMap.set(locId, {
       id: locId,

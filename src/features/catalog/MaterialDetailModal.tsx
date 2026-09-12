@@ -23,14 +23,29 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
   const primaryLoc = material.locations[0]?.location;
   const CatIcon = getCategoryIcon(material.categoryId || material.categoryName);
 
-  // Extract clean Blok and Rack codes
+  // Extract clean Blok, Rak, and Sub Rak codes persis master Excel CSV (contoh: BLOK A, RAK A, SUB RAK A11)
   const rawZone = primaryLoc?.zone || 'Blok C';
-  const cleanBlok = rawZone.replace(/\s*\(.*\)/, '').trim();
-  const rawBin = primaryLoc?.bin || '-';
-  const rawRack = primaryLoc?.rack || '-';
-  const cleanRack = rawBin && rawBin !== 'Luar Rak' && rawBin !== 'Tanpa Rak' && rawBin !== '-'
-    ? rawBin
-    : (rawRack && rawRack !== '-' && !rawRack.toLowerCase().includes('area terbuka') ? rawRack : 'Area Terbuka (Tanpa Rak)');
+  let cleanBlok = rawZone.replace(/\s*\(.*?\)/g, '').trim();
+  if (cleanBlok.toLowerCase().startsWith('blok ')) {
+    cleanBlok = cleanBlok.substring(5).trim();
+  }
+  if (!cleanBlok) cleanBlok = 'C';
+
+  let cleanRak = (primaryLoc?.rack || '-').replace(/\s*\(.*?\)/g, '').trim();
+  if (cleanRak.toLowerCase().startsWith('rak ')) {
+    cleanRak = cleanRak.substring(4).trim();
+  }
+  if (cleanRak.toLowerCase().includes('area terbuka') || cleanRak.toLowerCase().includes('tanpa rak')) {
+    cleanRak = '-';
+  }
+
+  let cleanSubRak = (primaryLoc?.bin || '').replace(/\s*\(.*?\)/g, '').trim();
+  if (cleanSubRak.toLowerCase().startsWith('sub rak ')) {
+    cleanSubRak = cleanSubRak.substring(8).trim();
+  }
+  if (cleanSubRak === 'Luar Rak' || cleanSubRak === 'Tanpa Rak' || cleanSubRak === '-') {
+    cleanSubRak = '';
+  }
 
   const normalizationNumber = material.code || material.sapCode || '-';
   const stockAmount = material.totalQuantity !== null ? material.totalQuantity : 0;
@@ -113,18 +128,26 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
                   {/* Badge BLOK */}
                   <div className="inline-flex items-center gap-1.5 rounded-xl bg-amber-100 border border-amber-300 px-3.5 py-1.5 text-xs sm:text-sm font-black text-amber-950 shadow-2xs">
                     <MapPin className="h-4 w-4 text-amber-700 shrink-0" />
-                    <span>{cleanBlok.toUpperCase()}</span>
+                    <span>BLOK {cleanBlok.toUpperCase()}</span>
                   </div>
 
-                  {/* Badge KODE RAK */}
+                  {/* Badge RAK */}
                   <div className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F172A] border border-slate-800 px-4 py-1.5 text-xs sm:text-sm font-black font-mono text-[#FACC15] shadow-sm">
                     <Layers className="h-4 w-4 text-[#FACC15] shrink-0" />
-                    <span>RAK: {cleanRack}</span>
+                    <span>RAK {cleanRak.toUpperCase()}</span>
                   </div>
+
+                  {/* Badge SUB RAK (Format Master Excel SAP) */}
+                  {cleanSubRak && cleanSubRak !== '-' ? (
+                    <div className="inline-flex items-center gap-1.5 rounded-xl bg-sky-100 border border-sky-300 px-3.5 py-1.5 text-xs sm:text-sm font-black font-mono text-sky-950 shadow-2xs">
+                      <Boxes className="h-4 w-4 text-sky-700 shrink-0" />
+                      <span>SUB RAK {cleanSubRak.toUpperCase()}</span>
+                    </div>
+                  ) : null}
                 </div>
 
                 <p className="mt-2 text-xs text-slate-500 font-medium">
-                  {primaryLoc?.zone || 'Gudang Aris Munandar UP3 Malang'} &bull; Kode Gudang: {primaryLoc?.warehouseCode || 'GUD-PLN-MLG-AM01'}
+                  Gudang Aris Munandar UP3 Malang &bull; Kode Gudang: {primaryLoc?.warehouseCode || 'GUD-PLN-MLG-AM01'}
                 </p>
               </div>
 
@@ -153,7 +176,7 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
             <div>
               <WarehouseMiniMap
                 activeZone={primaryLoc?.zone}
-                rack={cleanRack}
+                rack={cleanRak}
                 bin={primaryLoc?.bin}
               />
             </div>

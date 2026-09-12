@@ -45,13 +45,13 @@ describe('Client Materials & Warehouse Location Integration (export_material NEW
     expect(result.items[0].unit).toBe('SET');
   });
 
-  it('searches client materials by specific Rak Code (e.g. H12, A11)', () => {
+  it('searches client materials by specific Rak Code or Sub Rak (e.g. H12, A11)', () => {
     // Search Rak H12 (Cable Shoe)
     const resultH12 = CatalogService.searchMaterials(plnUp3MalangFullPackage, defaultKioskConfig, {
       query: 'H12',
     });
     expect(resultH12.total).toBeGreaterThanOrEqual(1);
-    expect(resultH12.items.some(i => i.locations.some(l => l.location.rack?.includes('H12')))).toBe(true);
+    expect(resultH12.items.some(i => i.locations.some(l => l.location.bin?.includes('H12') || l.location.rack?.includes('H12')))).toBe(true);
 
     // Search Rak A11 (MCB 1P 10A)
     const resultA11 = CatalogService.searchMaterials(plnUp3MalangFullPackage, defaultKioskConfig, {
@@ -76,7 +76,7 @@ describe('Client Materials & Warehouse Location Integration (export_material NEW
     expect(scanResult.status).toBe('found');
     expect(scanResult.material?.name).toContain('FUSE;380/220V;125A');
     expect(scanResult.material?.totalQuantity).toBe(590);
-    expect(scanResult.material?.locations[0].location.rack).toContain('I13');
+    expect(scanResult.material?.locations[0].location.bin).toContain('I13');
   });
 
   it('synchronizes client materials with warehouse blocks and slots', () => {

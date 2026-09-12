@@ -3,171 +3,171 @@ import { Material, Location, StockSnapshot, BarcodeAlias } from '../domain/types
 
 export const clientLocations: Location[] = [
   {
-    "id": "loc-c-open",
+    "id": "loc-c----",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok C (Gudang Aris Munandar)",
-    "rack": "Area Terbuka Blok C",
-    "bin": "Luar Rak"
+    "zone": "Blok C",
+    "rack": "-",
+    "bin": "-"
   },
   {
-    "id": "loc-b-h12",
+    "id": "loc-b-h-h12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak H12",
+    "zone": "Blok B",
+    "rack": "H",
     "bin": "H12"
   },
   {
-    "id": "loc-b-h13",
+    "id": "loc-b-h-h13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak H13",
+    "zone": "Blok B",
+    "rack": "H",
     "bin": "H13"
   },
   {
-    "id": "loc-b-h14",
+    "id": "loc-b-h-h14",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak H14",
+    "zone": "Blok B",
+    "rack": "H",
     "bin": "H14"
   },
   {
-    "id": "loc-gd-bululawang-open",
+    "id": "loc-gd-bululawang----",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Gudang Bululawang (Penyimpanan Luar)",
-    "rack": "Area Terbuka Blok GD BULULAWANG",
-    "bin": "Luar Rak"
+    "zone": "Gudang Bululawang",
+    "rack": "-",
+    "bin": "-"
   },
   {
-    "id": "loc-d-open",
+    "id": "loc-d----",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok D (Gudang Aris Munandar)",
-    "rack": "Area Terbuka Blok D",
-    "bin": "Luar Rak"
+    "zone": "Blok D",
+    "rack": "-",
+    "bin": "-"
   },
   {
-    "id": "loc-b-g12",
+    "id": "loc-b-g-g12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak G12",
+    "zone": "Blok B",
+    "rack": "G",
     "bin": "G12"
   },
   {
-    "id": "loc-e-open",
+    "id": "loc-e----",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok E (Gudang Aris Munandar)",
-    "rack": "Area Terbuka Blok E",
-    "bin": "Luar Rak"
+    "zone": "Blok E",
+    "rack": "-",
+    "bin": "-"
   },
   {
-    "id": "loc-b-i11",
+    "id": "loc-b-i-i11",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak I11",
+    "zone": "Blok B",
+    "rack": "I",
     "bin": "I11"
   },
   {
-    "id": "loc-b-open",
+    "id": "loc-b----",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Area Terbuka Blok B",
-    "bin": "Luar Rak"
+    "zone": "Blok B",
+    "rack": "-",
+    "bin": "-"
   },
   {
-    "id": "loc-b-i13",
+    "id": "loc-b-i-i13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak I13",
+    "zone": "Blok B",
+    "rack": "I",
     "bin": "I13"
   },
   {
-    "id": "loc-a-a11",
+    "id": "loc-a-a-a11",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak A11",
+    "zone": "Blok A",
+    "rack": "A",
     "bin": "A11"
   },
   {
-    "id": "loc-a-a12",
+    "id": "loc-a-a-a12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak A12",
+    "zone": "Blok A",
+    "rack": "A",
     "bin": "A12"
   },
   {
-    "id": "loc-a-a13",
+    "id": "loc-a-a-a13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak A13",
+    "zone": "Blok A",
+    "rack": "A",
     "bin": "A13"
   },
   {
-    "id": "loc-a-a14",
+    "id": "loc-a-a-a14",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak A14",
+    "zone": "Blok A",
+    "rack": "A",
     "bin": "A14"
   },
   {
-    "id": "loc-a-a15",
+    "id": "loc-a-a-a15",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak A15",
+    "zone": "Blok A",
+    "rack": "A",
     "bin": "A15"
   },
   {
-    "id": "loc-b-e12",
+    "id": "loc-b-e-e12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak E12",
+    "zone": "Blok B",
+    "rack": "E",
     "bin": "E12"
   },
   {
-    "id": "loc-b-e13",
+    "id": "loc-b-e-e13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak E13",
+    "zone": "Blok B",
+    "rack": "E",
     "bin": "E13"
   },
   {
-    "id": "loc-b-e14",
+    "id": "loc-b-e-e14",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak E14",
+    "zone": "Blok B",
+    "rack": "E",
     "bin": "E14"
   },
   {
-    "id": "loc-b-e15",
+    "id": "loc-b-e-e15",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak E15",
+    "zone": "Blok B",
+    "rack": "E",
     "bin": "E15"
   },
   {
-    "id": "loc-a-c11",
+    "id": "loc-a-c-c11",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak C11",
+    "zone": "Blok A",
+    "rack": "C",
     "bin": "C11"
   },
   {
-    "id": "loc-a-c12",
+    "id": "loc-a-c-c12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak C12",
+    "zone": "Blok A",
+    "rack": "C",
     "bin": "C12"
   },
   {
-    "id": "loc-a-c13",
+    "id": "loc-a-c-c13",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok A (Gudang Aris Munandar)",
-    "rack": "Rak C13",
+    "zone": "Blok A",
+    "rack": "C",
     "bin": "C13"
   },
   {
-    "id": "loc-b-j12",
+    "id": "loc-b-j-j12",
     "warehouseCode": "GUD-PLN-MLG-AM01",
-    "zone": "Blok B (Gudang Aris Munandar)",
-    "rack": "Rak J12",
+    "zone": "Blok B",
+    "rack": "J",
     "bin": "J12"
   }
 ];
@@ -1688,7 +1688,7 @@ export const clientMaterials: Material[] = [
 export const clientStockSnapshots: StockSnapshot[] = [
   {
     "materialId": "mat-csv-001",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 4,
     "reserved": 0,
     "available": 4,
@@ -1696,7 +1696,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-002",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1704,7 +1704,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-003",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1712,7 +1712,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-004",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 11,
     "reserved": 1,
     "available": 10,
@@ -1720,7 +1720,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-005",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 3,
     "reserved": 0,
     "available": 3,
@@ -1728,7 +1728,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-006",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 6,
     "reserved": 0,
     "available": 6,
@@ -1736,7 +1736,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-007",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1744,7 +1744,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-008",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 125,
     "reserved": 12,
     "available": 113,
@@ -1752,7 +1752,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-009",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1760,7 +1760,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-010",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 5,
     "reserved": 0,
     "available": 5,
@@ -1768,7 +1768,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-011",
-    "locationId": "loc-b-h12",
+    "locationId": "loc-b-h-h12",
     "quantity": 1000,
     "reserved": 100,
     "available": 900,
@@ -1776,7 +1776,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-012",
-    "locationId": "loc-b-h12",
+    "locationId": "loc-b-h-h12",
     "quantity": 25,
     "reserved": 2,
     "available": 23,
@@ -1784,7 +1784,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-013",
-    "locationId": "loc-b-h13",
+    "locationId": "loc-b-h-h13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1792,7 +1792,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-014",
-    "locationId": "loc-b-h13",
+    "locationId": "loc-b-h-h13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1800,7 +1800,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-015",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1808,7 +1808,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-016",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 90,
     "reserved": 9,
     "available": 81,
@@ -1816,7 +1816,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-017",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1824,7 +1824,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-018",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1832,7 +1832,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-019",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 100,
     "reserved": 10,
     "available": 90,
@@ -1840,7 +1840,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-020",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1848,7 +1848,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-021",
-    "locationId": "loc-b-h14",
+    "locationId": "loc-b-h-h14",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1856,7 +1856,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-022",
-    "locationId": "loc-gd-bululawang-open",
+    "locationId": "loc-gd-bululawang----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1864,7 +1864,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-023",
-    "locationId": "loc-gd-bululawang-open",
+    "locationId": "loc-gd-bululawang----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1872,7 +1872,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-024",
-    "locationId": "loc-d-open",
+    "locationId": "loc-d----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1880,7 +1880,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-025",
-    "locationId": "loc-d-open",
+    "locationId": "loc-d----",
     "quantity": 14000,
     "reserved": 1400,
     "available": 12600,
@@ -1888,7 +1888,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-026",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 45000,
     "reserved": 4500,
     "available": 40500,
@@ -1896,7 +1896,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-027",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 3000,
     "reserved": 300,
     "available": 2700,
@@ -1904,7 +1904,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-028",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 5000,
     "reserved": 500,
     "available": 4500,
@@ -1912,7 +1912,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-029",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 7300,
     "reserved": 730,
     "available": 6570,
@@ -1920,7 +1920,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-030",
-    "locationId": "loc-gd-bululawang-open",
+    "locationId": "loc-gd-bululawang----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1928,7 +1928,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-031",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 1500,
     "reserved": 150,
     "available": 1350,
@@ -1936,7 +1936,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-032",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 3000,
     "reserved": 300,
     "available": 2700,
@@ -1944,7 +1944,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-033",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1952,7 +1952,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-034",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -1960,7 +1960,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-035",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 200,
     "reserved": 20,
     "available": 180,
@@ -1968,7 +1968,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-036",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 2000,
     "reserved": 200,
     "available": 1800,
@@ -1976,7 +1976,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-037",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 1000,
     "reserved": 100,
     "available": 900,
@@ -1984,7 +1984,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-038",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 1000,
     "reserved": 100,
     "available": 900,
@@ -1992,7 +1992,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-039",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2000,7 +2000,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-040",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2008,7 +2008,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-041",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 500,
     "reserved": 50,
     "available": 450,
@@ -2016,7 +2016,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-042",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2024,7 +2024,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-043",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 400,
     "reserved": 40,
     "available": 360,
@@ -2032,7 +2032,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-044",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 300,
     "reserved": 30,
     "available": 270,
@@ -2040,7 +2040,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-045",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 100,
     "reserved": 10,
     "available": 90,
@@ -2048,7 +2048,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-046",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2056,7 +2056,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-047",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 100,
     "reserved": 10,
     "available": 90,
@@ -2064,7 +2064,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-048",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2072,7 +2072,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-049",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2080,7 +2080,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-050",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2088,7 +2088,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-051",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 500,
     "reserved": 50,
     "available": 450,
@@ -2096,7 +2096,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-052",
-    "locationId": "loc-b-g12",
+    "locationId": "loc-b-g-g12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2104,7 +2104,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-053",
-    "locationId": "loc-e-open",
+    "locationId": "loc-e----",
     "quantity": 2000,
     "reserved": 200,
     "available": 1800,
@@ -2112,7 +2112,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-054",
-    "locationId": "loc-e-open",
+    "locationId": "loc-e----",
     "quantity": 996,
     "reserved": 99,
     "available": 897,
@@ -2120,7 +2120,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-055",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 2000,
     "reserved": 200,
     "available": 1800,
@@ -2128,7 +2128,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-056",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 500,
     "reserved": 50,
     "available": 450,
@@ -2136,7 +2136,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-057",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 1500,
     "reserved": 150,
     "available": 1350,
@@ -2144,7 +2144,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-058",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 400,
     "reserved": 40,
     "available": 360,
@@ -2152,7 +2152,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-059",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 1500,
     "reserved": 150,
     "available": 1350,
@@ -2160,7 +2160,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-060",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2168,7 +2168,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-061",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2176,7 +2176,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-062",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2184,7 +2184,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-063",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 30,
     "reserved": 3,
     "available": 27,
@@ -2192,7 +2192,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-064",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 800,
     "reserved": 80,
     "available": 720,
@@ -2200,7 +2200,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-065",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 300,
     "reserved": 30,
     "available": 270,
@@ -2208,7 +2208,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-066",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2216,7 +2216,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-067",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2224,7 +2224,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-068",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2232,7 +2232,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-069",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2240,7 +2240,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-070",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2248,7 +2248,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-071",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2256,7 +2256,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-072",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2264,7 +2264,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-073",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 50,
     "reserved": 5,
     "available": 45,
@@ -2272,7 +2272,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-074",
-    "locationId": "loc-b-i11",
+    "locationId": "loc-b-i-i11",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2280,7 +2280,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-075",
-    "locationId": "loc-b-open",
+    "locationId": "loc-b----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2288,7 +2288,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-076",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 45,
     "reserved": 4,
     "available": 41,
@@ -2296,7 +2296,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-077",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 45,
     "reserved": 4,
     "available": 41,
@@ -2304,7 +2304,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-078",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 481,
     "reserved": 48,
     "available": 433,
@@ -2312,7 +2312,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-079",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 350,
     "reserved": 35,
     "available": 315,
@@ -2320,7 +2320,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-080",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 355,
     "reserved": 35,
     "available": 320,
@@ -2328,7 +2328,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-081",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 253,
     "reserved": 25,
     "available": 228,
@@ -2336,7 +2336,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-082",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 265,
     "reserved": 26,
     "available": 239,
@@ -2344,7 +2344,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-083",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 654,
     "reserved": 65,
     "available": 589,
@@ -2352,7 +2352,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-084",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 1119,
     "reserved": 111,
     "available": 1008,
@@ -2360,7 +2360,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-085",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 496,
     "reserved": 49,
     "available": 447,
@@ -2368,7 +2368,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-086",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 1489,
     "reserved": 148,
     "available": 1341,
@@ -2376,7 +2376,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-087",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 323,
     "reserved": 32,
     "available": 291,
@@ -2384,7 +2384,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-088",
-    "locationId": "loc-b-open",
+    "locationId": "loc-b----",
     "quantity": 2,
     "reserved": 0,
     "available": 2,
@@ -2392,7 +2392,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-089",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2400,7 +2400,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-090",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 300,
     "reserved": 30,
     "available": 270,
@@ -2408,7 +2408,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-091",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 590,
     "reserved": 59,
     "available": 531,
@@ -2416,7 +2416,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-092",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 600,
     "reserved": 60,
     "available": 540,
@@ -2424,7 +2424,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-093",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 410,
     "reserved": 41,
     "available": 369,
@@ -2432,7 +2432,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-094",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 420,
     "reserved": 42,
     "available": 378,
@@ -2440,7 +2440,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-095",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 350,
     "reserved": 35,
     "available": 315,
@@ -2448,7 +2448,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-096",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2456,7 +2456,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-097",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 310,
     "reserved": 31,
     "available": 279,
@@ -2464,7 +2464,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-098",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 270,
     "reserved": 27,
     "available": 243,
@@ -2472,7 +2472,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-099",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 270,
     "reserved": 27,
     "available": 243,
@@ -2480,7 +2480,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-100",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 95,
     "reserved": 9,
     "available": 86,
@@ -2488,7 +2488,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-101",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2496,7 +2496,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-102",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 1,
     "reserved": 0,
     "available": 1,
@@ -2504,7 +2504,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-103",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2512,7 +2512,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-104",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 204,
     "reserved": 20,
     "available": 184,
@@ -2520,7 +2520,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-105",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 15,
     "reserved": 1,
     "available": 14,
@@ -2528,7 +2528,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-106",
-    "locationId": "loc-b-i13",
+    "locationId": "loc-b-i-i13",
     "quantity": 44,
     "reserved": 4,
     "available": 40,
@@ -2536,7 +2536,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-107",
-    "locationId": "loc-a-a11",
+    "locationId": "loc-a-a-a11",
     "quantity": 1550,
     "reserved": 155,
     "available": 1395,
@@ -2544,7 +2544,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-108",
-    "locationId": "loc-a-a12",
+    "locationId": "loc-a-a-a12",
     "quantity": 419,
     "reserved": 41,
     "available": 378,
@@ -2552,7 +2552,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-109",
-    "locationId": "loc-a-a13",
+    "locationId": "loc-a-a-a13",
     "quantity": 48,
     "reserved": 4,
     "available": 44,
@@ -2560,7 +2560,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-110",
-    "locationId": "loc-a-a14",
+    "locationId": "loc-a-a-a14",
     "quantity": 5,
     "reserved": 0,
     "available": 5,
@@ -2568,7 +2568,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-111",
-    "locationId": "loc-a-a15",
+    "locationId": "loc-a-a-a15",
     "quantity": 265,
     "reserved": 26,
     "available": 239,
@@ -2576,7 +2576,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-112",
-    "locationId": "loc-a-a11",
+    "locationId": "loc-a-a-a11",
     "quantity": 533,
     "reserved": 53,
     "available": 480,
@@ -2584,7 +2584,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-113",
-    "locationId": "loc-a-a12",
+    "locationId": "loc-a-a-a12",
     "quantity": 1736,
     "reserved": 173,
     "available": 1563,
@@ -2592,7 +2592,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-114",
-    "locationId": "loc-a-a13",
+    "locationId": "loc-a-a-a13",
     "quantity": 80,
     "reserved": 8,
     "available": 72,
@@ -2600,7 +2600,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-115",
-    "locationId": "loc-a-a14",
+    "locationId": "loc-a-a-a14",
     "quantity": 4728,
     "reserved": 472,
     "available": 4256,
@@ -2608,7 +2608,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-116",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 171,
     "reserved": 17,
     "available": 154,
@@ -2616,7 +2616,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-117",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 150,
     "reserved": 15,
     "available": 135,
@@ -2624,7 +2624,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-118",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 317,
     "reserved": 31,
     "available": 286,
@@ -2632,7 +2632,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-119",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 173,
     "reserved": 17,
     "available": 156,
@@ -2640,7 +2640,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-120",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 188,
     "reserved": 18,
     "available": 170,
@@ -2648,7 +2648,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-121",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2656,7 +2656,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-122",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 27,
     "reserved": 2,
     "available": 25,
@@ -2664,7 +2664,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-123",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 28,
     "reserved": 2,
     "available": 26,
@@ -2672,7 +2672,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-124",
-    "locationId": "loc-b-e13",
+    "locationId": "loc-b-e-e13",
     "quantity": 26,
     "reserved": 2,
     "available": 24,
@@ -2680,7 +2680,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-125",
-    "locationId": "loc-b-e14",
+    "locationId": "loc-b-e-e14",
     "quantity": 2,
     "reserved": 0,
     "available": 2,
@@ -2688,7 +2688,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-126",
-    "locationId": "loc-b-e15",
+    "locationId": "loc-b-e-e15",
     "quantity": 6,
     "reserved": 0,
     "available": 6,
@@ -2696,7 +2696,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-127",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 6,
     "reserved": 0,
     "available": 6,
@@ -2704,7 +2704,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-128",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 16,
     "reserved": 1,
     "available": 15,
@@ -2712,7 +2712,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-129",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2720,7 +2720,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-130",
-    "locationId": "loc-b-open",
+    "locationId": "loc-b----",
     "quantity": 4,
     "reserved": 0,
     "available": 4,
@@ -2728,7 +2728,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-131",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2736,7 +2736,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-132",
-    "locationId": "loc-b-e12",
+    "locationId": "loc-b-e-e12",
     "quantity": 14444,
     "reserved": 1444,
     "available": 13000,
@@ -2744,7 +2744,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-133",
-    "locationId": "loc-a-c11",
+    "locationId": "loc-a-c-c11",
     "quantity": 204,
     "reserved": 20,
     "available": 184,
@@ -2752,7 +2752,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-134",
-    "locationId": "loc-a-c12",
+    "locationId": "loc-a-c-c12",
     "quantity": 618,
     "reserved": 61,
     "available": 557,
@@ -2760,7 +2760,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-135",
-    "locationId": "loc-a-c13",
+    "locationId": "loc-a-c-c13",
     "quantity": 455,
     "reserved": 45,
     "available": 410,
@@ -2768,7 +2768,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-136",
-    "locationId": "loc-b-e13",
+    "locationId": "loc-b-e-e13",
     "quantity": 620,
     "reserved": 62,
     "available": 558,
@@ -2776,7 +2776,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-137",
-    "locationId": "loc-b-e13",
+    "locationId": "loc-b-e-e13",
     "quantity": 69,
     "reserved": 6,
     "available": 63,
@@ -2784,7 +2784,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-138",
-    "locationId": "loc-b-j12",
+    "locationId": "loc-b-j-j12",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2792,7 +2792,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-139",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2800,7 +2800,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-140",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2808,7 +2808,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-141",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 187,
     "reserved": 18,
     "available": 169,
@@ -2816,7 +2816,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-142",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 19,
     "reserved": 1,
     "available": 18,
@@ -2824,7 +2824,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-143",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 1965,
     "reserved": 196,
     "available": 1769,
@@ -2832,7 +2832,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-144",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2840,7 +2840,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-145",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2848,7 +2848,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-146",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2856,7 +2856,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-147",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 0,
     "reserved": 0,
     "available": 0,
@@ -2864,7 +2864,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-148",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 3,
     "reserved": 0,
     "available": 3,
@@ -2872,7 +2872,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-149",
-    "locationId": "loc-c-open",
+    "locationId": "loc-c----",
     "quantity": 3,
     "reserved": 0,
     "available": 3,
@@ -2880,7 +2880,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-150",
-    "locationId": "loc-b-e13",
+    "locationId": "loc-b-e-e13",
     "quantity": 1,
     "reserved": 0,
     "available": 1,
@@ -2888,7 +2888,7 @@ export const clientStockSnapshots: StockSnapshot[] = [
   },
   {
     "materialId": "mat-csv-151",
-    "locationId": "loc-b-e13",
+    "locationId": "loc-b-e-e13",
     "quantity": 21,
     "reserved": 2,
     "available": 19,
