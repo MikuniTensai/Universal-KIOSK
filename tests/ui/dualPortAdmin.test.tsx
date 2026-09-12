@@ -68,6 +68,9 @@ describe('Dual-Port Kiosk & Admin Architecture (Port 5000 vs Port 5001)', () => 
 
     // Dedicated Admin top header is directly displayed
     expect(screen.getByText(/Portal Administrator Gudang PLN/i)).toBeInTheDocument();
+    const plnLogo = screen.getByRole('img', { name: /Logo PT PLN \(Persero\)/i });
+    expect(plnLogo).toBeInTheDocument();
+    expect(plnLogo).toHaveClass('adms-brand-logo-img');
     expect(screen.getByText(/PORT 5001 • DEDICATED ADMIN LAN/i)).toBeInTheDocument();
     expect(screen.getByText(/Real-Time LAN Sync Aktif/i)).toBeInTheDocument();
 
