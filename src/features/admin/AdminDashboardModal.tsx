@@ -1288,7 +1288,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   value={jsonInput}
                   onChange={(e) => setJsonInput(e.target.value)}
                   placeholder="Paste JSON ImportPackage di sini..."
-                  className="w-full rounded-control border border-slate-300 p-3 font-mono text-xs text-slate-800 focus:border-[#FACC15] focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 p-3.5 font-mono text-xs text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none transition"
                 />
               </div>
 
