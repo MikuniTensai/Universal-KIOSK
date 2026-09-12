@@ -113,11 +113,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [adjustZone, setAdjustZone] = useState<string>('Blok A');
   const [adjustRack, setAdjustRack] = useState<string>('A.1');
   const [adjustBin, setAdjustBin] = useState<string>('A.1.1');
+  const [adjustCategory, setAdjustCategory] = useState<string>('');
   const [stockError, setStockError] = useState<string | null>(null);
 
   // New Material states (persis format master Excel: nama material, stok, blok, rak, sub rak)
   const [newMatName, setNewMatName] = useState<string>('');
   const [newMatInitialQty, setNewMatInitialQty] = useState<number>(10);
+  const [newMatCategory, setNewMatCategory] = useState<string>('');
   const [newMatBlok, setNewMatBlok] = useState<string>('A');
   const [newMatRack, setNewMatRack] = useState<string>('A');
   const [newMatBin, setNewMatBin] = useState<string>('A11');
@@ -241,8 +243,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         bin: adjustBin,
         quantityDelta: Number(stockDeltaInput),
         setExact: isExactStock,
+        categoryId: adjustCategory || undefined,
       });
-      setActionSuccessMessage('Stok material berhasil diperbarui.');
+      setActionSuccessMessage('Stok dan kategori material berhasil diperbarui.');
       setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
@@ -265,6 +268,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       kioskStorage.addMaterialWithBarcode({
         code: newMatCode.trim() || undefined,
         name: newMatName.trim(),
+        categoryId: newMatCategory || undefined,
         barcode: newMatBarcode.trim() || undefined,
         zone: `Blok ${finalBlok}`,
         rack: finalRack,
@@ -274,6 +278,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setActionSuccessMessage(`Material "${newMatName}" berhasil didaftarkan di BLOK ${finalBlok}, RAK ${finalRack}, SUB RAK ${finalSubRak}.`);
       setNewMatName('');
       setNewMatInitialQty(10);
+      setNewMatCategory('');
       setNewMatBlok('A');
       setNewMatRack('A');
       setNewMatBin('A11');
@@ -1167,6 +1172,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <tr>
                         <th className="p-3 w-12 text-center">No</th>
                         <th className="p-3">Nama Material</th>
+                        <th className="p-3">Kategori</th>
                         <th className="p-3">Kode Normalisasi</th>
                         <th className="p-3 text-center">Satuan</th>
                         <th className="p-3 text-center">Stok</th>
@@ -1179,17 +1185,23 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                       {filteredStockMaterials.length === 0 ? (
                         <tr>
-                          <td colSpan={9} className="p-8 text-center text-slate-400 font-medium">
+                          <td colSpan={10} className="p-8 text-center text-slate-400 font-medium">
                             Tidak ada material yang cocok dengan pencarian "{stockSearch}".
                           </td>
                         </tr>
                       ) : (
                         filteredStockMaterials.map((m, idx) => {
                           const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+                          const category = activePkg?.categories.find(c => c.id === m.categoryId);
                           return (
                             <tr key={m.id} className="hover:bg-slate-50 transition">
                               <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
                               <td className="p-3 font-bold text-slate-900 min-w-[220px]">{m.name}</td>
+                              <td className="p-3 min-w-[140px]">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                  {category?.name || m.categoryId || 'Tanpa Kategori'}
+                                </span>
+                              </td>
                               <td className="p-3 font-mono font-bold text-sky-700">{m.code}</td>
                               <td className="p-3 text-center font-bold text-slate-600">{m.unit}</td>
                               <td className="p-3 text-center">
@@ -1224,6 +1236,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                     type="button"
                                     onClick={() => {
                                       setAdjustMatId(m.id);
+                                      setAdjustCategory(m.categoryId);
                                       setStockMode('adjust');
                                       setShowStockModal(true);
                                     }}
@@ -2387,7 +2400,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </label>
                     <select
                       value={adjustMatId || (activePkg?.materials[0]?.id ?? '')}
-                      onChange={(e) => setAdjustMatId(e.target.value)}
+                      onChange={(e) => {
+                        const nextId = e.target.value;
+                        setAdjustMatId(nextId);
+                        const selectedMat = activePkg?.materials.find(m => m.id === nextId);
+                        if (selectedMat) {
+                          setAdjustCategory(selectedMat.categoryId);
+                        }
+                      }}
                       className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     >
                       {activePkg?.materials.map(m => (
@@ -2404,14 +2424,45 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     if (!mat) return null;
                     const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === mat.id) || [];
                     const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                    const currentCategory = activePkg?.categories.find(c => c.id === (adjustCategory || mat.categoryId));
                     return (
                       <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 space-y-1">
                         <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
                         <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
+                        <p>Kategori Saat Ini: <strong className="text-sky-800 font-semibold">{currentCategory?.name || mat.categoryId}</strong></p>
                         <p>Total Stok Saat Ini: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
                       </div>
                     );
                   })()}
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold uppercase text-slate-600">
+                        Kategori Material:
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowStockModal(false);
+                          setActiveTab('categories');
+                        }}
+                        className="text-[11px] font-bold text-sky-600 hover:text-sky-700 hover:underline flex items-center gap-1"
+                      >
+                        + Kelola Kategori
+                      </button>
+                    </div>
+                    <select
+                      value={adjustCategory || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.categoryId ?? '')}
+                      onChange={(e) => setAdjustCategory(e.target.value)}
+                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                    >
+                      {activePkg?.categories.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -2542,6 +2593,37 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       required
                       className="w-full h-12 rounded-xl border border-slate-300 px-3.5 text-sm font-semibold text-slate-900 bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none placeholder:text-slate-400 shadow-2xs"
                     />
+                  </div>
+
+                  {/* 2. Kategori Material */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold uppercase text-slate-700">
+                        Kategori Material: <span className="text-rose-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowStockModal(false);
+                          setActiveTab('categories');
+                        }}
+                        className="text-[11px] font-bold text-sky-600 hover:text-sky-700 hover:underline flex items-center gap-1"
+                      >
+                        + Kelola Kategori
+                      </button>
+                    </div>
+                    <select
+                      value={newMatCategory}
+                      onChange={(e) => setNewMatCategory(e.target.value)}
+                      className="w-full h-12 rounded-xl border border-slate-300 px-3.5 text-sm font-semibold text-slate-900 bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none shadow-2xs"
+                    >
+                      <option value="">-- Pilih Kategori Material --</option>
+                      {activePkg?.categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* 2. Jumlah Stok */}

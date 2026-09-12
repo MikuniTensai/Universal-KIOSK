@@ -239,6 +239,7 @@ export class KioskStorage {
     bin?: string;
     quantityDelta: number;
     setExact?: boolean;
+    categoryId?: string;
   }): StockSnapshot {
     if (!this.activePackage) {
       throw new Error('Tidak ada paket data aktif.');
@@ -247,6 +248,10 @@ export class KioskStorage {
     const material = this.activePackage.materials.find(m => m.id === params.materialId);
     if (!material) {
       throw new Error(`Material dengan ID ${params.materialId} tidak ditemukan.`);
+    }
+
+    if (params.categoryId && params.categoryId.trim()) {
+      material.categoryId = params.categoryId.trim();
     }
 
     let targetLocationId = params.locationId;
@@ -320,6 +325,22 @@ export class KioskStorage {
     this.persistActivePackage();
     this.addLog('info', 'Storage', `Stok material "${material.name}" diperbarui: ${updatedSnapshot.quantity} ${material.unit}`);
     return updatedSnapshot;
+  }
+
+  /**
+   * Memperbarui kategori suatu material
+   */
+  public updateMaterialCategory(materialId: string, categoryId: string): void {
+    if (!this.activePackage) {
+      throw new Error('Tidak ada paket data aktif.');
+    }
+    const material = this.activePackage.materials.find(m => m.id === materialId);
+    if (!material) {
+      throw new Error(`Material dengan ID ${materialId} tidak ditemukan.`);
+    }
+    material.categoryId = categoryId;
+    this.persistActivePackage();
+    this.addLog('info', 'Storage', `Kategori material "${material.name}" diubah ke "${categoryId}".`);
   }
 
   /**
