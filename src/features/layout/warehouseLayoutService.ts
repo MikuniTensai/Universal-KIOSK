@@ -437,6 +437,113 @@ export class WarehouseLayoutService {
   }
 
   /**
+   * Menghapus Blok gudang berdasarkan huruf (misal 'I') atau ID ('blok-i')
+   */
+  public static deleteBlock(blockLetterOrId: string): boolean {
+    const query = blockLetterOrId.trim().toUpperCase();
+    const blocks = this.getBlocks();
+    const initialLen = blocks.length;
+
+    // Filter out target block
+    const filtered = blocks.filter(
+      b => b.letter.toUpperCase() !== query && b.id.toUpperCase() !== query
+    );
+
+    if (filtered.length < initialLen) {
+      this.saveBlocks(filtered);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Menghapus Sub-Blok / Baris (misal 'A.4') dari blok induknya
+   */
+  public static deleteSubBlock(subBlockCode: string): boolean {
+    const cleanSub = subBlockCode.trim().toUpperCase();
+    const [letter] = cleanSub.split('.');
+    if (!letter) return false;
+
+    const blocks = this.getBlocks();
+    const block = blocks.find(b => b.letter.toUpperCase() === letter);
+    if (!block) return false;
+
+    const initialLen = block.subBlocks.length;
+    block.subBlocks = block.subBlocks.filter(sb => sb.code.toUpperCase() !== cleanSub);
+
+    if (block.subBlocks.length < initialLen) {
+      this.saveBlocks(blocks);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Menghapus Slot rak (misal 'A.1.6') dari sub-blok terkait
+   */
+  public static deleteSlot(slotCode: string): boolean {
+    const cleanSlot = slotCode.trim().toUpperCase();
+    const parts = cleanSlot.split('.');
+    if (parts.length < 2) return false;
+    const letter = parts[0];
+    const subCode = `${parts[0]}.${parts[1]}`;
+
+    const blocks = this.getBlocks();
+    const block = blocks.find(b => b.letter.toUpperCase() === letter);
+    if (!block) return false;
+
+    const subBlock = block.subBlocks.find(sb => sb.code.toUpperCase() === subCode);
+    if (!subBlock) return false;
+
+    const initialLen = subBlock.slots.length;
+    subBlock.slots = subBlock.slots.filter(s => s.code.toUpperCase() !== cleanSlot);
+
+    if (subBlock.slots.length < initialLen) {
+      this.saveBlocks(blocks);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Menghitung berapa slot yang sedang terisi material dalam suatu blok
+   */
+  public static getOccupiedSlotsCountInBlock(blockLetter: string): number {
+    const clean = blockLetter.trim().toUpperCase();
+    const blocks = this.getBlocks();
+    const block = blocks.find(b => b.letter === clean);
+    if (!block) return 0;
+
+    let count = 0;
+    for (const sb of block.subBlocks) {
+      for (const slot of sb.slots) {
+        if (slot.status === 'occupied' || Boolean(slot.materialName) || Boolean(slot.materialId)) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  /**
+   * Menghitung berapa slot yang sedang terisi material dalam suatu sub-blok
+   */
+  public static getOccupiedSlotsCountInSubBlock(subBlockCode: string): number {
+    const cleanSub = subBlockCode.trim().toUpperCase();
+    const [letter] = cleanSub.split('.');
+    const blocks = this.getBlocks();
+    const block = blocks.find(b => b.letter === letter);
+    if (!block) return 0;
+
+    const subBlock = block.subBlocks.find(sb => sb.code === cleanSub);
+    if (!subBlock) return 0;
+
+    return subBlock.slots.filter(
+      s => s.status === 'occupied' || Boolean(s.materialName) || Boolean(s.materialId)
+    ).length;
+  }
+
+  /**
    * Inisialisasi instan Blok A sampai Z secara lengkap
    */
   public static initializeAllBlocksAtoZ(): WarehouseBlock[] {

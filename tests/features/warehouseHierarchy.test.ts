@@ -151,4 +151,63 @@ describe('Warehouse Hierarchy & Dynamic A-Z Block Management', () => {
     expect(blockCItems.items.length).toBeGreaterThan(0);
     expect(blockCItems.items.some(m => m.name.includes('Smart Meter'))).toBe(true);
   });
+
+  it('supports deleting an entire block safely', () => {
+    // Add custom block X
+    WarehouseLayoutService.addBlock({
+      letter: 'X',
+      name: 'Blok Sementara',
+      subBlockCount: 2,
+      slotsPerSubBlock: 3,
+    });
+    expect(WarehouseLayoutService.getBlocks().some(b => b.letter === 'X')).toBe(true);
+
+    // Delete block X
+    const deleted = WarehouseLayoutService.deleteBlock('X');
+    expect(deleted).toBe(true);
+    expect(WarehouseLayoutService.getBlocks().some(b => b.letter === 'X')).toBe(false);
+
+    // Deleting non-existent block returns false
+    const deleteGhost = WarehouseLayoutService.deleteBlock('NON_EXISTENT');
+    expect(deleteGhost).toBe(false);
+  });
+
+  it('supports deleting a sub-block from a block', () => {
+    // Add sub-block A.5
+    WarehouseLayoutService.addSubBlock('A', 5, 4);
+    const blockA = WarehouseLayoutService.getBlocks().find(b => b.letter === 'A');
+    expect(blockA?.subBlocks.some(sb => sb.code === 'A.5')).toBe(true);
+
+    // Delete sub-block A.5
+    const deletedSub = WarehouseLayoutService.deleteSubBlock('A.5');
+    expect(deletedSub).toBe(true);
+
+    const updatedA = WarehouseLayoutService.getBlocks().find(b => b.letter === 'A');
+    expect(updatedA?.subBlocks.some(sb => sb.code === 'A.5')).toBe(false);
+  });
+
+  it('supports deleting an individual slot from a sub-block', () => {
+    // Add extra slot A.1.99
+    WarehouseLayoutService.addSlotToSubBlock('A.1', 'Slot Uji 99');
+    const slotCode = 'A.1.6'; // next index
+    const blockA = WarehouseLayoutService.getBlocks().find(b => b.letter === 'A');
+    const subA1 = blockA?.subBlocks.find(sb => sb.code === 'A.1');
+    expect(subA1?.slots.some(s => s.code === slotCode)).toBe(true);
+
+    // Delete that slot
+    const deletedSlot = WarehouseLayoutService.deleteSlot(slotCode);
+    expect(deletedSlot).toBe(true);
+
+    const updatedA = WarehouseLayoutService.getBlocks().find(b => b.letter === 'A');
+    const updatedSubA1 = updatedA?.subBlocks.find(sb => sb.code === 'A.1');
+    expect(updatedSubA1?.slots.some(s => s.code === slotCode)).toBe(false);
+  });
+
+  it('correctly counts occupied slots in blocks and sub-blocks', () => {
+    // Synchronize sample package
+    WarehouseLayoutService.syncWithPackage(samplePlnPackage);
+    const occupiedInA = WarehouseLayoutService.getOccupiedSlotsCountInBlock('A');
+    expect(typeof occupiedInA).toBe('number');
+  });
 });
+

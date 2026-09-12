@@ -336,13 +336,11 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
 
             <div className="adms-top-title-group">
               <h1 className="adms-top-title">{currentMeta.title}</h1>
-              <span className="adms-top-sep">&bull;</span>
-              <span className="adms-top-subtitle">{currentMeta.subtitle}</span>
             </div>
           </div>
 
           <div className="adms-top-right">
-            {/* Connection Status Pill & Dedicated Admin LAN badge (Clickable to open Network Guide) */}
+            {/* Minimal Port Connection Status Pill (Clickable to open Network Guide) */}
             <button
               type="button"
               onClick={() => {
@@ -356,15 +354,8 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
               title="Klik untuk membuka Panduan Akses WiFi & Alamat IP Lokal Mesin"
             >
               <span className="adms-pulse-dot adms-pulse-dot--green" />
-              <span className="hidden xl:inline font-bold">PORT 5001 &bull; DEDICATED ADMIN LAN</span>
-              <span className="hidden sm:inline xl:hidden font-bold">Port 5001 (LAN)</span>
-              <span className="sm:hidden font-bold">5001</span>
+              <span className="font-bold">Port 5001</span>
             </button>
-
-            <div className="hidden 2xl:flex items-center text-[11px] text-emerald-600 font-mono font-bold gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shrink-0">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Real-Time LAN Sync Aktif</span>
-            </div>
 
             {/* Jump to Kiosk Display Button */}
             <a
@@ -372,10 +363,9 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               className="adms-kiosk-jump-btn shrink-0"
-              title="Buka Antarmuka Layar Sentuh Kiosk Port 5000"
+              title="Buka Antarmuka Layar Sentuh Kiosk"
             >
-              <span className="hidden sm:inline">Layar Kiosk (Port 5000)</span>
-              <span className="sm:hidden">Kiosk</span>
+              <span>Layar Kiosk</span>
               <ArrowRight size={13} strokeWidth={2.5} />
             </a>
 
