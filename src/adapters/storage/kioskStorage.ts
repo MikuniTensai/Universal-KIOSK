@@ -1,5 +1,5 @@
 import { ImportPackage, KioskConfig, DiagnosticLog, Category, Material, Location, StockSnapshot, BarcodeAlias } from '../../domain/types';
-import { defaultKioskConfig, samplePlnPackage } from '../../data/mockPlnPackage';
+import { defaultKioskConfig, samplePlnPackage, plnUp3MalangFullPackage } from '../../data/mockPlnPackage';
 
 const STORAGE_KEYS = {
   ACTIVE_PACKAGE: 'kiosk_active_package_v1',
@@ -7,6 +7,13 @@ const STORAGE_KEYS = {
   CONFIG: 'kiosk_config_v1',
   LOGS: 'kiosk_diagnostic_logs_v1',
   ADMIN_PIN: 'kiosk_admin_pin_hash_v1',
+};
+
+const getDefaultInitialPackage = (): ImportPackage => {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE === 'test') {
+    return samplePlnPackage;
+  }
+  return plnUp3MalangFullPackage;
 };
 
 export class KioskStorage {
@@ -20,15 +27,25 @@ export class KioskStorage {
   }
 
   private loadInitialState(): void {
+    const defaultPkg = getDefaultInitialPackage();
+
     if (typeof window !== 'undefined' && window.localStorage) {
       try {
         const rawPkg = localStorage.getItem(STORAGE_KEYS.ACTIVE_PACKAGE);
         if (rawPkg) {
-          this.activePackage = JSON.parse(rawPkg);
+          const parsed = JSON.parse(rawPkg);
+          // In dev/prod, auto-upgrade to version 2 with client materials if version 1 is in storage
+          const isTest = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE === 'test';
+          if (!isTest && parsed && (!parsed.datasetVersion || parsed.datasetVersion < plnUp3MalangFullPackage.datasetVersion)) {
+            this.activePackage = plnUp3MalangFullPackage;
+            localStorage.setItem(STORAGE_KEYS.ACTIVE_PACKAGE, JSON.stringify(plnUp3MalangFullPackage));
+          } else {
+            this.activePackage = parsed;
+          }
         } else {
-          // Initialize with default sample package for development / offline kiosk
-          this.activePackage = samplePlnPackage;
-          localStorage.setItem(STORAGE_KEYS.ACTIVE_PACKAGE, JSON.stringify(samplePlnPackage));
+          // Initialize with default package
+          this.activePackage = defaultPkg;
+          localStorage.setItem(STORAGE_KEYS.ACTIVE_PACKAGE, JSON.stringify(defaultPkg));
         }
 
         const rawHistory = localStorage.getItem(STORAGE_KEYS.PACKAGE_HISTORY);

@@ -29,7 +29,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       query: searchQuery,
       categoryId: selectedCategory,
       blockCode: selectedBlock,
-      pageSize: 50,
+      pageSize: 200,
     });
   }, [pkg, config, searchQuery, selectedCategory, selectedBlock]);
 
@@ -56,7 +56,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           </div>
           <input
             type="text"
-            placeholder="Cari nama material, nomor rak (misal: Rak A-001), atau blok gudang..."
+            placeholder="Cari nama material, kode normalisasi SAP (misal: 4120470), rak, atau blok..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setKeyboardVisible(true)}
@@ -95,6 +95,10 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
           { label: '🏗️ Trafo (Blok B)', query: 'Blok B' },
           { label: '🦺 APD & Helm (Rak K3-01)', query: 'Rak K3-01' },
           { label: '📦 Kabel MVTIC', query: 'Kabel MVTIC' },
+          { label: '📦 Kabel NFA2X (3110542)', query: '3110542' },
+          { label: '🔌 Trafo 160kVA (1030075)', query: '1030075' },
+          { label: '⚡ NH Fuse 125A (2240029)', query: '2240029' },
+          { label: '🦺 Tang K3 (202608)', query: '202608' },
         ].map((item, idx) => (
           <button
             key={idx}

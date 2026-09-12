@@ -12,12 +12,12 @@ export const WarehouseMiniMap: React.FC<WarehouseMiniMapProps> = ({
   rack = '',
   bin = '',
 }) => {
-  const safeZone = activeZone || '';
+  const safeZone = (activeZone || '').toLowerCase();
 
-  const isZoneA = safeZone.toLowerCase().includes('zona a');
-  const isZoneB = safeZone.toLowerCase().includes('zona b');
-  const isZoneC = safeZone.toLowerCase().includes('zona c');
-  const isZoneD = safeZone.toLowerCase().includes('zona d');
+  const isZoneA = safeZone.includes('zona a') || safeZone.includes('blok a');
+  const isZoneB = safeZone.includes('zona b') || safeZone.includes('blok b');
+  const isZoneC = safeZone.includes('zona c') || safeZone.includes('blok c');
+  const isZoneD = safeZone.includes('zona d') || safeZone.includes('blok d');
 
   return (
     <div className="rounded-2xl border-2 border-slate-200 bg-slate-900 p-5 text-white shadow-lg">

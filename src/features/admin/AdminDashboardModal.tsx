@@ -31,7 +31,7 @@ import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import { ImportPackage, KioskConfig, Material } from '../../domain/types';
 import { validateKioskConfig } from '../../domain/validation';
-import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../../data/mockPlnPackage';
+import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS, plnUp3MalangFullPackage } from '../../data/mockPlnPackage';
 import { WarehouseLayoutService, WarehouseBlock } from '../layout/warehouseLayoutService';
 
 interface AdminDashboardModalProps {
@@ -132,13 +132,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setPin('');
   };
 
-  const handleValidatePackage = async () => {
+  const handleValidatePackageWithContent = async (content: string) => {
     setImportErrors([]);
     setImportWarnings([]);
     setActionSuccessMessage(null);
 
     const active = kioskStorage.getActivePackage();
-    const result = await ImportService.parseAndValidate(jsonInput, active);
+    const result = await ImportService.parseAndValidate(content, active);
 
     if (!result.validation.isValid) {
       setImportErrors(result.validation.errors.map(e => `${e.field}: ${e.message}`));
@@ -149,6 +149,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setPackagePreview(result.preview || null);
       setImportWarnings(result.validation.warnings);
     }
+  };
+
+  const handleValidatePackage = async () => {
+    await handleValidatePackageWithContent(jsonInput);
   };
 
   const handleActivatePackage = () => {
@@ -1143,6 +1147,40 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           {/* TAB 1: IMPORT */}
           {activeTab === 'import' && (
             <div className="space-y-6">
+              {/* Preset Paket Data Material Aktual Klien PLN UP3 Malang */}
+              <div className="rounded-xl border-2 border-amber-300 bg-amber-50/80 p-5 shadow-sm">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-200 text-amber-900">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-700" />
+                        Preset Data Klien Siap Pakai
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        151 Material Aktual
+                      </span>
+                    </div>
+                    <h4 className="text-base font-extrabold text-slate-900">
+                      Import Paket 151 Material Gudang Aris Munandar (export_material NEW.csv)
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                      Dataset komprehensif mencakup Transformator 100-250kVA, Kabel SUTR/SKTM/NYY, Smart Meter AMI 1 & 3 Fasa, CT Metering, MCB/MCCB, FCO & Fuse Link, Isolator, Cross Arm Travers, dan APD K3 yang telah otomatis dipetakan ke Blok A, B, C, D, E, F beserta kode rak & bin standar PLN.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const json = JSON.stringify(plnUp3MalangFullPackage, null, 2);
+                      setJsonInput(json);
+                      handleValidatePackageWithContent(json);
+                    }}
+                    className="shrink-0 flex items-center justify-center gap-2.5 rounded-control bg-slate-900 hover:bg-slate-800 px-5 py-3.5 text-xs font-bold text-white shadow active:scale-95 transition"
+                  >
+                    <Upload className="h-4 w-4 text-[#FACC15]" />
+                    <span>Muat & Validasi 151 Material</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">
                   Tempel JSON Paket Data Ekspor Logistik:

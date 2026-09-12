@@ -214,7 +214,7 @@ export const App: React.FC = () => {
                     <span>Terminal Mandiri Kassen WK-215 (Full HD 1080p)</span>
                   </div>
                   <h2 className="text-3xl lg:text-4xl 2xl:text-[42px] font-black tracking-tight text-[#0F172A] leading-tight">
-                    Selamat Datang di Gudang Logistik PLN
+                    Selamat Datang di Gudang Aris Munandar PLN UP3 Malang
                   </h2>
                   <p className="mt-1.5 text-base lg:text-lg text-slate-600 font-medium max-w-3xl">
                     Pilih layanan informasi di bawah atau dekatkan barcode material langsung ke scanner.

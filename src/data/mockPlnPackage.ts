@@ -1,4 +1,10 @@
 import { ImportPackage, KioskConfig } from '../domain/types';
+import {
+  clientLocations,
+  clientMaterials,
+  clientStockSnapshots,
+  clientBarcodeAliases,
+} from './clientMaterialsData';
 
 export const WALLPAPER_PRESETS = {
   warehouse: {
@@ -238,4 +244,35 @@ export const samplePlnPackage: ImportPackage = {
       validUntil: '2026-12-31T23:59:59+07:00',
     },
   ],
+};
+
+/**
+ * Paket Lengkap 151 Material Aktual PLN UP3 Malang (Gudang Aris Munandar)
+ * Berdasarkan permintaan-client/export_material NEW.csv
+ */
+export const plnUp3MalangFullPackage: ImportPackage = {
+  schemaVersion: '1.0',
+  datasetVersion: 2,
+  sourceName: 'PLN ERP SAP Logistik Terpadu UP3 Malang (export_material NEW.csv)',
+  sourceAt: '2026-09-12T08:00:00+07:00',
+  packageHash: 'pln-snapshot-v2-hash-20260912',
+  categories: samplePlnPackage.categories,
+  locations: [
+    ...samplePlnPackage.locations,
+    ...clientLocations,
+  ],
+  materials: [
+    ...samplePlnPackage.materials,
+    ...clientMaterials,
+  ],
+  assets: samplePlnPackage.assets,
+  barcodeAliases: [
+    ...samplePlnPackage.barcodeAliases,
+    ...clientBarcodeAliases,
+  ],
+  stockSnapshots: [
+    ...samplePlnPackage.stockSnapshots,
+    ...clientStockSnapshots,
+  ],
+  contentItems: samplePlnPackage.contentItems,
 };
