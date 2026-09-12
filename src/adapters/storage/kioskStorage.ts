@@ -240,6 +240,7 @@ export class KioskStorage {
     quantityDelta: number;
     setExact?: boolean;
     categoryId?: string;
+    photoPath?: string;
   }): StockSnapshot {
     if (!this.activePackage) {
       throw new Error('Tidak ada paket data aktif.');
@@ -252,6 +253,10 @@ export class KioskStorage {
 
     if (params.categoryId && params.categoryId.trim()) {
       material.categoryId = params.categoryId.trim();
+    }
+
+    if (params.photoPath !== undefined) {
+      material.photoPath = params.photoPath.trim() || null;
     }
 
     let targetLocationId = params.locationId;
@@ -341,6 +346,22 @@ export class KioskStorage {
     material.categoryId = categoryId;
     this.persistActivePackage();
     this.addLog('info', 'Storage', `Kategori material "${material.name}" diubah ke "${categoryId}".`);
+  }
+
+  /**
+   * Memperbarui foto/gambar suatu material
+   */
+  public updateMaterialPhoto(materialId: string, photoPath: string): void {
+    if (!this.activePackage) {
+      throw new Error('Tidak ada paket data aktif.');
+    }
+    const material = this.activePackage.materials.find(m => m.id === materialId);
+    if (!material) {
+      throw new Error(`Material dengan ID ${materialId} tidak ditemukan.`);
+    }
+    material.photoPath = photoPath.trim() || null;
+    this.persistActivePackage();
+    this.addLog('info', 'Storage', `Foto material "${material.name}" berhasil diperbarui.`);
   }
 
   /**

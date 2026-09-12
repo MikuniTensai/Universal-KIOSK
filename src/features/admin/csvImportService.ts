@@ -244,9 +244,31 @@ export class CsvImportService {
         });
       }
 
-      const { categoryId, photoPath, spec } = this.categorizeMaterial(row.name);
-      const matId = `mat-csv-${String(idx + 1).padStart(3, '0')}`;
+      const { categoryId: autoCategoryId, photoPath: autoPhotoPath, spec: autoSpec } = this.categorizeMaterial(row.name);
       const normCode = row.code || `PLN-MAT-${String(idx + 1).padStart(4, '0')}`;
+
+      // Cari apakah material dengan kode normalisasi / kode SAP / nama ini sudah terdaftar sebelumnya di sistem
+      const existingMat = basePackage?.materials.find(
+        m => (normCode && m.code && m.code.toLowerCase() === normCode.toLowerCase()) ||
+             (m.sapCode && normCode && m.sapCode.toLowerCase() === normCode.toLowerCase()) ||
+             (m.name.toLowerCase() === row.name.toLowerCase())
+      );
+
+      // JAMINAN KEAMANAN GAMBAR:
+      // Pastikan foto yang sudah diinput/dimiliki material tidak terhapus saat import Excel/CSV!
+      const photoPath = (existingMat && existingMat.photoPath && existingMat.photoPath.trim())
+        ? existingMat.photoPath
+        : autoPhotoPath;
+
+      const categoryId = (existingMat && existingMat.categoryId && categories.some(c => c.id === existingMat.categoryId))
+        ? existingMat.categoryId
+        : autoCategoryId;
+
+      const spec = (existingMat && existingMat.specification && existingMat.specification.trim())
+        ? existingMat.specification
+        : autoSpec;
+
+      const matId = existingMat?.id || `mat-csv-${String(idx + 1).padStart(3, '0')}`;
 
       materials.push({
         id: matId,

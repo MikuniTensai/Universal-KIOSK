@@ -67,4 +67,38 @@ describe('CsvImportService (Import & Replace / Merge SAP Excel CSV)', () => {
     expect(pkg.materials.length).toBeGreaterThanOrEqual(151);
     expect(pkg.datasetVersion).toBeGreaterThan(plnUp3MalangFullPackage.datasetVersion);
   });
+
+  it('guarantees that existing custom photos (photoPath) and specifications are NOT deleted/overwritten on CSV import by kode normalisasi', async () => {
+    // Simulate an existing package where material with code 3120159 has a custom uploaded photo
+    const customPhotoUrl = 'data:image/jpeg;base64,custom-photo-base64-data';
+    const customSpec = 'Spesifikasi Khusus PLN UP3 Malang Kabel Sepatu 150mm2';
+    
+    const basePkgWithCustomPhoto = {
+      ...plnUp3MalangFullPackage,
+      materials: plnUp3MalangFullPackage.materials.map(m => {
+        if (m.code === '3120159') {
+          return {
+            ...m,
+            photoPath: customPhotoUrl,
+            specification: customSpec,
+          };
+        }
+        return m;
+      }),
+    };
+
+    // Run CSV import (both in replace and merge mode)
+    const { pkg: replacedPkg } = await CsvImportService.createPackageFromCsv(sampleCsvContent, 'replace', basePkgWithCustomPhoto);
+    const matReplaced = replacedPkg.materials.find(m => m.code === '3120159');
+    
+    // Pastikan foto kustom dan spesifikasi TIDAK terhapus/terganti
+    expect(matReplaced?.photoPath).toBe(customPhotoUrl);
+    expect(matReplaced?.specification).toBe(customSpec);
+
+    // Test in merge mode as well
+    const { pkg: mergedPkg } = await CsvImportService.createPackageFromCsv(sampleCsvContent, 'merge', basePkgWithCustomPhoto);
+    const matMerged = mergedPkg.materials.find(m => m.code === '3120159');
+    expect(matMerged?.photoPath).toBe(customPhotoUrl);
+    expect(matMerged?.specification).toBe(customSpec);
+  });
 });

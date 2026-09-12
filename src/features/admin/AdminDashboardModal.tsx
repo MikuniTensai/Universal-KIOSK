@@ -114,12 +114,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [adjustRack, setAdjustRack] = useState<string>('A.1');
   const [adjustBin, setAdjustBin] = useState<string>('A.1.1');
   const [adjustCategory, setAdjustCategory] = useState<string>('');
+  const [adjustPhotoPath, setAdjustPhotoPath] = useState<string>('');
   const [stockError, setStockError] = useState<string | null>(null);
 
   // New Material states (persis format master Excel: nama material, stok, blok, rak, sub rak)
   const [newMatName, setNewMatName] = useState<string>('');
   const [newMatInitialQty, setNewMatInitialQty] = useState<number>(10);
   const [newMatCategory, setNewMatCategory] = useState<string>('');
+  const [newMatPhotoPath, setNewMatPhotoPath] = useState<string>('');
   const [newMatBlok, setNewMatBlok] = useState<string>('A');
   const [newMatRack, setNewMatRack] = useState<string>('A');
   const [newMatBin, setNewMatBin] = useState<string>('A11');
@@ -244,8 +246,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         quantityDelta: Number(stockDeltaInput),
         setExact: isExactStock,
         categoryId: adjustCategory || undefined,
+        photoPath: adjustPhotoPath,
       });
-      setActionSuccessMessage('Stok dan kategori material berhasil diperbarui.');
+      setActionSuccessMessage('Stok, kategori, dan foto material berhasil diperbarui.');
       setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
@@ -269,6 +272,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         code: newMatCode.trim() || undefined,
         name: newMatName.trim(),
         categoryId: newMatCategory || undefined,
+        photoPath: newMatPhotoPath.trim() || undefined,
         barcode: newMatBarcode.trim() || undefined,
         zone: `Blok ${finalBlok}`,
         rack: finalRack,
@@ -279,6 +283,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setNewMatName('');
       setNewMatInitialQty(10);
       setNewMatCategory('');
+      setNewMatPhotoPath('');
       setNewMatBlok('A');
       setNewMatRack('A');
       setNewMatBin('A11');
@@ -1237,6 +1242,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                     onClick={() => {
                                       setAdjustMatId(m.id);
                                       setAdjustCategory(m.categoryId);
+                                      setAdjustPhotoPath(m.photoPath || '');
                                       setStockMode('adjust');
                                       setShowStockModal(true);
                                     }}
@@ -2406,6 +2412,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         const selectedMat = activePkg?.materials.find(m => m.id === nextId);
                         if (selectedMat) {
                           setAdjustCategory(selectedMat.categoryId);
+                          setAdjustPhotoPath(selectedMat.photoPath || '');
                         }
                       }}
                       className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
@@ -2425,12 +2432,26 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === mat.id) || [];
                     const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
                     const currentCategory = activePkg?.categories.find(c => c.id === (adjustCategory || mat.categoryId));
+                    const activePhoto = adjustPhotoPath || mat.photoPath;
                     return (
-                      <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 space-y-1">
-                        <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
-                        <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
-                        <p>Kategori Saat Ini: <strong className="text-sky-800 font-semibold">{currentCategory?.name || mat.categoryId}</strong></p>
-                        <p>Total Stok Saat Ini: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
+                      <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 flex items-start gap-3.5">
+                        <div className="h-16 w-16 rounded-xl border border-amber-300/80 bg-white overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
+                          {activePhoto ? (
+                            <img
+                              src={activePhoto}
+                              alt={mat.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <Boxes className="h-8 w-8 text-amber-600" />
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
+                          <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
+                          <p>Kategori: <strong className="text-sky-800 font-semibold">{currentCategory?.name || mat.categoryId}</strong></p>
+                          <p>Total Stok: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
+                        </div>
                       </div>
                     );
                   })()}
@@ -2462,6 +2483,67 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  {/* Foto / Gambar Material */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                      Foto / Gambar Produk:
+                    </label>
+                    <div className="flex items-center gap-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div className="h-16 w-16 rounded-lg border border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
+                        {adjustPhotoPath || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.photoPath) ? (
+                          <img
+                            src={adjustPhotoPath || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.photoPath || '')}
+                            alt="Foto Produk"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="h-6 w-6 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-1.5">
+                        <input
+                          type="text"
+                          value={adjustPhotoPath}
+                          onChange={(e) => setAdjustPhotoPath(e.target.value)}
+                          placeholder="Tempel tautan URL gambar..."
+                          className="w-full h-8 rounded-lg border border-slate-300 px-2.5 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                        />
+                        <div className="flex items-center gap-2">
+                          <label className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[11px] transition shadow-2xs">
+                            <Upload className="h-3 w-3 text-sky-600" />
+                            <span>Unggah Foto</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (evt) => {
+                                    if (typeof evt.target?.result === 'string') {
+                                      setAdjustPhotoPath(evt.target.result);
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          {adjustPhotoPath && (
+                            <button
+                              type="button"
+                              onClick={() => setAdjustPhotoPath('')}
+                              className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline"
+                            >
+                              Hapus Foto
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2624,6 +2706,67 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  {/* Foto / Gambar Produk */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                      Foto / Gambar Produk:
+                    </label>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <div className="h-16 w-16 rounded-lg border border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
+                        {newMatPhotoPath ? (
+                          <img
+                            src={newMatPhotoPath}
+                            alt="Preview"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="h-6 w-6 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-1.5">
+                        <input
+                          type="text"
+                          value={newMatPhotoPath}
+                          onChange={(e) => setNewMatPhotoPath(e.target.value)}
+                          placeholder="Tempel tautan URL gambar..."
+                          className="w-full h-8 rounded-lg border border-slate-300 px-2.5 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                        />
+                        <div className="flex items-center gap-2">
+                          <label className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[11px] transition shadow-2xs">
+                            <Upload className="h-3 w-3 text-sky-600" />
+                            <span>Unggah Foto</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (evt) => {
+                                    if (typeof evt.target?.result === 'string') {
+                                      setNewMatPhotoPath(evt.target.result);
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                          </label>
+                          {newMatPhotoPath && (
+                            <button
+                              type="button"
+                              onClick={() => setNewMatPhotoPath('')}
+                              className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline"
+                            >
+                              Hapus Foto
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* 2. Jumlah Stok */}

@@ -4,6 +4,7 @@ import { X, MapPin, Scan, Smartphone, Layers, Boxes } from 'lucide-react';
 import { WarehouseMiniMap } from '../../shared/ui/WarehouseMiniMap';
 import { MobileHandoverModal } from '../../shared/ui/MobileHandoverModal';
 import { getCategoryIcon } from '../../shared/utils/categoryIcons';
+import { ContentService } from '../programs/contentService';
 
 interface MaterialDetailModalProps {
   material: MaterialWithStock | null;
@@ -79,10 +80,23 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
           {/* Card Utama Berpenampilan Persis Permintaan WhatsApp */}
           <div className="rounded-3xl bg-white p-2 text-center flex flex-col items-center">
             
-            {/* Ikon Kotak Biru Volta (Rounded Soft Sky-Blue) */}
-            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 shadow-sm border border-sky-200/60">
-              <Boxes className="h-10 w-10 text-sky-600 stroke-[2.2]" />
-            </div>
+            {/* Foto Material Produk Nyata atau Ikon Kotak Biru Volta */}
+            {material.photoPath ? (
+              <div className="mb-5 h-44 w-full max-w-[280px] rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-100 relative group">
+                <img
+                  src={material.photoPath}
+                  alt={material.name}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = ContentService.getFallbackImage();
+                  }}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 shadow-sm border border-sky-200/60">
+                <Boxes className="h-10 w-10 text-sky-600 stroke-[2.2]" />
+              </div>
+            )}
 
             {/* Nama Material (Bold Besar di Tengah Sesuai Gambar) */}
             <h3 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight leading-snug max-w-lg mb-6 uppercase">
