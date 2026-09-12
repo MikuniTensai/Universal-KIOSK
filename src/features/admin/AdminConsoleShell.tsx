@@ -14,6 +14,7 @@ import {
   LogOut,
   ArrowRight,
   ChevronRight,
+  Wifi,
 } from 'lucide-react';
 import { AdminModeService } from './adminModeService';
 import { AdminLoginUser } from './AdminLoginScreen';
@@ -28,7 +29,8 @@ export type AdminModuleTab =
   | 'import'
   | 'history'
   | 'settings'
-  | 'logs';
+  | 'logs'
+  | 'network';
 
 interface AdminConsoleShellProps {
   activeTab: AdminModuleTab;
@@ -37,6 +39,7 @@ interface AdminConsoleShellProps {
   onLogout: () => void;
   onRefresh: () => void;
   onCloseModal?: () => void;
+  onOpenNetworkModal?: () => void;
   standalone?: boolean;
   historyCount?: number;
   logsCount?: number;
@@ -81,7 +84,7 @@ const MODULE_META_MAP: Record<AdminModuleTab, ModuleMeta> = {
     subtitle: 'Audit versi master dataset gudang dan pemulihan instan',
     icon: History,
   },
-  settings: {
+    settings: {
     title: 'Konfigurasi Sistem Kiosk',
     subtitle: 'Pengaturan identitas unit, wallpaper, dan parameter operasional',
     icon: Settings,
@@ -90,6 +93,11 @@ const MODULE_META_MAP: Record<AdminModuleTab, ModuleMeta> = {
     title: 'Audit & Log Diagnostik',
     subtitle: 'Rekaman aktivitas sistem, integritas data, dan jejak audit transaksi',
     icon: Activity,
+  },
+  network: {
+    title: 'Akses WiFi & IP Jaringan',
+    subtitle: 'Panduan remote control Kiosk & Panel Admin dari HP / Laptop di WiFi yang sama',
+    icon: Wifi,
   },
 };
 
@@ -104,6 +112,7 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
   onLogout,
   onRefresh,
   onCloseModal,
+  onOpenNetworkModal,
   standalone = false,
   historyCount = 0,
   logsCount = 0,
@@ -193,6 +202,11 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
           id: 'settings' as AdminModuleTab,
           label: 'Pengaturan Kiosk',
           icon: Settings,
+        },
+        {
+          id: 'network' as AdminModuleTab,
+          label: 'Akses WiFi & IP LAN',
+          icon: Wifi,
         },
         {
           id: 'logs' as AdminModuleTab,
@@ -328,15 +342,23 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
           </div>
 
           <div className="adms-top-right">
-            {/* Connection Status Pill & Dedicated Admin LAN badge */}
-            <div
-              className="adms-conn-status-pill adms-conn-status-pill--ok"
-              title="Konsol Admin terhubung ke server Dual-Port LAN"
+            {/* Connection Status Pill & Dedicated Admin LAN badge (Clickable to open Network Guide) */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenNetworkModal) {
+                  onOpenNetworkModal();
+                } else {
+                  handleSelectTab('network');
+                }
+              }}
+              className="adms-conn-status-pill adms-conn-status-pill--ok cursor-pointer hover:opacity-90 active:scale-95 transition"
+              title="Klik untuk membuka Panduan Akses WiFi & Alamat IP Lokal Mesin"
             >
               <span className="adms-pulse-dot adms-pulse-dot--green" />
               <span className="hidden sm:inline font-bold">PORT 5001 &bull; DEDICATED ADMIN LAN</span>
               <span className="sm:hidden font-bold">Port 5001</span>
-            </div>
+            </button>
 
             <div className="hidden xl:flex items-center text-[11px] text-emerald-600 font-mono font-bold gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -376,6 +398,22 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
                 <span>Keluar</span>
               </button>
             </div>
+
+            {/* Quick WiFi / Network Guide Button */}
+            <button
+              type="button"
+              className="adms-refresh-circle-btn hover:text-[#0369a1] hover:border-sky-300"
+              onClick={() => {
+                if (onOpenNetworkModal) {
+                  onOpenNetworkModal();
+                } else {
+                  handleSelectTab('network');
+                }
+              }}
+              title="Info Akses WiFi & Alamat IP Mesin"
+            >
+              <Wifi size={14} strokeWidth={2.2} />
+            </button>
 
             {/* Refresh Button */}
             <button

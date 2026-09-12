@@ -21,6 +21,7 @@ import { CatalogView } from '../features/catalog/CatalogView';
 import { ScanStandbyView } from '../features/scanner/ScanStandbyView';
 import { AdminDashboardModal } from '../features/admin/AdminDashboardModal';
 import { AdminModeService } from '../features/admin/adminModeService';
+import { NetworkAccessModal } from '../features/network/NetworkAccessModal';
 import { SyncService } from '../adapters/storage/syncService';
 import { ScanResolveResult, ImportPackage, KioskConfig } from '../domain/types';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../data/mockPlnPackage';
@@ -37,6 +38,9 @@ export const App: React.FC = () => {
 
   // Admin dashboard modal state
   const [adminModalVisible, setAdminModalVisible] = useState(false);
+
+  // Network access info modal state (WiFi & Dynamic IP LAN Access)
+  const [networkModalVisible, setNetworkModalVisible] = useState(false);
 
   // Scan state
   const [lastScanResult, setLastScanResult] = useState<ScanResolveResult | null>(null);
@@ -185,6 +189,11 @@ export const App: React.FC = () => {
           onClose={() => setAdminModalVisible(false)}
           onPackageUpdated={refreshData}
         />
+        <NetworkAccessModal
+          visible={networkModalVisible}
+          onClose={() => setNetworkModalVisible(false)}
+          warehouseCode={config.warehouseCode}
+        />
       </>
     );
   }
@@ -208,6 +217,10 @@ export const App: React.FC = () => {
         onOpenAdmin={() => {
           idleTimer.recordActivity();
           setAdminModalVisible(true);
+        }}
+        onOpenNetwork={() => {
+          idleTimer.recordActivity();
+          setNetworkModalVisible(true);
         }}
       />
 
@@ -650,6 +663,13 @@ export const App: React.FC = () => {
         visible={adminModalVisible}
         onClose={() => setAdminModalVisible(false)}
         onPackageUpdated={refreshData}
+      />
+
+      {/* Network Access Guide Modal (WiFi & Dynamic IP Access) */}
+      <NetworkAccessModal
+        visible={networkModalVisible}
+        onClose={() => setNetworkModalVisible(false)}
+        warehouseCode={config.warehouseCode}
       />
 
       {/* Low Reach Accessibility Indicator */}

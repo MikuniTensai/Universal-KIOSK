@@ -32,6 +32,8 @@ import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS, plnUp3MalangFullPackage } from 
 import { WarehouseLayoutService, WarehouseBlock } from '../layout/warehouseLayoutService';
 import { AdminLoginScreen, AdminLoginUser } from './AdminLoginScreen';
 import { AdminConsoleShell, AdminModuleTab } from './AdminConsoleShell';
+import { NetworkInfoCard } from '../network/NetworkInfoCard';
+import { NetworkAccessModal } from '../network/NetworkAccessModal';
 
 interface AdminDashboardModalProps {
   visible: boolean;
@@ -58,6 +60,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   });
   const [activeTab, setActiveTab] = useState<AdminModuleTab>('stock');
   const [overviewSearch, setOverviewSearch] = useState('');
+  const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   const triggerPackageUpdated = () => {
     onPackageUpdated();
@@ -354,6 +357,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           onLogout={handleLogout}
           onRefresh={triggerPackageUpdated}
           onCloseModal={!standalone ? onClose : undefined}
+          onOpenNetworkModal={() => setShowNetworkModal(true)}
           standalone={standalone}
           historyCount={history.length}
           logsCount={logs.length}
@@ -369,6 +373,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           {/* TAB: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Dynamic WiFi LAN Access Info Card */}
+              <NetworkInfoCard onOpenFullModal={() => setShowNetworkModal(true)} />
+
               {/* Quick Action Pills Bar */}
               <div className="adms-quick-actions-bar">
                 <button
@@ -410,7 +417,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               </div>
 
               {/* 4 Executive KPI Cards */}
-              <div className="adms-kpi-grid">
+              <div className="adms-kpi-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div className="adms-kpi-card">
                   <div className="adms-kpi-info">
                     <span className="adms-kpi-label">Total Material Terdaftar</span>
@@ -1643,6 +1650,30 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
           )}
 
+          {/* TAB 5: NETWORK ACCESS GUIDE (WIFI & DYNAMIC IP LAN) */}
+          {activeTab === 'network' && (
+            <div className="space-y-6">
+              <NetworkInfoCard onOpenFullModal={() => setShowNetworkModal(true)} />
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                    Panduan Akses Nirkabel Petugas Gudang (WiFi &amp; LAN)
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setShowNetworkModal(true)}
+                    className="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-[#0369a1] text-white text-xs font-bold shadow-sm hover:bg-sky-800 active:scale-95 transition"
+                  >
+                    <span>Buka Tampilan Penuh &amp; QR Code</span>
+                  </button>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Dengan menghubungkan smartphone atau laptop ke WiFi yang sama dengan unit Kiosk, petugas dapat mengelola stok, mencetak barcode, memeriksa logistik rak, dan mengimpor data paket SAP langsung dari meja kerja tanpa perlu antri di depan mesin Kassen.
+                </p>
+              </div>
+            </div>
+          )}
+
       {/* Modal Konfirmasi Hapus Material */}
       {materialToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
@@ -1695,6 +1726,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       )}
         </AdminConsoleShell>
       </div>
+
+      {/* Network Access Guide Modal */}
+      <NetworkAccessModal
+        visible={showNetworkModal}
+        onClose={() => setShowNetworkModal(false)}
+        warehouseCode={configDraft.warehouseCode || 'GUD-PLN-MLG-AM01'}
+      />
     </div>
   );
 };

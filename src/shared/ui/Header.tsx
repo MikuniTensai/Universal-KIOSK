@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, ShieldCheck, Clock, Accessibility } from 'lucide-react';
+import { Home, ShieldCheck, Clock, Accessibility, Wifi } from 'lucide-react';
 import { KioskConfig } from '../../domain/types';
 import { DanantaraLogo } from './DanantaraLogo';
 import { PlnLogo } from './PlnLogo';
@@ -9,6 +9,7 @@ interface HeaderProps {
   currentRoute: string;
   onNavigate: (route: string) => void;
   onOpenAdmin: () => void;
+  onOpenNetwork?: () => void;
   lowReachMode?: boolean;
   onToggleLowReach?: () => void;
   showAdminButton?: boolean;
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentRoute,
   onNavigate,
   onOpenAdmin,
+  onOpenNetwork,
   lowReachMode = false,
   onToggleLowReach,
   showAdminButton = false,
@@ -123,6 +125,16 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Accessibility className="h-4 w-4 text-amber-600" />
               <span className="hidden xl:inline">{lowReachMode ? 'Jangkauan Bawah' : 'Aksesibel'}</span>
+            </button>
+          )}
+
+          {onOpenNetwork && (
+            <button
+              onClick={onOpenNetwork}
+              title="Informasi Akses WiFi & Panel Admin (IP Dinamis)"
+              className="flex h-12 w-12 items-center justify-center rounded-control border border-slate-200 bg-white text-slate-600 shadow-xs transition active:scale-95 hover:bg-slate-50 hover:text-[#0369a1] hover:border-sky-300"
+            >
+              <Wifi className="h-5 w-5" />
             </button>
           )}
 

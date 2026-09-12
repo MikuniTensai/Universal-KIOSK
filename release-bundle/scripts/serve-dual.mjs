@@ -40,21 +40,86 @@ const mimeTypes = {
   '.mp4': 'video/mp4',
 };
 
-// Ambil seluruh alamat IPv4 lokal jaringan (LAN)
-function getLocalIpAddresses() {
+// Ambil seluruh detail adapter jaringan secara live (dinamis saat IP WiFi berubah)
+function getNetworkDetails(req) {
   const interfaces = os.networkInterfaces();
-  const ips = [];
+  const interfaceList = [];
+  const allIps = [];
+
   for (const name of Object.keys(interfaces)) {
     for (const net of interfaces[name] || []) {
       if (net.family === 'IPv4' && !net.internal) {
-        ips.push(net.address);
+        const lowerName = name.toLowerCase();
+        let type = 'other';
+        let priority = 3;
+
+        if (lowerName.includes('wl') || lowerName.includes('wifi') || lowerName.includes('wi-fi')) {
+          type = 'wifi';
+          priority = 1;
+        } else if (lowerName.includes('eth') || lowerName.includes('en') || lowerName.includes('lan')) {
+          type = 'ethernet';
+          priority = 2;
+        } else if (lowerName.startsWith('br-') || lowerName.startsWith('docker') || lowerName.startsWith('veth')) {
+          type = 'virtual';
+          priority = 4;
+        }
+
+        allIps.push(net.address);
+        interfaceList.push({
+          name,
+          type,
+          priority,
+          address: net.address,
+          netmask: net.netmask,
+          mac: net.mac,
+          adminUrl: `http://${net.address}:${ADMIN_PORT}`,
+          kioskUrl: `http://${net.address}:${KIOSK_PORT}`,
+        });
       }
     }
   }
-  return ips;
-}
 
-const localIps = getLocalIpAddresses();
+  // Urutkan prioritas: WiFi -> Ethernet -> Other -> Virtual
+  interfaceList.sort((a, b) => a.priority - b.priority);
+
+  // Tentukan primaryIp
+  let primaryIp = 'localhost';
+
+  // Jika client mengakses menggunakan IP pada header host, utamakan IP tersebut
+  if (req && req.headers && req.headers.host) {
+    const hostPart = req.headers.host.split(':')[0];
+    if (hostPart && hostPart !== 'localhost' && hostPart !== '127.0.0.1' && !hostPart.includes('::')) {
+      primaryIp = hostPart;
+    }
+  }
+
+  if (primaryIp === 'localhost' && interfaceList.length > 0) {
+    // Pilih interface fisik non-virtual pertama jika tersedia
+    const physical = interfaceList.find((i) => i.type === 'wifi' || i.type === 'ethernet');
+    primaryIp = physical ? physical.address : interfaceList[0].address;
+  }
+
+  return {
+    success: true,
+    primaryIp,
+    isDynamic: true,
+    hostname: os.hostname(),
+    kioskPort: KIOSK_PORT,
+    adminPort: ADMIN_PORT,
+    adminUrl: `http://${primaryIp}:${ADMIN_PORT}`,
+    kioskUrl: `http://${primaryIp}:${KIOSK_PORT}`,
+    interfaces: interfaceList.map((i) => ({
+      name: i.name,
+      type: i.type,
+      address: i.address,
+      adminUrl: i.adminUrl,
+      kioskUrl: i.kioskUrl,
+      isPrimary: i.address === primaryIp,
+    })),
+    allIps,
+    serverTime: new Date().toISOString(),
+  };
+}
 
 function createServerHandler(portName, portNumber) {
   return (req, res) => {
@@ -103,15 +168,14 @@ function createServerHandler(portName, portNumber) {
       }
     }
 
-    // 2. API: Server Status & IP info
-    if (pathname === '/api/status') {
+    // 2. API: Server Status & Dynamic Network IP Info (Real-Time Live Detection)
+    if (pathname === '/api/status' || pathname === '/api/network-info') {
+      const netInfo = getNetworkDetails(req);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(
         JSON.stringify({
-          kioskPort: KIOSK_PORT,
-          adminPort: ADMIN_PORT,
-          localIps,
-          serverTime: new Date().toISOString(),
+          ...netInfo,
+          localIps: netInfo.allIps,
         })
       );
       return;
@@ -153,7 +217,8 @@ kioskServer.listen(KIOSK_PORT, '0.0.0.0', () => {
 
 adminServer.listen(ADMIN_PORT, '0.0.0.0', () => {
   console.log(`[ADMIN] Running at http://localhost:${ADMIN_PORT}/ (0.0.0.0:${ADMIN_PORT})`);
-  for (const ip of localIps) {
+  const initialNet = getNetworkDetails();
+  for (const ip of initialNet.allIps) {
     console.log(`  -> Akses LAN Petugas Gudang: http://${ip}:${ADMIN_PORT}/`);
   }
 });
