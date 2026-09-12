@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MaterialWithStock } from '../../domain/types';
-import { X, MapPin, Scan, Smartphone, Layers, Boxes } from 'lucide-react';
+import { X, MapPin, Scan, Smartphone, Layers, Boxes, Sparkles, ShieldCheck, Wrench, Trash2, Clock } from 'lucide-react';
 import { WarehouseMiniMap } from '../../shared/ui/WarehouseMiniMap';
 import { MobileHandoverModal } from '../../shared/ui/MobileHandoverModal';
 import { getCategoryIcon } from '../../shared/utils/categoryIcons';
@@ -23,6 +23,49 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
 
   const primaryLoc = material.locations[0]?.location;
   const CatIcon = getCategoryIcon(material.categoryId || material.categoryName);
+
+  const itemStatus = material.status || (material.condition === 'RETURN' ? 'STANDBY' : 'Baru');
+
+  const renderDetailStatusBadge = () => {
+    switch (itemStatus.toUpperCase()) {
+      case 'GARANSI':
+        return (
+          <div className="inline-flex items-center gap-1.5 bg-blue-100 border border-blue-300 text-blue-950 font-black text-sm sm:text-base px-3.5 py-1.5 rounded-xl shadow-2xs">
+            <ShieldCheck className="h-4 w-4 text-blue-600 shrink-0" />
+            <span>GARANSI</span>
+          </div>
+        );
+      case 'PERBAIKAN':
+        return (
+          <div className="inline-flex items-center gap-1.5 bg-amber-100 border border-amber-300 text-amber-950 font-black text-sm sm:text-base px-3.5 py-1.5 rounded-xl shadow-2xs">
+            <Wrench className="h-4 w-4 text-amber-700 shrink-0" />
+            <span>PERBAIKAN</span>
+          </div>
+        );
+      case 'USUL HAPUS':
+        return (
+          <div className="inline-flex items-center gap-1.5 bg-rose-100 border border-rose-300 text-rose-950 font-black text-sm sm:text-base px-3.5 py-1.5 rounded-xl shadow-2xs">
+            <Trash2 className="h-4 w-4 text-rose-600 shrink-0" />
+            <span>USUL HAPUS</span>
+          </div>
+        );
+      case 'STANDBY':
+        return (
+          <div className="inline-flex items-center gap-1.5 bg-teal-100 border border-teal-300 text-teal-950 font-black text-sm sm:text-base px-3.5 py-1.5 rounded-xl shadow-2xs">
+            <Clock className="h-4 w-4 text-teal-700 shrink-0" />
+            <span>STANDBY</span>
+          </div>
+        );
+      case 'BARU':
+      default:
+        return (
+          <div className="inline-flex items-center gap-1.5 bg-emerald-100 border border-emerald-300 text-emerald-950 font-black text-sm sm:text-base px-3.5 py-1.5 rounded-xl shadow-2xs">
+            <Sparkles className="h-4 w-4 text-emerald-600 shrink-0" />
+            <span>Baru</span>
+          </div>
+        );
+    }
+  };
 
   // Extract clean Blok, Rak, and Sub Rak codes persis master Excel CSV (contoh: BLOK A, RAK A, SUB RAK A11)
   const rawZone = primaryLoc?.zone || 'Blok C';
@@ -100,13 +143,22 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
             {/* Kotak Putih Keabuan Di Dalam (Inner Section) */}
             <div className="w-full rounded-2xl bg-slate-50/90 p-5 sm:p-6 border border-slate-200/70 text-left space-y-4 shadow-xs">
               
-              {/* Baris 1: NOMOR NORMALISASI */}
-              <div>
-                <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
-                  NOMOR NORMALISASI
-                </span>
-                <div className="inline-block bg-[#E2E8F0] border border-slate-300/60 text-slate-900 font-mono font-black text-base sm:text-lg px-4 py-1 rounded-xl shadow-2xs">
-                  {normalizationNumber}
+              {/* Baris 1: NOMOR NORMALISASI & STATUS MATERIAL */}
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
+                    NOMOR NORMALISASI
+                  </span>
+                  <div className="inline-block bg-[#E2E8F0] border border-slate-300/60 text-slate-900 font-mono font-black text-base sm:text-lg px-4 py-1 rounded-xl shadow-2xs">
+                    {normalizationNumber}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 block mb-1.5">
+                    STATUS MATERIAL
+                  </span>
+                  {renderDetailStatusBadge()}
                 </div>
               </div>
 
@@ -184,8 +236,10 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
             <div>
               <WarehouseMiniMap
                 activeZone={primaryLoc?.zone}
+                blok={cleanBlok}
                 rack={cleanRak}
-                bin={primaryLoc?.bin}
+                bin={cleanSubRak || primaryLoc?.bin}
+                subRak={cleanSubRak}
               />
             </div>
           </div>

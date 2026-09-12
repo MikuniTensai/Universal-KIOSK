@@ -36,6 +36,7 @@ describe('Client Materials & Warehouse Location Integration (export_material NEW
   it('searches client materials by Kode Normalisasi SAP (e.g. 4120470 for BOX 105 KVA)', () => {
     const result = CatalogService.searchMaterials(plnUp3MalangFullPackage, defaultKioskConfig, {
       query: '4120470',
+      condition: 'BARU',
     });
     expect(result.total).toBe(1);
     expect(result.items[0].name).toContain('BOX 105 KVA');
@@ -43,6 +44,18 @@ describe('Client Materials & Warehouse Location Integration (export_material NEW
     expect(result.items[0].locations[0].location.zone).toContain('Blok C');
     expect(result.items[0].totalQuantity).toBe(4);
     expect(result.items[0].unit).toBe('SET');
+  });
+
+  it('searches client return materials with 4 status types (GARANSI, PERBAIKAN, USUL HAPUS, STANDBY)', () => {
+    const resultReturn = CatalogService.searchMaterials(plnUp3MalangFullPackage, defaultKioskConfig, {
+      condition: 'RETURN',
+    });
+    expect(resultReturn.total).toBe(5);
+    const statuses = resultReturn.items.map(i => i.status);
+    expect(statuses).toContain('GARANSI');
+    expect(statuses).toContain('PERBAIKAN');
+    expect(statuses).toContain('USUL HAPUS');
+    expect(statuses).toContain('STANDBY');
   });
 
   it('searches client materials by specific Rak Code or Sub Rak (e.g. H12, A11)', () => {

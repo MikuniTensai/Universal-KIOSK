@@ -24,6 +24,8 @@ import './adminConsole.css';
 export type AdminModuleTab =
   | 'overview'
   | 'stock'
+  | 'stock-baru'
+  | 'stock-return'
   | 'categories'
   | 'locations'
   | 'import'
@@ -47,6 +49,27 @@ interface AdminConsoleShellProps {
   children: React.ReactNode;
 }
 
+interface NavSubItem {
+  id: AdminModuleTab;
+  label: string;
+  tag: string;
+  color: string;
+}
+
+interface NavItem {
+  id: AdminModuleTab;
+  label: string;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  badge?: number;
+  subItems?: NavSubItem[];
+}
+
+interface NavModuleGroup {
+  id: string;
+  label: string;
+  items: NavItem[];
+}
+
 interface ModuleMeta {
   title: string;
   subtitle: string;
@@ -62,6 +85,16 @@ const MODULE_META_MAP: Record<AdminModuleTab, ModuleMeta> = {
   stock: {
     title: 'Manajemen Stok & Material',
     subtitle: 'Penyesuaian kuantitas fisik, mutasi rak, dan pendaftaran material baru',
+    icon: Boxes,
+  },
+  'stock-baru': {
+    title: 'Manajemen Stok Material (Baru)',
+    subtitle: 'Katalog stok material baru PLN, penyesuaian kuantitas fisik, dan mutasi rak',
+    icon: Boxes,
+  },
+  'stock-return': {
+    title: 'Manajemen Stok Material (Return)',
+    subtitle: 'Inventaris stok material retur: Garansi, Perbaikan, Usul Hapus, dan Standby',
     icon: Boxes,
   },
   categories: {
@@ -138,7 +171,7 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
     return () => clearInterval(timer);
   }, []);
 
-  const navModules = [
+  const navModules: NavModuleGroup[] = [
     {
       id: 'dashboard',
       label: 'DASHBOARD',
@@ -158,6 +191,20 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
           id: 'stock' as AdminModuleTab,
           label: 'Kelola & Tambah Stok',
           icon: Boxes,
+          subItems: [
+            {
+              id: 'stock-baru' as AdminModuleTab,
+              label: 'Baru',
+              tag: 'BARU',
+              color: '#0284c7',
+            },
+            {
+              id: 'stock-return' as AdminModuleTab,
+              label: 'Return',
+              tag: 'RETURN',
+              color: '#f59e0b',
+            },
+          ],
         },
         {
           id: 'categories' as AdminModuleTab,
@@ -275,7 +322,67 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
                 <div className="adms-menu-group-label">{group.label}</div>
                 {group.items.map((item) => {
                   const ItemIcon = item.icon;
-                  const isActive = activeTab === item.id;
+                  const hasSubItems = Boolean(item.subItems && item.subItems.length > 0);
+                  const isCurrentActive = activeTab === item.id;
+                  const isChildActive = hasSubItems && item.subItems?.some((s) => s.id === activeTab);
+                  const isActive = isCurrentActive || isChildActive;
+
+                  if (hasSubItems) {
+                    return (
+                      <div key={item.id} className="adms-menu-item-wrapper">
+                        <button
+                          type="button"
+                          className={`adms-menu-item ${isActive ? 'active' : ''}`}
+                          aria-current={isActive ? 'page' : undefined}
+                          onClick={() => handleSelectTab(activeTab === 'stock-return' ? 'stock-return' : 'stock-baru')}
+                        >
+                          <div className="adms-menu-item-left">
+                            <span className="adms-menu-icon-svg">
+                              <ItemIcon size={18} strokeWidth={2} />
+                            </span>
+                            <span className="adms-menu-text">{item.label}</span>
+                          </div>
+                          <ChevronRight
+                            className={`adms-menu-chevron transition-transform duration-200 ${isActive ? 'rotate-90' : ''}`}
+                            size={14}
+                            strokeWidth={2.2}
+                          />
+                        </button>
+
+                        {/* Sub-menu Baru dan Return: muncul saat cursor diarahkan (hover) atau saat menu aktif */}
+                        <div
+                          className={`adms-submenu ${isActive ? 'adms-submenu--visible' : ''}`}
+                          role="menu"
+                          aria-label={`Submenu ${item.label}`}
+                        >
+                          {item.subItems?.map((sub) => {
+                            const isSubActive =
+                              activeTab === sub.id || (activeTab === 'stock' && sub.id === 'stock-baru');
+                            return (
+                              <button
+                                key={sub.id}
+                                type="button"
+                                role="menuitem"
+                                className={`adms-submenu-item ${isSubActive ? 'active' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSelectTab(sub.id);
+                                }}
+                              >
+                                <span
+                                  className="adms-submenu-indicator"
+                                  style={{ backgroundColor: isSubActive ? '#ffffff' : sub.color }}
+                                />
+                                <span className="truncate">{sub.label}</span>
+                                <span className="adms-submenu-tag">{sub.tag}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <button
                       key={item.id}

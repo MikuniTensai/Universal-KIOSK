@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Upload,
   CheckCircle2,
@@ -128,6 +128,22 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [newMatBin, setNewMatBin] = useState<string>('A11');
   const [newMatCode, setNewMatCode] = useState<string>('');
   const [newMatBarcode, setNewMatBarcode] = useState<string>('');
+  const [newMatCondition, setNewMatCondition] = useState<'BARU' | 'RETURN'>('BARU');
+  const [newMatStatus, setNewMatStatus] = useState<string>('Baru');
+
+  // Sub-katalog Stok: Baru vs Return
+  const [stockConditionTab, setStockConditionTab] = useState<'baru' | 'return'>(
+    initialTab === 'stock-return' ? 'return' : 'baru'
+  );
+  const [stockReturnStatusFilter, setStockReturnStatusFilter] = useState<'all' | 'GARANSI' | 'PERBAIKAN' | 'USUL HAPUS' | 'STANDBY'>('all');
+
+  useEffect(() => {
+    if (activeTab === 'stock-return') {
+      setStockConditionTab('return');
+    } else if (activeTab === 'stock-baru' || activeTab === 'stock') {
+      setStockConditionTab('baru');
+    }
+  }, [activeTab]);
 
   // Category Management states
   const [newCatName, setNewCatName] = useState<string>('');
@@ -279,8 +295,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         rack: finalRack,
         bin: finalSubRak,
         initialQuantity: Number(newMatInitialQty) || 0,
+        condition: newMatCondition,
+        status: newMatCondition === 'RETURN' ? newMatStatus : 'Baru',
       });
-      setActionSuccessMessage(`Material "${newMatName}" berhasil didaftarkan di BLOK ${finalBlok}, RAK ${finalRack}, SUB RAK ${finalSubRak}.`);
+      setActionSuccessMessage(`Material "${newMatName}" (${newMatCondition}) berhasil didaftarkan di BLOK ${finalBlok}, RAK ${finalRack}, SUB RAK ${finalSubRak}.`);
       setNewMatName('');
       setNewMatInitialQty(10);
       setNewMatCategory('');
@@ -290,6 +308,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setNewMatBin('A11');
       setNewMatCode('');
       setNewMatBarcode('');
+      setNewMatCondition('BARU');
+      setNewMatStatus('Baru');
       setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
@@ -571,10 +591,29 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     return { totalQty, blokDisplay, rakDisplay, subRakDisplay, locObj };
   };
 
+  const totalBaruCount = (activePkg?.materials || []).filter((m) => m.condition !== 'RETURN').length;
+  const totalReturnCount = (activePkg?.materials || []).filter((m) => m.condition === 'RETURN').length;
+
   const filteredStockMaterials = (activePkg?.materials || []).filter((m) => {
+    // 1. Pemisahan Katalog Stok: Baru vs Return
+    const isReturn = m.condition === 'RETURN';
+    if (stockConditionTab === 'return') {
+      if (!isReturn) return false;
+      if (stockReturnStatusFilter !== 'all') {
+        const s = (m.status || 'STANDBY').toUpperCase();
+        if (s !== stockReturnStatusFilter) return false;
+      }
+    } else {
+      // Mode Katalog Baru
+      if (isReturn) return false;
+    }
+
+    // 2. Filter Kategori
     if (stockSelectedCategory !== 'all' && m.categoryId !== stockSelectedCategory) {
       return false;
     }
+
+    // 3. Filter Pencarian Teks
     if (!stockSearch) return true;
     const q = stockSearch.toLowerCase().trim();
     const { blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
@@ -585,7 +624,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       m.unit.toLowerCase().includes(q) ||
       blokDisplay.toLowerCase().includes(q) ||
       rakDisplay.toLowerCase().includes(q) ||
-      subRakDisplay.toLowerCase().includes(q)
+      subRakDisplay.toLowerCase().includes(q) ||
+      (m.status ? m.status.toLowerCase().includes(q) : false)
     );
   });
 
@@ -1001,17 +1041,94 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
           )}
 
-          {/* TAB 1: STOCK & MATERIAL MUTATION */}
-          {activeTab === 'stock' && (
+          {/* TAB 1: STOCK & MATERIAL MUTATION (Dukungan Katalog Baru & Return) */}
+          {(activeTab === 'stock' || activeTab === 'stock-baru' || activeTab === 'stock-return') && (
             <div className="space-y-4">
+              {/* Sub-Katalog Switcher: Baru vs Return */}
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-500 mr-1 hidden sm:inline">Pilih Katalog Stok:</span>
+                  <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStockConditionTab('baru');
+                        setActiveTab('stock-baru');
+                      }}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                        stockConditionTab === 'baru'
+                          ? 'bg-sky-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                      }`}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span>Katalog Baru</span>
+                      <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${
+                        stockConditionTab === 'baru' ? 'bg-sky-700 text-white' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {totalBaruCount}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStockConditionTab('return');
+                        setActiveTab('stock-return');
+                      }}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                        stockConditionTab === 'return'
+                          ? 'bg-amber-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                      }`}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-amber-300" />
+                      <span>Katalog Return</span>
+                      <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${
+                        stockConditionTab === 'return' ? 'bg-amber-700 text-white' : 'bg-slate-200 text-slate-700'
+                      }`}>
+                        {totalReturnCount}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter Status Retur (hanya saat mode Return aktif) */}
+                {stockConditionTab === 'return' && (
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                    <span className="text-[11px] font-bold text-amber-900 mr-1">Status Retur:</span>
+                    {(['all', 'GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY'] as const).map((st) => {
+                      const isSel = stockReturnStatusFilter === st;
+                      const label = st === 'all' ? 'Semua Status' : st;
+                      return (
+                        <button
+                          key={st}
+                          type="button"
+                          onClick={() => setStockReturnStatusFilter(st)}
+                          className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition ${
+                            isSel
+                              ? 'bg-amber-600 text-white shadow-2xs'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-3.5">
                 <div className="min-w-0">
                   <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <Boxes className="h-4 w-4 text-amber-600 shrink-0" />
-                    <span>Daftar &amp; Kelola Stok Material ({filteredStockMaterials.length} dari {activePkg?.materials.length || 0} Terdaftar):</span>
+                    <span>
+                      Daftar &amp; Kelola Stok Material {stockConditionTab === 'return' ? '(Katalog Return)' : '(Katalog Baru)'} ({filteredStockMaterials.length} dari {stockConditionTab === 'return' ? totalReturnCount : totalBaruCount} Terdaftar):
+                    </span>
                   </h4>
                   <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                    Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK, SUB RAK)
+                    Kolom disesuaikan dengan format master Excel SAP (No, Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK, SUB RAK, Status)
                   </p>
                 </div>
 
@@ -1021,6 +1138,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       type="button"
                       onClick={() => {
                         setStockMode('new-material');
+                        setNewMatCondition(stockConditionTab === 'return' ? 'RETURN' : 'BARU');
+                        setNewMatStatus(stockConditionTab === 'return' ? 'STANDBY' : 'Baru');
                         setStockError(null);
                         setShowStockModal(true);
                       }}
@@ -1028,7 +1147,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       title="Buka pop-up tambah material baru"
                     >
                       <Plus className="h-4 w-4" />
-                      <span>Tambah Material Baru</span>
+                      <span>Tambah Material {stockConditionTab === 'return' ? 'Return' : 'Baru'}</span>
                     </button>
 
                     <button
@@ -1171,120 +1290,143 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </div>
               )}
 
-
-                <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
-                  <table className="w-full text-left text-xs min-w-[640px]">
-                    <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+              <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-2xs">
+                <table className="w-full text-left text-xs min-w-[720px]">
+                  <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+                    <tr>
+                      <th className="p-3 w-12 text-center">No</th>
+                      <th className="p-3">Nama Material</th>
+                      <th className="p-3">Kode Normalisasi</th>
+                      <th className="p-3 text-center">Satuan</th>
+                      <th className="p-3 text-center">Stok</th>
+                      <th className="p-3 text-center">BLOK</th>
+                      <th className="p-3 text-center">RAK</th>
+                      <th className="p-3 text-center">SUB RAK</th>
+                      <th className="p-3 text-center">Status</th>
+                      <th className="p-3">Kategori</th>
+                      <th className="p-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                    {filteredStockMaterials.length === 0 ? (
                       <tr>
-                        <th className="p-3 w-12 text-center">No</th>
-                        <th className="p-3">Nama Material</th>
-                        <th className="p-3">Kode Normalisasi</th>
-                        <th className="p-3 text-center">Satuan</th>
-                        <th className="p-3 text-center">Stok</th>
-                        <th className="p-3 text-center">BLOK</th>
-                        <th className="p-3 text-center">RAK</th>
-                        <th className="p-3 text-center">SUB RAK</th>
-                        <th className="p-3">Kategori</th>
-                        <th className="p-3 text-right">Aksi</th>
+                        <td colSpan={11} className="p-8 text-center text-slate-400 font-medium">
+                          Tidak ada material yang cocok dengan pencarian "{stockSearch}".
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                      {filteredStockMaterials.length === 0 ? (
-                        <tr>
-                          <td colSpan={10} className="p-8 text-center text-slate-400 font-medium">
-                            Tidak ada material yang cocok dengan pencarian "{stockSearch}".
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredStockMaterials.map((m, idx) => {
-                          const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
-                          const category = activePkg?.categories.find(c => c.id === m.categoryId);
-                          return (
-                            <tr key={m.id} className="hover:bg-slate-50 transition">
-                              <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
-                              <td className="p-3 font-bold text-slate-900 min-w-[220px]">{m.name}</td>
-                              <td className="p-3 font-mono font-bold text-sky-700">{m.code}</td>
-                              <td className="p-3 text-center font-bold text-slate-600">{m.unit}</td>
-                              <td className="p-3 text-center">
+                    ) : (
+                      filteredStockMaterials.map((m, idx) => {
+                        const { totalQty, blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
+                        const category = activePkg?.categories.find(c => c.id === m.categoryId);
+                        return (
+                          <tr key={m.id} className="hover:bg-slate-50 transition">
+                            <td className="p-3 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                            <td className="p-3 font-bold text-slate-900 min-w-[220px]">{m.name}</td>
+                            <td className="p-3 font-mono font-bold text-sky-700">{m.code}</td>
+                            <td className="p-3 text-center font-bold text-slate-600">{m.unit}</td>
+                            <td className="p-3 text-center">
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
+                                  totalQty > 0
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                    : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                }`}
+                              >
+                                {totalQty}
+                              </span>
+                            </td>
+                            <td className="p-3 text-center font-mono font-bold text-amber-900">
+                              <span className="inline-block px-2 py-0.5 rounded bg-amber-100/80 border border-amber-300">
+                                {blokDisplay}
+                              </span>
+                            </td>
+                            <td className="p-3 text-center font-mono font-bold text-slate-800">
+                              <span className={rakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-slate-100 border border-slate-200' : 'text-slate-400'}>
+                                {rakDisplay}
+                              </span>
+                            </td>
+                            <td className="p-3 text-center font-mono font-bold text-sky-800">
+                              <span className={subRakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-sky-50 border border-sky-200' : 'text-slate-400'}>
+                                {subRakDisplay}
+                              </span>
+                            </td>
+                            <td className="p-3 text-center">
+                              {m.condition === 'RETURN' ? (
                                 <span
-                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
-                                    totalQty > 0
-                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                      : 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
+                                    m.status === 'GARANSI'
+                                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                      : m.status === 'PERBAIKAN'
+                                      ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                      : m.status === 'USUL HAPUS'
+                                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                      : 'bg-slate-100 text-slate-700 border-slate-300'
                                   }`}
                                 >
-                                  {totalQty}
+                                  {m.status || 'STANDBY'}
                                 </span>
-                              </td>
-                              <td className="p-3 text-center font-mono font-bold text-amber-900">
-                                <span className="inline-block px-2 py-0.5 rounded bg-amber-100/80 border border-amber-300">
-                                  {blokDisplay}
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-50 text-sky-700 border border-sky-200">
+                                  Baru
                                 </span>
-                              </td>
-                              <td className="p-3 text-center font-mono font-bold text-slate-800">
-                                <span className={rakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-slate-100 border border-slate-200' : 'text-slate-400'}>
-                                  {rakDisplay}
-                                </span>
-                              </td>
-                              <td className="p-3 text-center font-mono font-bold text-sky-800">
-                                <span className={subRakDisplay !== '-' ? 'inline-block px-2 py-0.5 rounded bg-sky-50 border border-sky-200' : 'text-slate-400'}>
-                                  {subRakDisplay}
-                                </span>
-                              </td>
-                              <td className="p-3 min-w-[140px]">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                                  {category?.name || m.categoryId || 'Tanpa Kategori'}
-                                </span>
-                              </td>
-                              <td className="p-3 text-right">
-                                <div className="flex items-center justify-end gap-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setAdjustMatId(m.id);
-                                      setAdjustCategory(m.categoryId);
-                                      setAdjustPhotoPath(m.photoPath || '');
-                                      setStockMode('adjust');
-                                      setShowStockModal(true);
-                                    }}
-                                    className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
-                                  >
-                                    Sesuaikan
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setMaterialToDelete(m)}
-                                    className="p-1 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 border border-transparent hover:border-rose-200 transition"
-                                    title={`Hapus material ${m.name}`}
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })
-                      )}
-                    </tbody>
-                  </table>
+                              )}
+                            </td>
+                            <td className="p-3 min-w-[140px]">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                {category?.name || m.categoryId || 'Tanpa Kategori'}
+                              </span>
+                            </td>
+                            <td className="p-3 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAdjustMatId(m.id);
+                                    setAdjustCategory(m.categoryId);
+                                    setAdjustPhotoPath(m.photoPath || '');
+                                    setStockMode('adjust');
+                                    setShowStockModal(true);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
+                                >
+                                  Sesuaikan
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setMaterialToDelete(m)}
+                                  className="p-1 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 border border-transparent hover:border-rose-200 transition"
+                                  title={`Hapus material ${m.name}`}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
 
-                  {/* Table Summary Footer Bar */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 font-medium">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span>Menampilkan <strong className="text-slate-800 font-bold">{filteredStockMaterials.length}</strong> dari <strong className="text-slate-800 font-bold">{activePkg?.materials.length || 0}</strong> material terdaftar</span>
-                      {stockSelectedCategory !== 'all' && (
-                        <span className="text-amber-800 font-semibold">(filter kategori aktif)</span>
-                      )}
-                      {stockSearch && (
-                        <span className="text-sky-800 font-semibold">(pencarian: "{stockSearch}")</span>
-                      )}
-                    </div>
-                    <div className="text-[11px] text-slate-400 font-mono">
-                      Database Terverifikasi SAP Logistik &bull; Port 5001
-                    </div>
+                {/* Table Summary Footer Bar */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 font-medium">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span>
+                      Menampilkan <strong className="text-slate-800 font-bold">{filteredStockMaterials.length}</strong> dari <strong className="text-slate-800 font-bold">{stockConditionTab === 'return' ? totalReturnCount : totalBaruCount}</strong> material terdaftar ({stockConditionTab === 'return' ? 'Katalog Return' : 'Katalog Baru'})
+                    </span>
+                    {stockSelectedCategory !== 'all' && (
+                      <span className="text-amber-800 font-semibold">(filter kategori aktif)</span>
+                    )}
+                    {stockSearch && (
+                      <span className="text-sky-800 font-semibold">(pencarian: "{stockSearch}")</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-400 font-mono">
+                    Database Terverifikasi SAP Logistik &bull; Port 5001
                   </div>
                 </div>
               </div>
+            </div>
           )}
 
           {/* TAB: CATEGORY MANAGEMENT */}
@@ -2666,6 +2808,71 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </form>
               ) : (
                 <form onSubmit={handleAddNewMaterial} className="space-y-4">
+                  {/* Pilihan Kondisi: Baru vs Return */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">
+                      Kondisi / Tipe Material: <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewMatCondition('BARU');
+                          setNewMatStatus('Baru');
+                        }}
+                        className={`h-11 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition border ${
+                          newMatCondition === 'BARU'
+                            ? 'bg-sky-50 border-sky-600 text-sky-900 shadow-2xs'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+                        <span>Material Baru</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewMatCondition('RETURN');
+                          setNewMatStatus('STANDBY');
+                        }}
+                        className={`h-11 flex items-center justify-center gap-2 rounded-xl text-xs font-bold transition border ${
+                          newMatCondition === 'RETURN'
+                            ? 'bg-amber-50 border-amber-600 text-amber-950 shadow-2xs'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                        <span>Material Return</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Status Retur jika kondisi RETURN */}
+                  {newMatCondition === 'RETURN' && (
+                    <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                      <label className="block text-xs font-bold uppercase text-amber-900">
+                        Status Retur Material: <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {(['STANDBY', 'GARANSI', 'PERBAIKAN', 'USUL HAPUS'] as const).map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={() => setNewMatStatus(st)}
+                            className={`py-1.5 px-2 rounded-lg text-xs font-bold transition border ${
+                              newMatStatus === st
+                                ? 'bg-amber-600 border-amber-700 text-white shadow-xs'
+                                : 'bg-white border-amber-200 text-amber-900 hover:bg-amber-100'
+                            }`}
+                          >
+                            {st}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* 1. Nama Material */}
                   <div>
                     <label className="block text-xs font-bold uppercase text-slate-700 mb-1.5">

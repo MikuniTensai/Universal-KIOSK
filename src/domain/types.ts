@@ -14,6 +14,8 @@ export interface Material {
   unit: string;
   specification: string | null;
   photoPath: string | null;
+  condition?: 'BARU' | 'RETURN';
+  status?: string; // 'Baru' untuk Baru, atau 'GARANSI' | 'PERBAIKAN' | 'USUL HAPUS' | 'STANDBY' untuk Return
 }
 
 export interface Asset {

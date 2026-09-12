@@ -29,12 +29,19 @@ import {
 import { SOP_FLOWS, SopFlow, SopStep } from './sopFlowData';
 import './animatedSop.css';
 
-export const AnimatedSopExplorer: React.FC = () => {
+interface AnimatedSopExplorerProps {
+  autoPlay?: boolean;
+}
+
+export const AnimatedSopExplorer: React.FC<AnimatedSopExplorerProps> = ({
+  autoPlay = false,
+}) => {
   const [selectedFlowId, setSelectedFlowId] = useState<'penerimaan' | 'pengeluaran' | 'pengembalian'>('penerimaan');
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(autoPlay);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(4000); // 4000ms default
-  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const [isSoundEnabled, setIsSoundEnabled] = useState<boolean>(true);
   const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
   const [lightboxZoom, setLightboxZoom] = useState<number>(1);
@@ -42,13 +49,26 @@ export const AnimatedSopExplorer: React.FC = () => {
   const activeFlow: SopFlow = SOP_FLOWS.find((f) => f.id === selectedFlowId) || SOP_FLOWS[0];
   const activeStep: SopStep = activeFlow.steps[currentStepIndex] || activeFlow.steps[0];
 
+  // Only the bar changes each frame; keep the explorer out of that render loop.
+  const setProgressWidth = useCallback((percent: number) => {
+    if (progressBarRef.current) progressBarRef.current.style.width = `${percent}%`;
+  }, []);
+
+  useEffect(() => () => {
+    const context = audioContextRef.current;
+    audioContextRef.current = null;
+    if (context && context.state !== 'closed') void context.close().catch(() => {});
+  }, []);
+
   // Web Audio subtle synthesizer sound effect
   const playStepChime = useCallback(() => {
     if (!isSoundEnabled) return;
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!AudioCtx) return;
-      const ctx = new AudioCtx();
+      const ctx = audioContextRef.current ?? new AudioCtx();
+      audioContextRef.current = ctx;
+      if (ctx.state === 'suspended') void ctx.resume().catch(() => {});
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
@@ -61,6 +81,10 @@ export const AnimatedSopExplorer: React.FC = () => {
 
       osc.connect(gain);
       gain.connect(ctx.destination);
+      osc.onended = () => {
+        osc.disconnect();
+        gain.disconnect();
+      };
       osc.start();
       osc.stop(ctx.currentTime + 0.16);
     } catch {
@@ -72,7 +96,7 @@ export const AnimatedSopExplorer: React.FC = () => {
   const handleSelectFlow = (flowId: 'penerimaan' | 'pengeluaran' | 'pengembalian') => {
     setSelectedFlowId(flowId);
     setCurrentStepIndex(0);
-    setProgressPercent(0);
+    setProgressWidth(0);
     playStepChime();
   };
 
@@ -82,9 +106,9 @@ export const AnimatedSopExplorer: React.FC = () => {
       const next = (prev + 1) % activeFlow.steps.length;
       return next;
     });
-    setProgressPercent(0);
+    setProgressWidth(0);
     playStepChime();
-  }, [activeFlow.steps.length, playStepChime]);
+  }, [activeFlow.steps.length, playStepChime, setProgressWidth]);
 
   // Previous step handler
   const handlePrevStep = () => {
@@ -92,21 +116,21 @@ export const AnimatedSopExplorer: React.FC = () => {
       const next = prev === 0 ? activeFlow.steps.length - 1 : prev - 1;
       return next;
     });
-    setProgressPercent(0);
+    setProgressWidth(0);
     playStepChime();
   };
 
   // Reset to first step
   const handleReset = () => {
     setCurrentStepIndex(0);
-    setProgressPercent(0);
+    setProgressWidth(0);
     playStepChime();
   };
 
   // Jump to specific step
   const handleJumpToStep = (index: number) => {
     setCurrentStepIndex(index);
-    setProgressPercent(0);
+    setProgressWidth(0);
     playStepChime();
   };
 
@@ -119,7 +143,7 @@ export const AnimatedSopExplorer: React.FC = () => {
     if (!isPlaying) {
       if (timerRef.current) clearInterval(timerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      setProgressPercent(0);
+      setProgressWidth(0);
       return;
     }
 
@@ -129,7 +153,7 @@ export const AnimatedSopExplorer: React.FC = () => {
     const updateProgress = () => {
       const elapsed = Date.now() - startTimeRef.current;
       const pct = Math.min(100, (elapsed / playbackSpeed) * 100);
-      setProgressPercent(pct);
+      setProgressWidth(pct);
 
       if (pct < 100 && isPlaying) {
         animFrameRef.current = requestAnimationFrame(updateProgress);
@@ -149,7 +173,7 @@ export const AnimatedSopExplorer: React.FC = () => {
       if (timerRef.current) clearInterval(timerRef.current);
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [isPlaying, playbackSpeed, handleNextStep]);
+  }, [isPlaying, playbackSpeed, handleNextStep, setProgressWidth]);
 
   // Esc key closes lightbox
   useEffect(() => {
@@ -398,9 +422,10 @@ export const AnimatedSopExplorer: React.FC = () => {
         {isPlaying && (
           <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
             <div
+              ref={progressBarRef}
               className="h-full rounded-full sop-progress-shimmer transition-all duration-100"
               style={{
-                width: `${progressPercent}%`,
+                width: '0%',
                 backgroundColor: activeFlow.themeColor.primary,
               }}
             />

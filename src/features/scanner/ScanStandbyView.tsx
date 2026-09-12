@@ -267,8 +267,10 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
             <div className="pt-1">
               <WarehouseMiniMap
                 activeZone={primaryLoc?.zone}
+                blok={primaryLoc?.zone}
                 rack={primaryLoc?.rack}
                 bin={primaryLoc?.bin}
+                subRak={primaryLoc?.bin}
               />
             </div>
 

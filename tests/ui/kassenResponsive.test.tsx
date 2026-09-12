@@ -69,9 +69,10 @@ describe('Kassen WK-215 Hardware Resolution & Responsive Audit', () => {
     expect(homeContainer).toBeInTheDocument();
     expect(homeContainer).toHaveClass('w-full', 'h-full');
 
-    // Verify all 3 client requested thumbnail buttons are rendered
+    // Verify client requested thumbnail buttons are rendered (Katalog Baru, Return, SOP, Layout)
     expect(screen.getByText(/Program Kerja Gudang PLN/i)).toBeInTheDocument();
-    expect(screen.getByText(/Daftar Item & Material Gudang/i)).toBeInTheDocument();
+    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Baru\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Return\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Scan Item \(Cek Spesifikasi\)/i)).toBeInTheDocument();
 
     // Verify action buttons at the bottom of the cards have full 56px touch height and flex-shrink-0

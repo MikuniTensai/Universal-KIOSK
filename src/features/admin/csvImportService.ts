@@ -12,6 +12,7 @@ export interface ParsedMaterialRow {
   blok: string;
   rak: string;
   subRak: string;
+  status?: string;
 }
 
 export interface CsvImportStats {
@@ -86,9 +87,10 @@ export class CsvImportService {
     let idxBlok = header.findIndex(h => h === 'blok' || h.includes('block') || h.includes('zona'));
     let idxRak = header.findIndex(h => h === 'rak' || h.includes('rack'));
     let idxSubRak = header.findIndex(h => h.includes('sub') || h.includes('bin') || h.includes('slot'));
+    let idxStatus = header.findIndex(h => h === 'status' || h.includes('status') || h.includes('kondisi') || h.includes('keterangan'));
 
     // Fallback by positional index if headers match SAP Excel layout:
-    // [0: No, 1: Nama Material, 2: Kode Normalisasi, 3: Satuan, 4: Stok, 5: BLOK, 6: RAK, 7: (Empty / Sub Rak)]
+    // [0: No, 1: Nama Material, 2: Kode Normalisasi, 3: Satuan, 4: Stok, 5: BLOK, 6: RAK, 7: (Empty / Sub Rak), 8: STATUS]
     if (idxName === -1 && header.length >= 2) idxName = 1;
     if (idxCode === -1 && header.length >= 3) idxCode = 2;
     if (idxUnit === -1 && header.length >= 4) idxUnit = 3;
@@ -96,6 +98,7 @@ export class CsvImportService {
     if (idxBlok === -1 && header.length >= 6) idxBlok = 5;
     if (idxRak === -1 && header.length >= 7) idxRak = 6;
     if (idxSubRak === -1 && header.length >= 8) idxSubRak = 7;
+    if (idxStatus === -1 && header.length >= 9) idxStatus = 8;
 
     const rows: ParsedMaterialRow[] = [];
     for (let i = 1; i < lines.length; i++) {
@@ -112,6 +115,7 @@ export class CsvImportService {
       const blok = idxBlok !== -1 && cols[idxBlok] ? cols[idxBlok].trim() : 'C';
       const rak = idxRak !== -1 && cols[idxRak] ? cols[idxRak].trim() : '-';
       const subRak = idxSubRak !== -1 && cols[idxSubRak] ? cols[idxSubRak].trim() : '-';
+      const status = idxStatus !== -1 && cols[idxStatus] ? cols[idxStatus].trim() : undefined;
 
       rows.push({
         no,
@@ -122,6 +126,7 @@ export class CsvImportService {
         blok,
         rak: rak || '-',
         subRak: subRak || '-',
+        status,
       });
     }
 
@@ -272,6 +277,11 @@ export class CsvImportService {
 
       const matId = existingMat?.id || `mat-csv-${String(idx + 1).padStart(3, '0')}`;
 
+      const rawStatus = row.status?.trim() || '';
+      const isReturnStatus = ['GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY'].includes(rawStatus.toUpperCase());
+      const condition: 'BARU' | 'RETURN' = isReturnStatus || rawStatus.toUpperCase().includes('RETUR') ? 'RETURN' : 'BARU';
+      const status = rawStatus ? rawStatus : (condition === 'RETURN' ? 'STANDBY' : 'Baru');
+
       materials.push({
         id: matId,
         code: normCode,
@@ -281,6 +291,8 @@ export class CsvImportService {
         unit: row.unit,
         specification: spec,
         photoPath,
+        condition,
+        status,
       });
 
       const reserved = row.stock > 5 ? Math.floor(row.stock * 0.1) : 0;

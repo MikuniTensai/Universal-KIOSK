@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { WarehouseLayoutService } from '../../src/features/layout/warehouseLayoutService';
 import { WarehouseLayoutView } from '../../src/features/layout/WarehouseLayoutView';
@@ -122,40 +122,39 @@ describe('Warehouse Hierarchy Deletion Tests (Blok, Sub-Blok, Slot)', () => {
     expect(subA1?.slots.some(s => s.code === 'A.1.6')).toBe(false);
   });
 
-  it('allows deleting a slot from WarehouseLayoutView inspector', () => {
-    // Add slot C.1.6 to Blok C
-    WarehouseLayoutService.addSlotToSubBlock('C.1', 'Slot Uji C16');
+  it('renders official printed blueprint and interactive controls in WarehouseLayoutView', () => {
+    const handleBack = vi.fn();
+    const handleSelectRack = vi.fn();
 
     render(
       <WarehouseLayoutView
         pkg={samplePlnPackage}
         config={defaultKioskConfig}
-        onBack={() => {}}
+        onBack={handleBack}
+        onSelectRack={handleSelectRack}
       />
     );
 
-    // Click on Slot C.1.6
-    const slotBtn = screen.getByRole('button', { name: /C\.1\.6/i });
-    fireEvent.click(slotBtn);
+    // Verify title and official document badge
+    expect(screen.getByText(/Denah & Tata Letak Gudang/i)).toBeInTheDocument();
+    expect(screen.getByText(/DOKUMEN RESMI TATA LETAK/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/GUDANG ARIS MUNANDAR/i).length).toBeGreaterThanOrEqual(1);
 
-    // Inspector card shows "SLOT TERPILIH: C.1.6"
-    expect(screen.getByText(/SLOT TERPILIH: C\.1\.6/i)).toBeInTheDocument();
+    // Verify blueprint image is rendered
+    const blueprintImg = screen.getByAltText(/Denah dan Tata Letak Gudang Aris Munandar/i);
+    expect(blueprintImg).toBeInTheDocument();
 
-    // Click "Hapus Slot"
-    const deleteSlotBtn = screen.getByRole('button', { name: /Hapus Slot/i });
-    fireEvent.click(deleteSlotBtn);
+    // Verify Zoom In / Zoom Out controls
+    const zoomInBtn = screen.getByRole('button', { name: /Perbesar Denah/i });
+    expect(zoomInBtn).toBeInTheDocument();
+    fireEvent.click(zoomInBtn);
 
-    // Confirmation modal appears
-    expect(screen.getByText('Konfirmasi Hapus Slot Rak')).toBeInTheDocument();
+    // Verify zoom scale text reflects increment (125%)
+    expect(screen.getByText('125%')).toBeInTheDocument();
 
-    // Confirm deletion
-    const confirmBtn = screen.getByRole('button', { name: /Ya, Hapus Slot Ini/i });
-    fireEvent.click(confirmBtn);
-
-    // Modal closes and slot is deleted
-    expect(screen.queryByText('Konfirmasi Hapus Slot Rak')).not.toBeInTheDocument();
-    const blokC = WarehouseLayoutService.getBlocks().find(b => b.letter === 'C');
-    const subC1 = blokC?.subBlocks.find(sb => sb.code === 'C.1');
-    expect(subC1?.slots.some(s => s.code === 'C.1.6')).toBe(false);
+    // Verify back button calls onBack
+    const backBtn = screen.getByRole('button', { name: /Kembali/i });
+    fireEvent.click(backBtn);
+    expect(handleBack).toHaveBeenCalledTimes(1);
   });
 });

@@ -1188,6 +1188,87 @@
   flex-shrink: 0;
 }
 
+/* Submenu Container & Dropdown (Muncul saat cursor diarahkan / hover) */
+.adms-menu-item-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.adms-submenu {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0 6px 14px;
+  margin: 2px 0 4px 16px;
+  border-left: 2px solid #cbd5e1;
+  animation: adms-sub-fade 0.18s ease;
+}
+
+.adms-submenu.adms-submenu--visible,
+.adms-menu-item-wrapper:hover .adms-submenu {
+  display: flex;
+}
+
+@keyframes adms-sub-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.adms-submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.adms-submenu-item:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.adms-submenu-item.active {
+  background: #0284c7;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+}
+
+.adms-submenu-item.active .adms-submenu-tag {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.adms-submenu-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.adms-submenu-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-left: auto;
+}
+
 /* Sidebar Bottom Status */
 .adms-sidebar-bottom {
   padding: 14px 16px;

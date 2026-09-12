@@ -13,7 +13,11 @@ export interface ServerSyncPayload {
 export class SyncService {
   private static syncIntervalTimer: ReturnType<typeof setInterval> | null = null;
   private static lastKnownTimestamp = 0;
-  private static isSyncing = false;
+  private static pollingSession = 0;
+  private static pollingRequest: AbortController | null = null;
+  private static removePollingListener: (() => void) | null = null;
+  private static lastAppliedEtag: string | null = null;
+  private static responseValidators = new WeakMap<ServerSyncPayload, string | null>();
   private static broadcastChannel: BroadcastChannel | null = null;
   private static listeners: Array<(payload: ServerSyncPayload) => void> = [];
 
@@ -67,6 +71,7 @@ export class SyncService {
     };
 
     this.lastKnownTimestamp = payload.lastUpdated;
+    this.lastAppliedEtag = null;
 
     // Broadcast lokal instan (0ms) untuk tab pada mesin yang sama
     if (this.broadcastChannel) {
@@ -99,7 +104,7 @@ export class SyncService {
   /**
    * Menarik state terbaru dari backend peladen lokal (/api/sync)
    */
-  public static async pullState(): Promise<ServerSyncPayload | null> {
+  public static async pullState(signal?: AbortSignal): Promise<ServerSyncPayload | null> {
     try {
       if (typeof window === 'undefined' || typeof fetch !== 'function') return null;
 
@@ -107,13 +112,18 @@ export class SyncService {
         method: 'GET',
         headers: {
           Accept: 'application/json',
+          ...(this.lastAppliedEtag ? { 'If-None-Match': this.lastAppliedEtag } : {}),
         },
+        cache: 'no-cache',
+        signal,
       });
 
-      if (!response.ok) return null;
+      if (signal?.aborted || response.status === 304 || !response.ok) return null;
       const data = await response.json();
-      if (!data || !data.lastUpdated) return null;
+      if (signal?.aborted || !data || typeof data.lastUpdated !== 'number'
+        || !Number.isFinite(data.lastUpdated) || data.lastUpdated <= 0) return null;
 
+      this.responseValidators.set(data, response.headers.get('ETag'));
       return data as ServerSyncPayload;
     } catch {
       return null;
@@ -124,11 +134,16 @@ export class SyncService {
    * Menerapkan data hasil sinkronisasi ke storage lokal in-memory & localStorage
    */
   public static applySyncedState(payload: ServerSyncPayload): boolean {
-    if (!payload.lastUpdated || payload.lastUpdated <= this.lastKnownTimestamp) {
+    if (!Number.isFinite(payload.lastUpdated) || payload.lastUpdated <= this.lastKnownTimestamp) {
+      // A payload received after a local broadcast may have the same timestamp.
+      // It was already applied, so acknowledge its validator without notifying UI.
+      if (payload.lastUpdated === this.lastKnownTimestamp) {
+        const validator = this.responseValidators.get(payload);
+        if (validator) this.lastAppliedEtag = validator;
+        this.responseValidators.delete(payload);
+      }
       return false;
     }
-
-    this.lastKnownTimestamp = payload.lastUpdated;
 
     if (payload.activePackage) {
       kioskStorage.setActivePackageDirectly(payload.activePackage);
@@ -140,6 +155,10 @@ export class SyncService {
       WarehouseLayoutService.saveBlocks(payload.blocks);
     }
 
+    // A failed storage write must leave the same response eligible for retry.
+    this.lastKnownTimestamp = payload.lastUpdated;
+    this.lastAppliedEtag = this.responseValidators.get(payload) ?? null;
+    this.responseValidators.delete(payload);
     return true;
   }
 
@@ -148,39 +167,44 @@ export class SyncService {
    */
   public static startPolling(onUpdated?: () => void, intervalMs = 5000): void {
     this.initBroadcast();
+    if (this.syncIntervalTimer !== null) return;
 
     if (onUpdated) {
-      this.addListener(() => onUpdated());
+      this.removePollingListener = this.addListener(() => onUpdated());
     }
 
-    if (this.syncIntervalTimer) return;
-
-    // Jalankan satu kali segera saat inisialisasi
-    this.pullState().then((remoteState) => {
-      if (remoteState && this.applySyncedState(remoteState)) {
-        if (onUpdated) onUpdated();
-      }
-    });
-
-    this.syncIntervalTimer = setInterval(async () => {
-      if (this.isSyncing) return;
-      this.isSyncing = true;
+    const session = ++this.pollingSession;
+    const poll = async () => {
+      if (this.pollingRequest || session !== this.pollingSession) return;
+      const request = new AbortController();
+      this.pollingRequest = request;
       try {
-        const remoteState = await this.pullState();
+        const remoteState = await this.pullState(request.signal);
+        if (request.signal.aborted || session !== this.pollingSession) return;
         if (remoteState && this.applySyncedState(remoteState)) {
-          if (onUpdated) onUpdated();
+          this.notifyListeners(remoteState);
         }
+      } catch {
+        // Keep polling after a storage failure; the validator has not been acknowledged.
       } finally {
-        this.isSyncing = false;
+        if (this.pollingRequest === request) this.pollingRequest = null;
       }
-    }, intervalMs);
+    };
+
+    this.syncIntervalTimer = setInterval(() => void poll(), intervalMs);
+    void poll();
   }
 
   /**
    * Menghentikan polling
    */
   public static stopPolling(): void {
-    if (this.syncIntervalTimer) {
+    ++this.pollingSession;
+    this.pollingRequest?.abort();
+    this.pollingRequest = null;
+    this.removePollingListener?.();
+    this.removePollingListener = null;
+    if (this.syncIntervalTimer !== null) {
       clearInterval(this.syncIntervalTimer);
       this.syncIntervalTimer = null;
     }

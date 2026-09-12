@@ -1,17 +1,62 @@
 import React from 'react';
 import { MaterialWithStock } from '../../domain/types';
-import { MapPin, AlertTriangle, PackageCheck, PackageX, HelpCircle } from 'lucide-react';
+import { MapPin, AlertTriangle, PackageCheck, PackageX, HelpCircle, Sparkles, ShieldCheck, Wrench, Trash2, Clock } from 'lucide-react';
 import { ContentService } from '../programs/contentService';
 import { getCategoryIcon } from '../../shared/utils/categoryIcons';
 
 interface MaterialCardProps {
   material: MaterialWithStock;
-  onClick: () => void;
+  onClick: (material: MaterialWithStock) => void;
 }
 
-export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick }) => {
+export const MaterialCard = React.memo(function MaterialCard({ material, onClick }: MaterialCardProps) {
+  const handleClick = () => onClick(material);
   const CatIcon = getCategoryIcon(material.categoryId || material.categoryName);
   const primaryLocation = material.locations[0]?.location;
+
+  const itemStatus = material.status || (material.condition === 'RETURN' ? 'STANDBY' : 'Baru');
+  const isReturn = material.condition === 'RETURN' || ['GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY'].includes(itemStatus.toUpperCase());
+
+  const renderStatusBadge = () => {
+    switch (itemStatus.toUpperCase()) {
+      case 'GARANSI':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-md bg-blue-600 text-white px-2.5 py-1 text-xs font-black shadow-sm tracking-wide">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            <span>GARANSI</span>
+          </span>
+        );
+      case 'PERBAIKAN':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-md bg-amber-500 text-slate-950 px-2.5 py-1 text-xs font-black shadow-sm tracking-wide">
+            <Wrench className="h-3.5 w-3.5 shrink-0" />
+            <span>PERBAIKAN</span>
+          </span>
+        );
+      case 'USUL HAPUS':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-md bg-rose-600 text-white px-2.5 py-1 text-xs font-black shadow-sm tracking-wide">
+            <Trash2 className="h-3.5 w-3.5 shrink-0" />
+            <span>USUL HAPUS</span>
+          </span>
+        );
+      case 'STANDBY':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-md bg-teal-600 text-white px-2.5 py-1 text-xs font-black shadow-sm tracking-wide">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span>STANDBY</span>
+          </span>
+        );
+      case 'BARU':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-600 text-white px-2.5 py-1 text-xs font-black shadow-sm tracking-wide">
+            <Sparkles className="h-3.5 w-3.5 shrink-0" />
+            <span>Baru</span>
+          </span>
+        );
+    }
+  };
 
   let cleanBlok = '-';
   if (primaryLocation?.zone) {
@@ -39,10 +84,10 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick })
 
   return (
     <div
-      onClick={onClick}
+      onClick={handleClick}
       className="flex flex-col overflow-hidden rounded-material border border-slate-200 bg-white shadow-sm transition hover:shadow-md active:scale-[0.98] cursor-pointer"
     >
-      {/* Photo with category badge */}
+      {/* Photo with category badge & status badge */}
       <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
         <img
           src={material.photoPath || ContentService.getFallbackImage()}
@@ -59,28 +104,34 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick })
           </span>
         </div>
 
-        {/* Stale Warning Badge if applicable */}
-        {material.isStale && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 rounded-md bg-amber-500 px-2 py-1 text-xs font-bold text-white shadow-sm">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            <span>Data Lama</span>
-          </div>
-        )}
+        {/* Prominent Status Badge (Top Right) */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          {renderStatusBadge()}
+          {material.isStale && (
+            <div className="flex items-center gap-1 rounded-md bg-amber-500 px-2 py-1 text-xs font-bold text-white shadow-sm">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              <span>Data Lama</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Content Info */}
       <div className="flex flex-1 flex-col justify-between p-4">
         <div>
-          {/* Material Codes */}
-          <div className="mb-1.5 flex items-center gap-1.5 flex-wrap">
+          {/* Material Codes & Status Label */}
+          <div className="mb-1.5 flex items-center justify-between gap-1.5 flex-wrap">
             <span className="font-mono text-xs font-black text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
               Normalisasi: <strong>{material.code}</strong>
+            </span>
+            <span className="text-[11px] font-black uppercase text-slate-500">
+              Status: <strong className={isReturn ? 'text-amber-800' : 'text-emerald-700'}>{itemStatus}</strong>
             </span>
           </div>
 
           {/* Name */}
           <h4
-            onClick={onClick}
+            onClick={handleClick}
             className="text-base font-black text-[#0F172A] line-clamp-2 leading-snug cursor-pointer"
           >
             {material.name}
@@ -134,4 +185,4 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({ material, onClick })
       </div>
     </div>
   );
-};
+});

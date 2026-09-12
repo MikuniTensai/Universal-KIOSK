@@ -1,26 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   ArrowLeft,
-  Compass,
-  Navigation,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Maximize2,
+  Minimize2,
   MapPin,
-  Layers,
-  Box,
-  PlusCircle,
-  Sparkles,
-  Plus,
+  Search,
+  HelpCircle,
   X,
-  FolderTree,
-  Trash2,
-  AlertTriangle,
 } from 'lucide-react';
 import { ImportPackage, KioskConfig } from '../../domain/types';
-import {
-  WarehouseLayoutService,
-  WarehouseBlock,
-  WarehouseSubBlock,
-  WarehouseSlot,
-} from './warehouseLayoutService';
+import denahGudangImg from '../../assets/denah_gudang_pln.png';
 
 interface WarehouseLayoutViewProps {
   pkg: ImportPackage;
@@ -30,825 +22,338 @@ interface WarehouseLayoutViewProps {
 }
 
 export const WarehouseLayoutView: React.FC<WarehouseLayoutViewProps> = ({
-  pkg,
-  config,
+  pkg: _pkg,
+  config: _config,
   onBack,
   onSelectRack,
 }) => {
-  const [blocks, setBlocks] = useState<WarehouseBlock[]>(() => {
-    return WarehouseLayoutService.getBlocks();
-  });
-  const [selectedZone, setSelectedZone] = useState<string>('blok-c');
-  const [selectedSlot, setSelectedSlot] = useState<WarehouseSlot | null>(null);
+  // Zoom & Pan state
+  const [zoom, setZoom] = useState<number>(1);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragOrigin, setDragOrigin] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
 
-  // Modal & Deletion states
-  const [showAddBlockModal, setShowAddBlockModal] = useState<boolean>(false);
-  const [newBlockLetter, setNewBlockLetter] = useState<string>('I');
-  const [newBlockName, setNewBlockName] = useState<string>('');
-  const [newBlockSubCount, setNewBlockSubCount] = useState<number>(3);
-  const [newBlockSlotCount, setNewBlockSlotCount] = useState<number>(5);
-  const [addBlockError, setAddBlockError] = useState<string | null>(null);
+  // Touch pinch zoom state
+  const touchDistanceRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const [blockToDelete, setBlockToDelete] = useState<WarehouseBlock | null>(null);
-  const [subBlockToDelete, setSubBlockToDelete] = useState<WarehouseSubBlock | null>(null);
-  const [slotToDelete, setSlotToDelete] = useState<WarehouseSlot | null>(null);
+  // Zoom controls
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.25, 3.5));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.25, 0.6));
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Double click to toggle zoom
+  const handleDoubleClick = () => {
+    if (zoom > 1.2) {
+      handleResetZoom();
+    } else {
+      setZoom(1.8);
+    }
+  };
+
+  // Mouse pan handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return; // Only primary button
+    setIsDragging(true);
+    setDragOrigin({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragOrigin.x,
+      y: e.clientY - dragOrigin.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Touch pan & pinch handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      setDragOrigin({
+        x: e.touches[0].clientX - pan.x,
+        y: e.touches[0].clientY - pan.y,
+      });
+    } else if (e.touches.length === 2) {
+      // Pinch to zoom start
+      setIsDragging(false);
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchDistanceRef.current = dist;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && isDragging) {
+      setPan({
+        x: e.touches[0].clientX - dragOrigin.x,
+        y: e.touches[0].clientY - dragOrigin.y,
+      });
+    } else if (e.touches.length === 2 && touchDistanceRef.current !== null) {
+      // Pinch to zoom active
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const delta = (dist - touchDistanceRef.current) * 0.005;
+      setZoom((prev) => Math.min(Math.max(prev + delta, 0.6), 3.5));
+      touchDistanceRef.current = dist;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    touchDistanceRef.current = null;
+  };
+
+  // Wheel zoom
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+    const zoomDelta = e.deltaY > 0 ? -0.15 : 0.15;
+    setZoom((prev) => Math.min(Math.max(prev + zoomDelta, 0.6), 3.5));
+  }, []);
 
   useEffect(() => {
-    WarehouseLayoutService.syncWithPackage(pkg);
-    setBlocks(WarehouseLayoutService.getBlocks());
-  }, [pkg]);
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+    };
+  }, [handleWheel]);
 
-  const activeZoneObj = blocks.find(z => z.id === selectedZone) || blocks[0] || {
-    id: 'blok-c',
-    code: 'BLOK C',
-    letter: 'C',
-    name: 'Ruang Bersih Kalibrasi APP & kWh Meter',
-    description: 'Penyimpanan APP & kWh Meter',
-    icon: '⚡',
-    color: 'border-amber-400 bg-amber-500/10',
-    activeColor: 'ring-4 ring-amber-400 border-amber-500 bg-amber-500/20',
-    subBlocks: [],
-    highlightRack: 'Rak A-001 (Smart Meter / kWh)',
-    sampleMaterials: [],
-  };
-
-  const handleSelectBlock = (blockId: string) => {
-    setSelectedZone(blockId);
-    setSelectedSlot(null);
-  };
-
-  const handleAddCustomBlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAddBlockError(null);
-
-    const cleanLetter = newBlockLetter.trim().toUpperCase();
-    if (!cleanLetter || cleanLetter.length > 2) {
-      setAddBlockError('Huruf/Kode Blok harus 1-2 karakter (contoh: I, J, Z).');
-      return;
-    }
-
-    try {
-      const created = WarehouseLayoutService.addBlock({
-        letter: cleanLetter,
-        name: newBlockName.trim() || `Area Blok ${cleanLetter}`,
-        subBlockCount: newBlockSubCount,
-        slotsPerSubBlock: newBlockSlotCount,
-      });
-
-      const updated = WarehouseLayoutService.getBlocks();
-      setBlocks(updated);
-      setSelectedZone(created.id);
-      setShowAddBlockModal(false);
-      setNewBlockLetter('');
-      setNewBlockName('');
-    } catch (err: unknown) {
-      setAddBlockError(err instanceof Error ? err.message : 'Gagal menambah blok');
-    }
-  };
-
-  const handleInitializeAtoZ = () => {
-    const updated = WarehouseLayoutService.initializeAllBlocksAtoZ();
-    WarehouseLayoutService.syncWithPackage(pkg);
-    setBlocks(updated);
-  };
-
-  const handleAddSlot = (subBlockCode: string) => {
-    try {
-      WarehouseLayoutService.addSlotToSubBlock(subBlockCode);
-      const updated = WarehouseLayoutService.getBlocks();
-      setBlocks(updated);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleConfirmDeleteBlock = () => {
-    if (!blockToDelete) return;
-    try {
-      if (blocks.length <= 1) {
-        setBlockToDelete(null);
-        return;
-      }
-      WarehouseLayoutService.deleteBlock(blockToDelete.letter);
-      const updated = WarehouseLayoutService.getBlocks();
-      setBlocks(updated);
-      if (selectedZone === blockToDelete.id) {
-        setSelectedZone(updated[0]?.id || 'blok-a');
-        setSelectedSlot(null);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setBlockToDelete(null);
-    }
-  };
-
-  const handleConfirmDeleteSubBlock = () => {
-    if (!subBlockToDelete) return;
-    try {
-      WarehouseLayoutService.deleteSubBlock(subBlockToDelete.code);
-      const updated = WarehouseLayoutService.getBlocks();
-      setBlocks(updated);
-      if (selectedSlot?.code.startsWith(`${subBlockToDelete.code}.`)) {
-        setSelectedSlot(null);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSubBlockToDelete(null);
-    }
-  };
-
-  const handleConfirmDeleteSlot = () => {
-    if (!slotToDelete) return;
-    try {
-      WarehouseLayoutService.deleteSlot(slotToDelete.code);
-      const updated = WarehouseLayoutService.getBlocks();
-      setBlocks(updated);
-      if (selectedSlot?.code === slotToDelete.code) {
-        setSelectedSlot(null);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSlotToDelete(null);
-    }
+  // Fullscreen toggle
+  const toggleFullscreen = () => {
+    setIsFullscreen((prev) => !prev);
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] p-6 lg:p-8 overflow-y-auto no-scrollbar">
-      {/* Top Header & Navigation Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-5 shrink-0">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-amber-900 mb-1.5 shadow-2xs">
-            <Layers className="h-3.5 w-3.5 text-amber-600" />
-            <span>VISUALISASI DENAH GUDANG LOGISTIK PLN (BLOK A s/d Z)</span>
-          </div>
-          <h2 className="text-3xl lg:text-4xl font-black text-[#0F172A] tracking-tight">
-            Denah Tata Letak Blok &amp; Rak Material
-          </h2>
-          <p className="text-sm lg:text-base font-medium text-slate-600 mt-1">
-            Visualisasi hierarki lokasi terstandarisasi PLN: <span className="font-bold text-amber-900">Blok (A-Z) &rarr; Sub-Blok (.1, .2, .3) &rarr; Slot (.1 - .5)</span>. Contoh: <span className="font-mono font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">A.1.1 - A.1.5</span> atau <span className="font-mono font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">A.3.1 - A.3.5</span>.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0">
+    <div
+      className={`flex flex-col ${
+        isFullscreen ? 'fixed inset-0 z-50 bg-[#090D16]' : 'min-h-full bg-[#0B1120]'
+      } text-white select-none overflow-hidden`}
+    >
+      {/* Top Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 bg-[#0F172A]/95 backdrop-blur-md border-b border-cyan-500/20 shadow-lg shrink-0 z-20">
+        <div className="flex items-center gap-4">
           <button
-            onClick={() => setShowAddBlockModal(true)}
-            className="flex h-14 items-center gap-2 rounded-control bg-white border-2 border-amber-400/80 px-5 text-sm font-bold text-amber-950 shadow-sm active:scale-95 hover:bg-amber-50"
+            onClick={onBack}
+            className="flex h-12 items-center gap-2.5 rounded-xl bg-slate-800/90 border border-slate-700/80 px-4 text-sm font-bold text-slate-200 hover:bg-cyan-950/80 hover:border-cyan-500/50 hover:text-cyan-300 active:scale-95 transition shadow-sm"
+            title="Kembali ke Beranda"
+            aria-label="Kembali ke Beranda"
           >
-            <PlusCircle className="h-5 w-5 text-amber-600" />
-            <span>Tambah Blok &amp; Rak Sendiri</span>
+            <ArrowLeft className="h-5 w-5 text-cyan-400" />
+            <span>Kembali ke Beranda</span>
           </button>
 
-          {blocks.length < 26 && (
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-cyan-300">
+                <MapPin className="h-3 w-3 text-cyan-400" />
+                DOKUMEN RESMI TATA LETAK
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-400/30 px-2 py-0.5 text-[10px] font-extrabold text-amber-300">
+                GUDANG ARIS MUNANDAR
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+              <span>Denah &amp; Tata Letak Gudang</span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-400">
+                PT PLN (Persero) UP3 Malang
+              </span>
+            </h1>
+          </div>
+        </div>
+
+        {/* Right Header Actions */}
+        <div className="flex items-center gap-2.5">
+          {onSelectRack && (
             <button
-              onClick={handleInitializeAtoZ}
-              className="flex h-14 items-center gap-2 rounded-control bg-amber-100 border border-amber-300 px-4 text-xs font-bold text-amber-900 shadow-sm active:scale-95 hover:bg-amber-200"
-              title="Aktifkan seluruh Blok A sampai Z otomatis"
+              onClick={() => onSelectRack('')}
+              className="flex h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 text-xs sm:text-sm font-black text-slate-950 shadow-md hover:from-amber-400 hover:to-amber-500 active:scale-95 transition"
+              title="Buka Daftar Item & Material Gudang"
             >
-              <Sparkles className="h-4 w-4 text-amber-600" />
-              <span>Inisialisasi A s/d Z</span>
+              <Search className="h-4 w-4" />
+              <span>Cari di Katalog</span>
             </button>
           )}
 
           <button
-            onClick={onBack}
-            className="flex h-14 items-center gap-2 rounded-control bg-white border border-slate-200 px-6 text-base font-bold text-slate-700 shadow-sm active:scale-95 active:bg-slate-100 hover:border-amber-400"
+            onClick={() => setShowGuideModal(true)}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800/90 border border-slate-700/80 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 active:scale-95 transition"
+            title="Petunjuk Penggunaan Peta"
           >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Kembali ke Beranda</span>
+            <HelpCircle className="h-5 w-5" />
           </button>
-        </div>
-      </div>
-
-      {/* Dynamic Block Selector Tabs (Horizontally Scrollable Carousel for A-Z) */}
-      <div className="mb-5 bg-white rounded-2xl border-2 border-slate-200 p-3 shadow-xs">
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-            <FolderTree className="h-4 w-4 text-amber-600" />
-            <span>PILIH BLOK AREA GUDANG (Tersedia {blocks.length} Blok Aktif):</span>
-          </div>
-          <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
-            Ketuk salah satu blok di bawah untuk membuka skema sub-blok dan slot rak
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-          {blocks.map((b) => {
-            const isSelected = selectedZone === b.id;
-            const totalSlots = b.subBlocks.reduce((acc, sb) => acc + sb.slots.length, 0);
-            return (
-              <button
-                key={b.id}
-                onClick={() => handleSelectBlock(b.id)}
-                className={`flex min-h-[44px] items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold transition shrink-0 border-2 active:scale-95 ${
-                  isSelected
-                    ? 'bg-[#0F172A] text-[#FACC15] border-[#FACC15] shadow-md scale-105'
-                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
-                }`}
-              >
-                <span>{b.icon}</span>
-                <span>{b.code}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
-                    isSelected ? 'bg-amber-400 text-slate-950' : 'bg-slate-200 text-slate-600'
-                  }`}
-                >
-                  {totalSlots} slot
-                </span>
-              </button>
-            );
-          })}
 
           <button
-            onClick={() => setShowAddBlockModal(true)}
-            className="flex min-h-[44px] items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-amber-800 bg-amber-50 border-2 border-dashed border-amber-300 hover:bg-amber-100 shrink-0 transition active:scale-95"
+            onClick={toggleFullscreen}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800/90 border border-slate-700/80 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/40 active:scale-95 transition"
+            title={isFullscreen ? 'Keluar Layar Penuh' : 'Mode Layar Penuh'}
           >
-            <Plus className="h-3.5 w-3.5" />
-            <span>+ Blok Baru</span>
+            {isFullscreen ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {/* Main Layout Content: 2 Columns */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 flex-1">
-        {/* Left Column: Floor Plan Schematic + Interactive Sub-Block & Slot Matrix (7 cols) */}
-        <div className="xl:col-span-7 flex flex-col rounded-card border-2 border-slate-200 bg-slate-950 p-6 text-white shadow-lg">
-          {/* Header Map */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
-            <div className="flex items-center gap-2.5">
-              <Compass className="h-6 w-6 text-[#FACC15]" />
-              <div>
-                <h3 className="font-black text-base text-white uppercase tracking-wide">
-                  Peta Denah Lantai (Floor Plan Schematic)
-                </h3>
-                <span className="text-xs text-slate-400">
-                  {config.organizationName} &bull; {activeZoneObj.code}: {activeZoneObj.name}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-amber-400/10 border border-amber-400/30 px-3.5 py-1 text-xs font-bold text-amber-400">
-              <Navigation className="h-3.5 w-3.5" />
-              <span>Titik Kiosk: Pintu Utama</span>
-            </div>
-          </div>
+      {/* Main Interactive Map Canvas Viewport */}
+      <div
+        ref={containerRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onDoubleClick={handleDoubleClick}
+        className={`relative flex-1 w-full overflow-hidden bg-[#060911] flex items-center justify-center select-none ${
+          isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(56, 189, 248, 0.08) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }}
+      >
+        {/* Subtle decorative blueprint grid watermark */}
+        <div className="absolute top-4 left-6 pointer-events-none opacity-40 text-[11px] font-mono text-cyan-400/80 space-y-0.5">
+          <p>CAD-PLN-MLG // ARIS MUNANDAR WAREHOUSE MASTERPLAN</p>
+          <p>SCALE: {Math.round(zoom * 100)}% | STATUS: RESMI CETAK VERSI 1.1</p>
+        </div>
 
-          {/* Map Container */}
-          <div className="relative flex-1 min-h-[420px] bg-slate-900 rounded-2xl border-2 border-slate-800 p-4 flex flex-col justify-between overflow-hidden">
-            {/* Ambient Grid Background */}
-            <div
-              className="absolute inset-0 opacity-10 pointer-events-none"
-              style={{
-                backgroundImage: 'radial-gradient(circle, #FACC15 1px, transparent 1px)',
-                backgroundSize: '24px 24px',
-              }}
+        {/* The Blueprint Image with Smooth Transform */}
+        <div
+          className="relative max-w-none max-h-none transition-transform duration-75 ease-out"
+          style={{
+            transform: `translate3d(${pan.x}px, ${pan.y}px, 0px) scale(${zoom})`,
+            transformOrigin: 'center center',
+            transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          <div className="relative rounded-2xl p-2 bg-slate-900/60 border border-cyan-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] ring-1 ring-cyan-400/20">
+            <img
+              src={denahGudangImg}
+              alt="Denah dan Tata Letak Gudang Aris Munandar PT PLN UP3 Malang"
+              className="max-w-[1200px] w-[88vw] h-auto rounded-xl object-contain pointer-events-none shadow-2xl"
+              draggable={false}
             />
-
-            {/* Top Loading Dock Row */}
-            <div className="relative z-10 flex items-center justify-between bg-slate-800/90 rounded-xl px-4 py-2 border border-slate-700 text-xs font-bold text-slate-300">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#FACC15]"></span>
-                </span>
-                <span className="text-[#FACC15] font-extrabold uppercase">POS KIOSK KASSEN WK-215</span>
-              </div>
-              <span className="text-slate-400 uppercase tracking-wider text-[11px]">
-                GERBANG UTAMA &bull; AREA LOADING DOCK
-              </span>
-            </div>
-
-            {/* Middle: Interactive Sub-Blocks and Slots of Active Block */}
-            <div className="relative z-10 my-4 space-y-4 flex-1 overflow-y-auto max-h-[400px] pr-1 no-scrollbar">
-              <div className="flex items-center justify-between bg-slate-950/70 rounded-xl p-3 border border-slate-800">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{activeZoneObj.icon}</span>
-                  <div>
-                    <span className="text-xs font-black text-[#FACC15] uppercase tracking-wider">
-                      {activeZoneObj.code}
-                    </span>
-                    <h4 className="text-sm font-bold text-white line-clamp-1">
-                      {activeZoneObj.name}
-                    </h4>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      try {
-                        WarehouseLayoutService.addSubBlock(activeZoneObj.letter);
-                        setBlocks(WarehouseLayoutService.getBlocks());
-                      } catch (err) {
-                        console.error(err);
-                      }
-                    }}
-                    className="flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-500/20 border border-amber-500/40 px-2.5 py-1 rounded-lg hover:bg-amber-500/30 transition"
-                  >
-                    <Plus className="h-3 w-3" />
-                    <span>Tambah Baris Sub-Blok</span>
-                  </button>
-                  {blocks.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setBlockToDelete(activeZoneObj)}
-                      className="flex items-center gap-1 text-[11px] font-bold text-rose-300 bg-rose-500/20 border border-rose-500/40 px-2.5 py-1 rounded-lg hover:bg-rose-500/30 transition active:scale-95"
-                      title={`Hapus Blok ${activeZoneObj.code}`}
-                    >
-                      <Trash2 className="h-3 w-3 text-rose-400" />
-                      <span>Hapus Blok</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Render Sub-Blocks: e.g. A.1, A.2, A.3 */}
-              {activeZoneObj.subBlocks.map((subBlock: WarehouseSubBlock) => (
-                <div
-                  key={subBlock.code}
-                  className="bg-slate-950/90 rounded-xl p-3.5 border border-slate-800 space-y-2.5 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-xs text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded border border-amber-400/30">
-                        {subBlock.code}
-                      </span>
-                      <span className="text-xs font-bold text-slate-200">
-                        {subBlock.name || `Baris ${subBlock.code}`}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleAddSlot(subBlock.code)}
-                        className="min-h-[32px] text-[11px] font-bold text-slate-300 hover:text-amber-300 flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 transition"
-                        title={`Tambah slot ke baris ${subBlock.code}`}
-                      >
-                        <Plus className="h-3.5 w-3.5 text-amber-400" />
-                        <span>+ Slot ({subBlock.code}.{subBlock.slots.length + 1})</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSubBlockToDelete(subBlock)}
-                        className="min-h-[32px] text-[11px] font-bold text-rose-300 hover:text-rose-200 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900/80 active:scale-95 border border-rose-700/60 transition"
-                        title={`Hapus Baris ${subBlock.code}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5 text-rose-400" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Slot Matrix: e.g. A.1.1 - A.1.5 or A.3.1 - A.3.5 */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                    {subBlock.slots.map((slot: WarehouseSlot) => {
-                      const isSlotActive = selectedSlot?.code === slot.code;
-                      const isOccupied = slot.status === 'occupied' || Boolean(slot.materialName);
-                      return (
-                        <button
-                          key={slot.code}
-                          onClick={() => setSelectedSlot(slot)}
-                          className={`flex flex-col p-2.5 min-h-[50px] rounded-xl text-left transition border active:scale-95 ${
-                            isSlotActive
-                              ? 'bg-[#FACC15] text-[#0F172A] border-white shadow-md scale-105 ring-2 ring-amber-400'
-                              : isOccupied
-                              ? 'bg-amber-950/40 border-amber-600/60 text-amber-200 hover:bg-amber-900/50'
-                              : 'bg-slate-800/80 border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-500'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="font-mono font-black text-xs">
-                              {slot.code}
-                            </span>
-                            {isOccupied && (
-                              <span className="h-2 w-2 rounded-full bg-amber-400 shrink-0" />
-                            )}
-                          </div>
-                          <span
-                            className={`text-[10px] truncate mt-1 ${
-                              isSlotActive
-                                ? 'text-slate-900 font-bold'
-                                : isOccupied
-                                ? 'text-amber-300 font-semibold'
-                                : 'text-slate-400'
-                            }`}
-                          >
-                            {slot.materialName || slot.name || 'Kosong'}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Bottom Row: Forklift Line */}
-            <div className="relative z-10 flex items-center justify-between bg-slate-950/80 rounded-xl px-4 py-2 border border-slate-800 text-[11px] font-semibold text-slate-400">
-              <span className="flex items-center gap-1.5 text-amber-300">
-                <span>🚧</span> Marka Kuning: Jalur Forklift Antar-Blok ({blocks.map(b => b.letter).join(' &bull; ')})
-              </span>
-              <span className="text-emerald-400 font-bold">
-                🟢 Assembly Point Lapangan Depan
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* Right Column: Selected Zone Details, Racks & Slot Info (5 cols) */}
-        <div className="xl:col-span-5 flex flex-col rounded-card border-2 border-slate-200 bg-white p-6 lg:p-7 shadow-md justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-              <span className="text-3xl p-2.5 rounded-2xl bg-amber-50 border border-amber-200">
-                {activeZoneObj.icon}
-              </span>
-              <div>
-                <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-md border border-amber-300">
-                  {activeZoneObj.code}
-                </span>
-                <h3 className="text-xl lg:text-2xl font-black text-[#0F172A] tracking-tight mt-1">
-                  {activeZoneObj.name}
-                </h3>
-              </div>
-            </div>
+        {/* Floating Quick Floating Dock (Bottom Right / Center) */}
+        <div className="absolute bottom-6 right-6 z-20 flex items-center gap-2 bg-[#0F172A]/90 backdrop-blur-md border border-cyan-500/30 rounded-2xl p-1.5 shadow-2xl ring-1 ring-white/10">
+          <button
+            onClick={handleZoomIn}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 active:scale-90 transition"
+            title="Perbesar Denah (+)"
+            aria-label="Perbesar Denah"
+          >
+            <ZoomIn className="h-5 w-5" />
+          </button>
 
-            <p className="text-sm text-slate-600 leading-relaxed mb-5">
-              {activeZoneObj.description}
-            </p>
+          <button
+            onClick={handleResetZoom}
+            className="px-3 h-11 flex flex-col items-center justify-center rounded-xl bg-slate-800/80 text-xs font-mono font-bold text-slate-200 hover:bg-slate-700 active:scale-95 transition"
+            title="Klik untuk reset zoom ke 100%"
+          >
+            <span className="text-[10px] text-slate-400 font-sans">ZOOM</span>
+            <span className="text-cyan-400">{Math.round(zoom * 100)}%</span>
+          </button>
 
-            {/* Interactive Selected Slot Inspector (if clicked) */}
-            {selectedSlot ? (
-              <div className="mb-5 rounded-2xl border-2 border-[#FACC15] bg-amber-50/80 p-4 shadow-xs">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Box className="h-5 w-5 text-amber-700" />
-                    <span className="font-mono text-sm font-black text-amber-950">
-                      SLOT TERPILIH: {selectedSlot.code}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSlotToDelete(selectedSlot)}
-                      className="flex items-center gap-1 text-[11px] text-rose-700 hover:text-rose-900 font-bold bg-rose-100 hover:bg-rose-200 px-2 py-1 rounded-lg border border-rose-300 transition active:scale-95"
-                      title={`Hapus Slot ${selectedSlot.code}`}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      <span>Hapus Slot</span>
-                    </button>
-                    <button
-                      onClick={() => setSelectedSlot(null)}
-                      className="text-xs text-slate-400 hover:text-slate-700"
-                    >
-                      Tutup
-                    </button>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-700 font-medium">
-                  {selectedSlot.name || `Slot penyimpanan di ${activeZoneObj.code}`}
-                </p>
-                {selectedSlot.materialName ? (
-                  <div className="mt-2.5 bg-white rounded-xl p-2.5 border border-amber-200 text-xs">
-                    <span className="font-bold text-slate-800 block">Material Tersimpan:</span>
-                    <span className="text-amber-900 font-semibold">{selectedSlot.materialName}</span>
-                  </div>
-                ) : (
-                  <div className="mt-2 text-xs font-bold text-emerald-700">
-                    &bull; Slot ini kosong dan siap dialokasikan untuk material baru.
-                  </div>
-                )}
-              </div>
-            ) : null}
+          <button
+            onClick={handleZoomOut}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-cyan-300 hover:bg-cyan-500 hover:text-slate-950 active:scale-90 transition"
+            title="Perkecil Denah (-)"
+            aria-label="Perkecil Denah"
+          >
+            <ZoomOut className="h-5 w-5" />
+          </button>
 
-            {/* List of Sub-Blocks and Racks in This Block */}
-            <div className="mb-5">
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 mb-2.5 flex items-center gap-1.5">
-                <Box className="h-4 w-4 text-amber-600" />
-                <span>Daftar Baris &amp; Rak di {activeZoneObj.code}:</span>
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[220px] overflow-y-auto no-scrollbar">
-                {activeZoneObj.subBlocks.map((sb) => (
-                  <div
-                    key={sb.code}
-                    className="flex flex-col rounded-xl bg-slate-50 border border-slate-200 p-3 hover:border-[#FACC15] transition"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono text-xs font-extrabold text-[#0F172A]">
-                        Baris {sb.code}
-                      </span>
-                      <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded">
-                        {sb.slots.length} Slot
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-slate-500 font-medium truncate">
-                      {sb.slots.map(s => s.code).join(', ')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="h-6 w-px bg-slate-700 mx-0.5" />
 
-            {/* Backward Compatibility: Highlight Rack Display */}
-            {activeZoneObj.highlightRack && (
-              <div className="mb-4 rounded-xl bg-slate-100 border border-slate-200 p-3 flex items-center justify-between">
-                <div className="text-xs font-medium text-slate-600">
-                  Rak Acuan Utama:
-                </div>
-                <div className="font-mono text-xs font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded">
-                  {activeZoneObj.highlightRack}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Action Footer */}
-          <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-            <div className="text-xs text-slate-500">
-              Lihat katalog lengkap untuk memeriksa spesifikasi &amp; stok riil.
-            </div>
-            <button
-              onClick={() => {
-                const targetSearch = selectedSlot ? selectedSlot.code : activeZoneObj.code;
-                if (onSelectRack) {
-                  onSelectRack(targetSearch);
-                } else {
-                  onBack();
-                }
-              }}
-              className="flex h-12 items-center gap-2 rounded-xl bg-[#FACC15] px-5 text-xs lg:text-sm font-bold text-[#0F172A] shadow-sm hover:bg-amber-400 active:scale-95 transition whitespace-nowrap"
-            >
-              <span>Lihat di Katalog</span>
-              <MapPin className="h-4 w-4" />
-            </button>
-          </div>
+          <button
+            onClick={handleResetZoom}
+            className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white active:scale-90 transition"
+            title="Reset Posisi &amp; Skala Peta"
+            aria-label="Reset Posisi Peta"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
-      {/* Modal: Tambah Blok Baru Mandiri */}
-      {showAddBlockModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-2xl border-2 border-amber-400 bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <div className="flex items-center gap-2">
-                <PlusCircle className="h-5 w-5 text-amber-600" />
-                <h3 className="font-black text-lg text-slate-900">
-                  Tambah Blok &amp; Rak Baru Sendiri
-                </h3>
+      {/* Guide / Help Modal for Kiosk Users */}
+      {showGuideModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-[#0F172A] border border-cyan-500/40 rounded-3xl p-6 text-white shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400">
+                  <HelpCircle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">Petunjuk Navigasi Denah</h3>
+                  <p className="text-xs text-slate-400">Layar Sentuh Kios Kassen &amp; Desktop</p>
+                </div>
               </div>
               <button
-                onClick={() => setShowAddBlockModal(false)}
-                className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:scale-95 transition"
+                onClick={() => setShowGuideModal(false)}
+                className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {addBlockError && (
-              <div className="mb-4 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs font-bold text-rose-700">
-                {addBlockError}
-              </div>
-            )}
-
-            <form onSubmit={handleAddCustomBlock} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 uppercase mb-1">
-                  Huruf / Kode Blok (Misal: I, J, K, H, s/d Z):
-                </label>
-                <input
-                  type="text"
-                  maxLength={2}
-                  value={newBlockLetter}
-                  onChange={(e) => setNewBlockLetter(e.target.value.toUpperCase())}
-                  placeholder="Contoh: I atau Z"
-                  required
-                  className="w-full h-12 rounded-xl border border-slate-300 px-4 text-base font-mono font-black text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 uppercase mb-1">
-                  Nama Area / Kategori Blok:
-                </label>
-                <input
-                  type="text"
-                  value={newBlockName}
-                  onChange={(e) => setNewBlockName(e.target.value)}
-                  placeholder="Contoh: Gardu Hubung &amp; Trafo Khusus"
-                  required
-                  className="w-full h-12 rounded-xl border border-slate-300 px-4 text-sm font-medium text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 uppercase mb-1">
-                    Jumlah Sub-Blok (Baris):
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={newBlockSubCount}
-                    onChange={(e) => setNewBlockSubCount(Number(e.target.value))}
-                    className="w-full h-11 rounded-xl border border-slate-300 px-3 font-bold text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    Misal 3 baris: {newBlockLetter || '?'}.1, {newBlockLetter || '?'}.2, {newBlockLetter || '?'}.3
-                  </span>
+            <div className="space-y-3.5 my-5 text-sm">
+              <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60">
+                <div className="p-2 rounded-xl bg-cyan-500/20 text-cyan-300 shrink-0">
+                  <ZoomIn className="h-5 w-5" />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 uppercase mb-1">
-                    Slot per Baris:
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={newBlockSlotCount}
-                    onChange={(e) => setNewBlockSlotCount(Number(e.target.value))}
-                    className="w-full h-11 rounded-xl border border-slate-300 px-3 font-bold text-slate-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-400 focus:outline-none transition"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    Misal 5 slot: {newBlockLetter || '?'}.1.1 s/d {newBlockLetter || '?'}.1.5
-                  </span>
+                  <h4 className="font-bold text-cyan-300">Perbesar &amp; Perkecil</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Gunakan tombol <span className="font-bold text-white">+ / -</span> di pojok kanan bawah, cubit layar (pinch to zoom), atau scroll roda mouse.
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowAddBlockModal(false)}
-                  className="h-12 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 active:scale-95"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="h-12 px-6 rounded-xl bg-[#FACC15] font-black text-slate-950 shadow-md active:scale-95 hover:bg-amber-400"
-                >
-                  Simpan &amp; Buat Blok
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Konfirmasi Hapus Blok */}
-      {blockToDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-600">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 shrink-0">
-                <Trash2 className="h-6 w-6 text-rose-600" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Blok</h3>
-                <span className="text-xs text-rose-700 font-bold">Hapus blok dari denah tata letak gudang</span>
-              </div>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
-                  {blockToDelete.code}
-                </span>
-                <span className="text-[11px] text-slate-500 font-semibold">
-                  {blockToDelete.subBlocks.length} Baris &bull; {blockToDelete.subBlocks.reduce((acc, sb) => acc + sb.slots.length, 0)} Slot
-                </span>
-              </div>
-              <div className="font-bold text-sm text-slate-900 leading-snug">
-                {blockToDelete.name}
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Apakah Anda yakin ingin menghapus <strong>{blockToDelete.code}</strong> beserta seluruh baris sub-blok dan slot rak di dalamnya?
-            </p>
-
-            <div className="pt-2 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setBlockToDelete(null)}
-                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDeleteBlock}
-                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span>Ya, Hapus Blok Ini</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Konfirmasi Hapus Sub-Blok */}
-      {subBlockToDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-600">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 shrink-0">
-                <Trash2 className="h-6 w-6 text-rose-600" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Baris Sub-Blok</h3>
-                <span className="text-xs text-rose-700 font-bold">Hapus baris dari denah tata letak</span>
-              </div>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
-              <div className="font-mono text-sm font-black text-amber-900">
-                Baris {subBlockToDelete.code}
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Total {subBlockToDelete.slots.length} slot rak terdaftar
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Apakah Anda yakin ingin menghapus baris <strong>{subBlockToDelete.code}</strong>?
-            </p>
-
-            <div className="pt-2 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setSubBlockToDelete(null)}
-                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDeleteSubBlock}
-                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span>Ya, Hapus Baris Ini</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Konfirmasi Hapus Slot */}
-      {slotToDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border-2 border-rose-400 bg-white p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-600">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 shrink-0">
-                <Trash2 className="h-6 w-6 text-rose-600" />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-slate-900">Konfirmasi Hapus Slot Rak</h3>
-                <span className="text-xs text-rose-700 font-bold">Hapus slot penyimpanan dari denah</span>
-              </div>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs space-y-1">
-              <div className="font-mono text-sm font-black text-amber-900">
-                Slot: {slotToDelete.code}
-              </div>
-              {slotToDelete.materialName ? (
-                <div className="text-xs font-bold text-slate-800">
-                  Material: <span className="text-amber-900">{slotToDelete.materialName}</span>
+              <div className="flex items-start gap-3 p-3 rounded-2xl bg-slate-800/70 border border-slate-700/60">
+                <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shrink-0">
+                  <Maximize2 className="h-5 w-5" />
                 </div>
-              ) : (
-                <div className="text-[11px] text-emerald-700 font-semibold">
-                  Status: Slot kosong (tidak ada material)
-                </div>
-              )}
-            </div>
-
-            {slotToDelete.materialName ? (
-              <div className="rounded-xl bg-amber-50 border border-amber-300 p-3 text-xs text-amber-950 font-medium flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong>Peringatan:</strong> Slot ini sedang terisi material. Menghapusnya akan melepaskan penetapan slot pada material tersebut.
+                  <h4 className="font-bold text-amber-300">Geser / Menjelajah Area (Pan)</h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Sentuh dan seret layar ke arah mana saja untuk melihat detail blok, rak, pintu masuk, atau area retur.
+                  </p>
                 </div>
               </div>
-            ) : null}
-
-            <div className="pt-2 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setSlotToDelete(null)}
-                className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDeleteSlot}
-                className="flex items-center gap-2 h-11 px-5 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md hover:bg-rose-700 active:scale-95 transition"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span>Ya, Hapus Slot Ini</span>
-              </button>
             </div>
+
+            <button
+              onClick={() => setShowGuideModal(false)}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-black text-sm shadow-lg hover:from-cyan-400 hover:to-blue-500 active:scale-95 transition"
+            >
+              Mengerti, Tutup Panduan
+            </button>
           </div>
         </div>
       )}

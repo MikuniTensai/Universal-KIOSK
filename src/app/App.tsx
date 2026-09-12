@@ -26,6 +26,7 @@ export const App: React.FC = () => {
   const [activePackage, setActivePackage] = useState<ImportPackage | null>(kioskStorage.getActivePackage());
   const [config, setConfig] = useState<KioskConfig>(kioskStorage.getConfig());
   const [currentRoute, setCurrentRoute] = useState<'idle' | 'home' | 'layout' | 'programs' | 'catalog' | 'scan'>('idle');
+  const [catalogMode, setCatalogMode] = useState<'baru' | 'return'>('baru');
 
   // Idle timer warning modal state
   const [timeoutWarningVisible, setTimeoutWarningVisible] = useState(false);
@@ -280,26 +281,28 @@ export const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* 3 Main Sections Layout:
-                  1. Atas: Daftar Item & Material Gudang (Katalog Blok & Rak)
-                  2. Tengah: SOP & Aturan-Aturan Pergudangan PLN
-                  3. Bawah: Visualisasi Denah & Tata Letak Gudang */}
-              <div className="flex flex-col gap-4 lg:gap-5 flex-1 justify-between my-2">
-                {/* 1. BAGIAN ATAS: Daftar Item & Material Gudang (Katalog Blok & Rak) */}
+              {/* 4 Main Sections Layout (Permintaan Resmi Klien):
+                  1. Paling Atas: Daftar Item & Material Gudang (Katalog Blok & Rak Baru)
+                  2. Tepat di bawahnya: Daftar Item & Material Gudang (Katalog Blok & Rak Return) - Status 4 Jenis Sesuai CSV
+                  3. SOP
+                  4. Visualisasi Denah & Tata Letak Gudang */}
+              <div className="flex flex-col gap-3.5 lg:gap-4 flex-1 justify-between my-2">
+                {/* 1. BAGIAN PALING ATAS: Daftar Item & Material Gudang (Katalog Blok & Rak Baru) */}
                 <div
                   onClick={() => {
                     idleTimer.recordActivity();
+                    setCatalogMode('baru');
                     setCurrentRoute('catalog');
                   }}
                   role="button"
                   tabIndex={0}
-                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-[#FACC15] p-6 lg:p-8 text-left shadow-2xl transition-all duration-300 ring-2 ring-[#FACC15]/40 hover:ring-[#FACC15]/70 cursor-pointer active:scale-[0.995]"
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-4 lg:gap-6 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-5 lg:p-7 text-left shadow-xl transition-all duration-500 hover:border-emerald-400 hover:shadow-2xl active:scale-[0.995] cursor-pointer"
                 >
                   {/* Full Wallpaper Background Image */}
                   {isPhotoMode ? (
                     <img
                       src={photoB}
-                      alt="Katalog Material"
+                      alt="Katalog Material Baru"
                       className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
                     />
                   ) : (
@@ -311,26 +314,39 @@ export const App: React.FC = () => {
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
-                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
                     <span className="sr-only">KATALOG MATERIAL &amp; LOKASI RAK Contoh: kWh di Rak A-001</span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                      Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak)
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/20 border border-emerald-400/40 px-2 py-0.5 text-[11px] font-black text-emerald-300 uppercase tracking-wider">
+                        Kondisi Baru &bull; Status: Baru
+                      </span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                      <span className="sr-only">Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak Baru)</span>
+                      <span aria-hidden="true">
+                        Daftar Item &amp; Material Gudang
+                        <span className="block text-lg sm:text-xl lg:text-2xl font-extrabold text-emerald-200 mt-1">
+                          (Katalog Blok &amp; Rak Baru)
+                        </span>
+                      </span>
                     </h3>
                   </div>
 
-                  {/* Action Button: Lihat Daftar Item */}
+                  {/* Action Button: Lihat Daftar Item Baru */}
                   <div className="relative z-10 flex items-center gap-3 shrink-0">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         idleTimer.recordActivity();
+                        setCatalogMode('baru');
                         setCurrentRoute('catalog');
                       }}
-                      className="active:scale-95 transition"
+                      className="active:scale-95 transition cursor-pointer"
                     >
-                      <div className="flex h-14 flex-shrink-0 items-center justify-center gap-3 rounded-2xl bg-[#FACC15] hover:bg-amber-400 text-[#0F172A] px-6 lg:px-8 font-black shadow-xl transition-all group-hover:scale-105 whitespace-nowrap">
+                      <div className="flex h-14 flex-shrink-0 items-center justify-center gap-3 rounded-2xl bg-[#FACC15] hover:bg-amber-400 text-[#0F172A] px-5 lg:px-7 font-black shadow-xl transition-all group-hover:scale-105 whitespace-nowrap">
                         <span className="text-sm lg:text-base font-black">Lihat Daftar Item</span>
+                        <span className="sr-only">Baru</span>
                         <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                       </div>
                     </button>
@@ -353,7 +369,71 @@ export const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. BAGIAN TENGAH: SOP & Aturan-Aturan Gudang PLN */}
+                {/* 2. BAGIAN KEDUA: Daftar Item & Material Gudang (Katalog Blok & Rak Return) */}
+                <div
+                  onClick={() => {
+                    idleTimer.recordActivity();
+                    setCatalogMode('return');
+                    setCurrentRoute('catalog');
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-4 lg:gap-6 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-5 lg:p-7 text-left shadow-xl transition-all duration-500 hover:border-amber-400 hover:shadow-2xl active:scale-[0.995] cursor-pointer"
+                >
+                  {/* Full Wallpaper Background Image */}
+                  {isPhotoMode ? (
+                    <img
+                      src={photoB}
+                      alt="Katalog Material Return"
+                      className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none filter saturate-75"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-amber-950/40 to-slate-950 pointer-events-none" />
+                  )}
+
+                  {/* High Contrast Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-950/65 pointer-events-none" />
+                  <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
+
+                  {/* Content (Relative Z-10) */}
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/20 border border-amber-400/40 px-2 py-0.5 text-[11px] font-black text-amber-300 uppercase tracking-wider">
+                        Katalog Return &bull; 4 Status: GARANSI &bull; PERBAIKAN &bull; USUL HAPUS &bull; STANDBY
+                      </span>
+                    </div>
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                      <span className="sr-only">Daftar Item &amp; Material Gudang (Katalog Blok &amp; Rak Return)</span>
+                      <span aria-hidden="true">
+                        Daftar Item &amp; Material Gudang
+                        <span className="block text-lg sm:text-xl lg:text-2xl font-extrabold text-amber-200 mt-1">
+                          (Katalog Blok &amp; Rak Return)
+                        </span>
+                      </span>
+                    </h3>
+                  </div>
+
+                  {/* Action Button: Lihat Daftar Item Return */}
+                  <div className="relative z-10 flex items-center gap-3 shrink-0">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        idleTimer.recordActivity();
+                        setCatalogMode('return');
+                        setCurrentRoute('catalog');
+                      }}
+                      className="active:scale-95 transition cursor-pointer"
+                    >
+                      <div className="flex h-14 flex-shrink-0 items-center justify-center gap-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-[#0F172A] px-5 lg:px-7 font-black shadow-xl transition-all group-hover:scale-105 whitespace-nowrap">
+                        <span className="text-sm lg:text-base font-black">Lihat Daftar Item Return</span>
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. BAGIAN KETIGA: SOP */}
                 <div
                   onClick={() => {
                     idleTimer.recordActivity();
@@ -361,13 +441,13 @@ export const App: React.FC = () => {
                   }}
                   role="button"
                   tabIndex={0}
-                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-6 lg:p-8 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-4 lg:gap-6 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-5 lg:p-7 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
                 >
                   {/* Full Wallpaper Background Image */}
                   {isPhotoMode ? (
                     <img
                       src={photoA}
-                      alt="Program Kerja & SOP"
+                      alt="SOP"
                       className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out pointer-events-none"
                     />
                   ) : (
@@ -379,21 +459,23 @@ export const App: React.FC = () => {
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
-                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
+                    <span className="sr-only">Program Kerja Gudang PLN &amp; SOP Aturan</span>
                     <span className="sr-only">SOP &amp; ATURAN PERGUDANGAN Pedoman 5S &amp; K3</span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                      Program Kerja Gudang PLN &amp; SOP Aturan
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                      SOP
                     </h3>
                   </div>
 
                   {/* CTA Action Button */}
-                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-6 lg:px-8 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
-                    <span className="text-sm lg:text-base font-black whitespace-nowrap">Buka Program Kerja</span>
+                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-7 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
+                    <span className="text-sm lg:text-base font-black whitespace-nowrap">Buka SOP</span>
+                    <span className="sr-only">Buka Program Kerja</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
                 </div>
 
-                {/* 3. BAGIAN DITERAKHIR: Visualisasi Denah & Tata Letak Gudang */}
+                {/* 4. BAGIAN KEEMPAT: Visualisasi Denah & Tata Letak Gudang */}
                 <div
                   onClick={() => {
                     idleTimer.recordActivity();
@@ -401,7 +483,7 @@ export const App: React.FC = () => {
                   }}
                   role="button"
                   tabIndex={0}
-                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-5 lg:gap-8 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-6 lg:p-8 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
+                  className="group relative flex flex-1 flex-col md:flex-row items-start md:items-center justify-between gap-4 lg:gap-6 overflow-hidden rounded-3xl border-2 border-slate-700/60 p-5 lg:p-7 text-left shadow-xl transition-all duration-500 hover:border-[#FACC15] hover:shadow-2xl active:scale-[0.995] cursor-pointer"
                 >
                   {/* Full Wallpaper Background Image */}
                   {isPhotoMode ? (
@@ -419,15 +501,15 @@ export const App: React.FC = () => {
                   <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] pointer-events-none" />
 
                   {/* Content (Relative Z-10) */}
-                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-2">
+                  <div className="relative z-10 flex flex-col min-w-0 flex-1 justify-center py-1">
                     <span className="sr-only">LAYOUT GUDANG &bull; MODUL VISUALISASI SIAP INTEGRASI Peta Denah Blok &amp; Rak</span>
-                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight drop-shadow-md">
                       Visualisasi Denah &amp; Tata Letak Gudang
                     </h3>
                   </div>
 
                   {/* CTA Action Button */}
-                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-6 lg:px-8 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
+                  <div className="relative z-10 flex h-14 flex-shrink-0 items-center gap-3 rounded-2xl bg-[#FACC15] text-[#0F172A] px-5 lg:px-7 font-black transition-all shadow-xl active:scale-95 group-hover:bg-amber-400 group-hover:scale-105">
                     <span className="text-sm lg:text-base font-black whitespace-nowrap">Lihat Denah Tata Letak</span>
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
@@ -484,6 +566,11 @@ export const App: React.FC = () => {
           <CatalogView
             pkg={activePackage}
             config={config}
+            mode={catalogMode}
+            onBack={() => {
+              idleTimer.recordActivity();
+              setCurrentRoute('home');
+            }}
             onNavigateToScan={() => {
               idleTimer.recordActivity();
               setCurrentRoute('scan');

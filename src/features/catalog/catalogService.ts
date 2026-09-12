@@ -4,8 +4,56 @@ import {
   MaterialWithStock,
   ScanResolveResult,
   KioskConfig,
+  Category,
+  Location,
+  StockSnapshot,
+  Asset,
+  BarcodeAlias,
 } from '../../domain/types';
 import { isStockStale } from '../../domain/validation';
+
+interface CatalogRelations {
+  categories: Map<string, Category>;
+  locations: Map<string, Location>;
+  stocks: Map<string, StockSnapshot[]>;
+  assets: Map<string, Map<string | null, Asset[]>>;
+  aliases: Map<string, BarcodeAlias[]>;
+}
+
+function groupBy<T, K>(items: T[], key: (item: T) => K): Map<K, T[]> {
+  const groups = new Map<K, T[]>();
+  for (const item of items) {
+    const itemKey = key(item);
+    const group = groups.get(itemKey);
+    if (group) group.push(item);
+    else groups.set(itemKey, [item]);
+  }
+  return groups;
+}
+
+function firstById<T extends { id: string }>(items: T[]): Map<string, T> {
+  const index = new Map<string, T>();
+  for (const item of items) {
+    if (!index.has(item.id)) index.set(item.id, item);
+  }
+  return index;
+}
+
+function indexRelations(pkg: ImportPackage): CatalogRelations {
+  const assets = new Map<string, Map<string | null, Asset[]>>();
+  for (const [materialId, materialAssets] of groupBy(pkg.assets, asset => asset.materialId)) {
+    assets.set(materialId, groupBy(materialAssets, asset => asset.locationId));
+  }
+
+  // Storage replaces stock entries in place, so indexes last only for this operation.
+  return {
+    categories: firstById(pkg.categories),
+    locations: firstById(pkg.locations),
+    stocks: groupBy(pkg.stockSnapshots, stock => stock.materialId),
+    assets,
+    aliases: groupBy(pkg.barcodeAliases, alias => alias.targetId),
+  };
+}
 
 export class CatalogService {
   /**
@@ -16,14 +64,23 @@ export class CatalogService {
     pkg: ImportPackage,
     config: KioskConfig
   ): MaterialWithStock {
-    const category = pkg.categories.find(c => c.id === material.categoryId);
+    return this.enrichWithRelations(material, pkg, config, indexRelations(pkg));
+  }
+
+  private static enrichWithRelations(
+    material: Material,
+    pkg: ImportPackage,
+    config: KioskConfig,
+    relations: CatalogRelations
+  ): MaterialWithStock {
+    const category = relations.categories.get(material.categoryId);
     const categoryName = category ? category.name : 'Umum';
 
-    const materialStocks = pkg.stockSnapshots.filter(s => s.materialId === material.id);
-    const materialAssets = pkg.assets.filter(a => a.materialId === material.id);
+    const materialStocks = relations.stocks.get(material.id) || [];
+    const materialAssets = relations.assets.get(material.id);
 
     const locations = materialStocks.map(stock => {
-      const location = pkg.locations.find(l => l.id === stock.locationId) || {
+      const location = relations.locations.get(stock.locationId) || {
         id: stock.locationId,
         warehouseCode: config.warehouseCode,
         zone: 'Gudang Utama',
@@ -31,7 +88,7 @@ export class CatalogService {
         bin: '-',
       };
 
-      const locAssets = materialAssets.filter(a => a.locationId === stock.locationId);
+      const locAssets = materialAssets?.get(stock.locationId) || [];
 
       return {
         location,
@@ -69,6 +126,8 @@ export class CatalogService {
     }
 
     const isStale = isStockStale(latestSourceAt, config.staleAfterHours);
+    const condition = material.condition || 'BARU';
+    const status = material.status || (condition === 'RETURN' ? 'STANDBY' : 'Baru');
 
     return {
       ...material,
@@ -79,11 +138,13 @@ export class CatalogService {
       totalAvailable: hasNonNullQuantity ? totalAvail : null,
       latestSourceAt,
       isStale,
+      condition,
+      status,
     };
   }
 
   /**
-   * Search materials with query and category filter
+   * Search materials with query, category, condition, and status filter
    */
   public static searchMaterials(
     pkg: ImportPackage,
@@ -92,14 +153,34 @@ export class CatalogService {
       query?: string;
       categoryId?: string;
       blockCode?: string;
+      condition?: 'BARU' | 'RETURN';
+      status?: string;
       page?: number;
       pageSize?: number;
     } = {}
   ): { items: MaterialWithStock[]; total: number; page: number; totalPages: number } {
-    const { query = '', categoryId, blockCode, page = 1, pageSize = 20 } = options;
+    const { query = '', categoryId, blockCode, condition, status, page = 1, pageSize = 20 } = options;
     const cleanQuery = query.trim().toLowerCase();
+    const relations = indexRelations(pkg);
 
     let filtered = pkg.materials;
+
+    // Filter by condition (BARU vs RETURN)
+    if (condition) {
+      filtered = filtered.filter(m => {
+        const cond = m.condition || 'BARU';
+        return cond === condition;
+      });
+    }
+
+    // Filter by specific status (e.g. 'GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY', 'Baru')
+    if (status && status !== 'all') {
+      filtered = filtered.filter(m => {
+        const matCond = m.condition || 'BARU';
+        const matStatus = m.status || (matCond === 'RETURN' ? 'STANDBY' : 'Baru');
+        return matStatus.toUpperCase() === status.toUpperCase();
+      });
+    }
 
     if (categoryId && categoryId !== 'all') {
       filtered = filtered.filter(m => m.categoryId === categoryId);
@@ -108,10 +189,9 @@ export class CatalogService {
     if (blockCode && blockCode !== 'all') {
       const targetBlock = blockCode.trim().toUpperCase();
       filtered = filtered.filter(m => {
-        return pkg.stockSnapshots
-          .filter(s => s.materialId === m.id)
+        return (relations.stocks.get(m.id) || [])
           .some(s => {
-            const loc = pkg.locations.find(l => l.id === s.locationId);
+            const loc = relations.locations.get(s.locationId);
             if (!loc) return false;
             const fullLoc = `${loc.zone || ''} ${loc.rack || ''} ${loc.bin || ''}`.toUpperCase();
             return (
@@ -130,12 +210,13 @@ export class CatalogService {
         const sapMatch = m.sapCode ? m.sapCode.toLowerCase().includes(cleanQuery) : false;
         const specMatch = m.specification ? m.specification.toLowerCase().includes(cleanQuery) : false;
         const unitMatch = m.unit ? m.unit.toLowerCase().includes(cleanQuery) : false;
+        const statusMatch = m.status ? m.status.toLowerCase().includes(cleanQuery) : false;
 
         // Search by location: Blok, Rak, Bin (contoh: 'h12', 'rak h12', 'blok b', 'blok c', 'bululawang')
-        const locationMatch = pkg.stockSnapshots
-          .filter(s => s.materialId === m.id)
+        const materialStocks = relations.stocks.get(m.id) || [];
+        const locationMatch = materialStocks
           .some(s => {
-            const loc = pkg.locations.find(l => l.id === s.locationId);
+            const loc = relations.locations.get(s.locationId);
             if (!loc) return false;
             const zoneMatch = loc.zone ? loc.zone.toLowerCase().includes(cleanQuery) : false;
             const rackMatch = loc.rack ? loc.rack.toLowerCase().includes(cleanQuery) : false;
@@ -144,8 +225,7 @@ export class CatalogService {
           });
 
         // Search by stock amount if user searches "stok 0", "stok habis", or exact quantity
-        const stockMatch = pkg.stockSnapshots
-          .filter(s => s.materialId === m.id)
+        const stockMatch = materialStocks
           .some(s => {
             if (cleanQuery === 'stok habis' || cleanQuery === 'habis') {
               return s.quantity === 0;
@@ -157,11 +237,10 @@ export class CatalogService {
           });
 
         // Search in barcode aliases (e.g. '1060798', 'A.3.1', 'C.1.1', 'RAK-A-001')
-        const aliasMatch = pkg.barcodeAliases
-          .filter(a => a.targetId === m.id)
+        const aliasMatch = (relations.aliases.get(m.id) || [])
           .some(a => a.value.toLowerCase().includes(cleanQuery));
 
-        return nameMatch || codeMatch || sapMatch || specMatch || unitMatch || locationMatch || stockMatch || aliasMatch;
+        return nameMatch || codeMatch || sapMatch || specMatch || unitMatch || statusMatch || locationMatch || stockMatch || aliasMatch;
       });
     }
 
@@ -170,7 +249,7 @@ export class CatalogService {
     const startIndex = (page - 1) * pageSize;
     const pagedItems = filtered.slice(startIndex, startIndex + pageSize);
 
-    const items = pagedItems.map(m => this.enrichMaterial(m, pkg, config));
+    const items = pagedItems.map(m => this.enrichWithRelations(m, pkg, config, relations));
 
     return {
       items,

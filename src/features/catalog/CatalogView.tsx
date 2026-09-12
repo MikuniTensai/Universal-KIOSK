@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, Keyboard, PackageOpen, MapPin, MoreVertical, Check } from 'lucide-react';
+import { Search, X, Keyboard, PackageOpen, MapPin, MoreVertical, Check, ArrowLeft, Filter } from 'lucide-react';
 import { ImportPackage, KioskConfig, MaterialWithStock } from '../../domain/types';
 import { CatalogService } from './catalogService';
 import { MaterialCard } from './MaterialCard';
@@ -10,18 +10,23 @@ import { getCategoryIcon } from '../../shared/utils/categoryIcons';
 interface CatalogViewProps {
   pkg: ImportPackage;
   config: KioskConfig;
+  mode?: 'baru' | 'return';
+  onBack?: () => void;
   onNavigateToScan: () => void;
 }
 
 export const CatalogView: React.FC<CatalogViewProps> = ({
   pkg,
   config,
+  mode = 'baru',
+  onBack,
   onNavigateToScan,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showCategoryMenu, setShowCategoryMenu] = useState<boolean>(false);
   const [selectedBlock, setSelectedBlock] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedMaterial, setSelectedMaterial] = useState<MaterialWithStock | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState<boolean>(false);
 
@@ -30,9 +35,29 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       query: searchQuery,
       categoryId: selectedCategory,
       blockCode: selectedBlock,
+      condition: mode === 'return' ? 'RETURN' : 'BARU',
+      status: selectedStatus !== 'all' ? selectedStatus : undefined,
       pageSize: 200,
     });
-  }, [pkg, config, searchQuery, selectedCategory, selectedBlock]);
+  }, [pkg, pkg.packageHash, pkg.importedAt, pkg.sourceAt, pkg.materials,
+    pkg.stockSnapshots, pkg.locations, pkg.categories, pkg.assets, pkg.barcodeAliases,
+    config, config.staleAfterHours, config.warehouseCode, searchQuery, selectedCategory,
+    selectedBlock, mode, selectedStatus]);
+
+  const { materialsInMode, categoryCounts, statusCounts } = useMemo(() => {
+    const materialsInMode = pkg.materials.filter(m => {
+      const cond = m.condition || 'BARU';
+      return mode === 'return' ? cond === 'RETURN' : cond === 'BARU';
+    });
+    const categoryCounts = new Map<string, number>();
+    const statusCounts = new Map<string, number>();
+    for (const material of materialsInMode) {
+      categoryCounts.set(material.categoryId, (categoryCounts.get(material.categoryId) || 0) + 1);
+      const status = (material.status || 'STANDBY').toUpperCase();
+      statusCounts.set(status, (statusCounts.get(status) || 0) + 1);
+    }
+    return { materialsInMode, categoryCounts, statusCounts };
+  }, [pkg, pkg.materials, pkg.packageHash, pkg.importedAt, config, mode]);
 
   const handleKeyPress = (char: string) => {
     setSearchQuery(prev => prev + char);
@@ -48,6 +73,88 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] p-4 sm:p-6 lg:p-8 overflow-y-auto no-scrollbar">
+      {/* Top Header Title & Back Navigation */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3 shrink-0">
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 shadow-xs hover:bg-slate-50 active:scale-95 transition"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Kembali</span>
+            </button>
+          )}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-black uppercase tracking-wide border ${
+                mode === 'return'
+                  ? 'bg-amber-100 text-amber-950 border-amber-300'
+                  : 'bg-emerald-100 text-emerald-950 border-emerald-300'
+              }`}>
+                {mode === 'return' ? 'Katalog Material Return' : 'Katalog Material Baru'}
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#0F172A] tracking-tight mt-0.5">
+              <span className="sr-only">
+                {mode === 'return'
+                  ? 'Daftar Item & Material Gudang (Katalog Blok & Rak Return)'
+                  : 'Daftar Item & Material Gudang (Katalog Blok & Rak Baru)'}
+              </span>
+              <span aria-hidden="true">
+                Daftar Item &amp; Material Gudang
+                <span className="block text-lg sm:text-xl lg:text-2xl text-slate-700 font-extrabold mt-0.5">
+                  {mode === 'return'
+                    ? '(Katalog Blok & Rak Return)'
+                    : '(Katalog Blok & Rak Baru)'}
+                </span>
+              </span>
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      {/* 4 Status Filter Bar Khusus Katalog Return */}
+      {mode === 'return' && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar mb-4 shrink-0 text-xs">
+          <span className="font-extrabold uppercase text-slate-500 whitespace-nowrap flex items-center gap-1.5 mr-1">
+            <Filter className="h-3.5 w-3.5 text-amber-600" />
+            Filter Status Return:
+          </span>
+          {[
+            { id: 'all', label: 'Semua Status' },
+            { id: 'GARANSI', label: 'GARANSI' },
+            { id: 'PERBAIKAN', label: 'PERBAIKAN' },
+            { id: 'USUL HAPUS', label: 'USUL HAPUS' },
+            { id: 'STANDBY', label: 'STANDBY' },
+          ].map(statusItem => {
+            const isSelected = selectedStatus === statusItem.id;
+            const count = statusItem.id === 'all'
+              ? materialsInMode.length
+              : statusCounts.get(statusItem.id) || 0;
+
+            return (
+              <button
+                key={statusItem.id}
+                onClick={() => setSelectedStatus(statusItem.id)}
+                className={`flex h-10 items-center gap-2 rounded-xl px-4 font-black transition active:scale-95 shrink-0 border ${
+                  isSelected
+                    ? 'bg-[#0F172A] text-[#FACC15] border-slate-900 shadow-md scale-102'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-amber-400 hover:bg-amber-50/50'
+                }`}
+              >
+                <span>{statusItem.label}</span>
+                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                  isSelected ? 'bg-amber-400/20 text-[#FACC15]' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Top Search & Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 mb-5 shrink-0">
         {/* Search Input Box (Height 56px / 64px) */}
@@ -130,35 +237,37 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
                       >
                         <span>Semua Kategori</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs opacity-75">({pkg.materials.length})</span>
+                          <span className="text-xs opacity-75">({materialsInMode.length})</span>
                           {selectedCategory === 'all' && <Check className="h-4 w-4" />}
                         </div>
                       </button>
-                      {pkg.categories.map((cat) => {
-                        const count = pkg.materials.filter((m) => m.categoryId === cat.id).length;
-                        const isSelected = selectedCategory === cat.id;
-                        return (
-                          <button
-                            key={cat.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCategory(cat.id);
-                              setShowCategoryMenu(false);
-                            }}
-                            className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl transition ${
-                              isSelected
-                                ? 'bg-[#FACC15] text-[#0F172A] font-bold'
-                                : 'text-slate-700 hover:bg-slate-100'
-                            }`}
-                          >
-                            <span className="truncate pr-2">{cat.name}</span>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span className="text-xs opacity-75">({count})</span>
-                              {isSelected && <Check className="h-4 w-4" />}
-                            </div>
-                          </button>
-                        );
-                      })}
+                      {pkg.categories
+                        .filter(cat => mode !== 'return' || categoryCounts.has(cat.id))
+                        .map((cat) => {
+                          const count = categoryCounts.get(cat.id) || 0;
+                          const isSelected = selectedCategory === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedCategory(cat.id);
+                                setShowCategoryMenu(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-xl transition ${
+                                isSelected
+                                  ? 'bg-[#FACC15] text-[#0F172A] font-bold'
+                                  : 'text-slate-700 hover:bg-slate-100'
+                              }`}
+                            >
+                              <span className="truncate pr-2">{cat.name}</span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-xs opacity-75">({count})</span>
+                                {isSelected && <Check className="h-4 w-4" />}
+                              </div>
+                            </button>
+                          );
+                        })}
                     </div>
                   </div>
                 </>
@@ -213,34 +322,36 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
               <AllIcon className={`h-4 w-4 ${isAllSelected ? 'text-[#0F172A]' : 'text-amber-600'}`} />
               <span>Semua Kategori</span>
               <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isAllSelected ? 'bg-amber-400/60 text-[#0F172A]' : 'bg-slate-100 text-slate-500'}`}>
-                {pkg.materials.length}
+                {materialsInMode.length}
               </span>
             </button>
           );
         })()}
 
-        {pkg.categories.map((cat) => {
-          const isSelected = selectedCategory === cat.id;
-          const count = pkg.materials.filter(m => m.categoryId === cat.id).length;
-          const CatIcon = getCategoryIcon(cat.id);
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`flex h-14 shrink-0 items-center justify-center gap-2.5 rounded-control px-6 text-sm font-bold transition shadow-sm active:scale-95 ${
-                isSelected
-                  ? 'bg-[#FACC15] text-[#0F172A] border-2 border-amber-400 shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <CatIcon className={`h-4 w-4 ${isSelected ? 'text-[#0F172A]' : 'text-amber-600'}`} />
-              <span>{cat.name}</span>
-              <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSelected ? 'bg-amber-400/60 text-[#0F172A]' : 'bg-slate-100 text-slate-500'}`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
+        {pkg.categories
+          .filter(cat => mode !== 'return' || categoryCounts.has(cat.id))
+          .map((cat) => {
+            const isSelected = selectedCategory === cat.id;
+            const count = categoryCounts.get(cat.id) || 0;
+            const CatIcon = getCategoryIcon(cat.id);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex h-14 shrink-0 items-center justify-center gap-2.5 rounded-control px-6 text-sm font-bold transition shadow-sm active:scale-95 ${
+                  isSelected
+                    ? 'bg-[#FACC15] text-[#0F172A] border-2 border-amber-400 shadow-md'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <CatIcon className={`h-4 w-4 ${isSelected ? 'text-[#0F172A]' : 'text-amber-600'}`} />
+                <span>{cat.name}</span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${isSelected ? 'bg-amber-400/60 text-[#0F172A]' : 'bg-slate-100 text-slate-500'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
       </div>
 
       {/* Block A-Z Filter Selector Bar */}
@@ -305,7 +416,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             <MaterialCard
               key={material.id}
               material={material}
-              onClick={() => setSelectedMaterial(material)}
+              onClick={setSelectedMaterial}
             />
           ))}
         </div>

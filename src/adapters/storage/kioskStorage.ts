@@ -380,6 +380,8 @@ export class KioskStorage {
     rack?: string;
     bin?: string;
     initialQuantity?: number;
+    condition?: 'BARU' | 'RETURN';
+    status?: string;
   }): Material {
     if (!this.activePackage) {
       throw new Error('Tidak ada paket data aktif.');
@@ -408,6 +410,8 @@ export class KioskStorage {
     const newMaterialId = 'mat-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5);
     const categoryId = params.categoryId || this.activePackage.categories[0]?.id || 'cat-umum';
     const unit = params.unit?.trim() || 'Unit';
+    const condition = params.condition || 'BARU';
+    const status = params.status || (condition === 'RETURN' ? 'STANDBY' : 'Baru');
 
     const newMaterial: Material = {
       id: newMaterialId,
@@ -418,6 +422,8 @@ export class KioskStorage {
       unit,
       specification: params.specification?.trim() || null,
       photoPath: params.photoPath?.trim() || null,
+      condition,
+      status,
     };
 
     // Buat lokasi

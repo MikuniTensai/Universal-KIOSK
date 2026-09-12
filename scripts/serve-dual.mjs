@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import { createSyncStateReader, matchesEtag } from './sync-state.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +19,7 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 const syncFile = path.resolve(dataDir, 'kiosk-sync-state.json');
+const syncStateReader = createSyncStateReader(syncFile);
 
 // Simpan PID untuk shutdown instan
 const pidFile = path.resolve(__dirname, 'server.pid');
@@ -133,7 +135,8 @@ function createServerHandler(portName, portNumber) {
     // Universal CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, If-None-Match');
+    res.setHeader('Access-Control-Expose-Headers', 'ETag');
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
@@ -154,6 +157,7 @@ function createServerHandler(portName, portNumber) {
         req.on('end', () => {
           try {
             fs.writeFileSync(syncFile, body, 'utf8');
+            syncStateReader.invalidate();
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: true, message: 'Data synced successfully' }));
           } catch (err) {
@@ -163,13 +167,20 @@ function createServerHandler(portName, portNumber) {
         });
         return;
       } else if (req.method === 'GET') {
-        if (fs.existsSync(syncFile)) {
-          const content = fs.readFileSync(syncFile, 'utf8');
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(content);
-        } else {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ hasState: false }));
+        try {
+          const { content, etag } = syncStateReader.read();
+          res.setHeader('Cache-Control', 'no-cache');
+          if (etag) res.setHeader('ETag', etag);
+          if (matchesEtag(req.headers['if-none-match'], etag)) {
+            res.writeHead(304);
+            res.end();
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(content);
+          }
+        } catch (err) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: err.message }));
         }
         return;
       }

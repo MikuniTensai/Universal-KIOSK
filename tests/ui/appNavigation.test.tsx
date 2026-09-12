@@ -19,9 +19,10 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     // User touches screen
     fireEvent.click(screen.getByText(/Sentuh Layar di Mana Saja untuk Memulai/i));
 
-    // Home Hub with 3 Modul Thumbnails is shown
+    // Home Hub with 4 Modul Thumbnails is shown (Katalog Baru, Return, SOP, Layout)
     expect(screen.getByText(/Program Kerja Gudang PLN/i)).toBeInTheDocument();
-    expect(screen.getByText(/Daftar Item & Material Gudang/i)).toBeInTheDocument();
+    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Baru\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Return\)/i)).toBeInTheDocument();
     expect(screen.getByText(/Scan Item \(Cek Spesifikasi\)/i)).toBeInTheDocument();
   });
 
@@ -32,23 +33,23 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     // Click Thumbnail A
     fireEvent.click(screen.getByText(/Program Kerja Gudang PLN/i));
 
-    // Verify Program Kerja view
-    expect(screen.getByText(/Program Kerja & Tata Kelola Logistik PLN/i)).toBeInTheDocument();
-    expect(screen.getByText(/Visi & KPI Logistik/i)).toBeInTheDocument();
+    // Verify SOP view
+    expect(screen.getByRole('heading', { level: 2, name: 'SOP' })).toBeInTheDocument();
+    expect(screen.getByText(/Standar 5S Pergudangan/i)).toBeInTheDocument();
 
     // Click Beranda in header
     fireEvent.click(screen.getByRole('button', { name: /Beranda/i }));
 
     // Back at Home Hub
-    expect(screen.getByText(/Daftar Item & Material Gudang/i)).toBeInTheDocument();
+    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Baru\)/i)).toBeInTheDocument();
   });
 
   it('navigates to Daftar Item & Material, uses search and opens material detail modal', () => {
     render(<App />);
     fireEvent.click(screen.getByText(/Sentuh Layar di Mana Saja untuk Memulai/i));
 
-    // Click Thumbnail B
-    fireEvent.click(screen.getByText(/Daftar Item & Material Gudang/i));
+    // Click Thumbnail Baru
+    fireEvent.click(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Baru\)/i));
 
     // Catalog view is displayed
     expect(screen.getByPlaceholderText(/Cari nama material/i)).toBeInTheDocument();

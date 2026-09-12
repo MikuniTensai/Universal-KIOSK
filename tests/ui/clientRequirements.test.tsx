@@ -49,11 +49,10 @@ describe('Client Meeting Requirements Verification (Universal-KIOSK)', () => {
       fireEvent.click(screen.getByText('Lihat Denah Tata Letak'));
     });
 
-    // Warehouse Layout View is rendered
-    expect(screen.getByText(/Denah Tata Letak Blok & Rak Material/i)).toBeInTheDocument();
-    expect(screen.getByText(/Peta Denah Lantai \(Floor Plan Schematic\)/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Ruang Bersih Kalibrasi APP & kWh Meter/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Rak A-001 (Smart Meter / kWh)')).toBeInTheDocument();
+    // Warehouse Layout View is rendered with official printed blueprint
+    expect(screen.getByText(/Denah & Tata Letak Gudang/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/Denah dan Tata Letak Gudang Aris Munandar PT PLN UP3 Malang/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Perbesar Denah/i })).toBeInTheDocument();
 
     // Click back to return to Beranda
     act(() => {
@@ -79,8 +78,8 @@ describe('Client Meeting Requirements Verification (Universal-KIOSK)', () => {
       fireEvent.click(screen.getByText('Buka Program Kerja'));
     });
 
-    // SOP & Aturan view is rendered
-    expect(screen.getByText(/SOP & Aturan: Program Kerja & Tata Kelola Logistik PLN/i)).toBeInTheDocument();
+    // SOP view is rendered
+    expect(screen.getByRole('heading', { level: 2, name: 'SOP' })).toBeInTheDocument();
     expect(screen.getByText(/SOP Masuk & Keluar Material/i)).toBeInTheDocument();
     expect(screen.getByText(/Aturan K3 & Keselamatan Kerja/i)).toBeInTheDocument();
     expect(screen.getByText(/Standar 5S Pergudangan/i)).toBeInTheDocument();
@@ -107,8 +106,7 @@ describe('Client Meeting Requirements Verification (Universal-KIOSK)', () => {
 
     // Bottom section: Catalog & Rak Locations
     expect(screen.getByText(/KATALOG MATERIAL & LOKASI RAK/i)).toBeInTheDocument();
-    expect(screen.getByText(/Contoh: kWh di Rak A-001/i)).toBeInTheDocument();
-    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Daftar Item & Material Gudang \(Katalog Blok & Rak Baru\)/i)).toBeInTheDocument();
 
     // Click to open Catalog
     act(() => {

@@ -1682,6 +1682,66 @@ export const clientMaterials: Material[] = [
     "unit": "BH",
     "specification": "Peralatan Keselamatan & Kesehatan Kerja (K3) dan cover pelindung isolasi satwa.",
     "photoPath": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "id": "mat-retur-001",
+    "code": "4120470",
+    "sapCode": "4120470",
+    "name": "BOX 105 KVA - BOX;APPMCCB160A+STRIP;AL2MM;1205X420X250",
+    "categoryId": "cat-gardu",
+    "unit": "SET",
+    "specification": "Material Return / Garansi Pabrikan. Panel Hubung Bagi Tegangan Rendah (PHB-TR) dan box APP standar PLN Distribusi Jawa Timur.",
+    "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+    "condition": "RETURN",
+    "status": "GARANSI"
+  },
+  {
+    "id": "mat-retur-002",
+    "code": "4120472",
+    "sapCode": "4120472",
+    "name": "BOX 147 KVA - BOX;APPMCCB225A+STRIP;AL2MM;1205X420X250",
+    "categoryId": "cat-gardu",
+    "unit": "BH",
+    "specification": "Material Return Dalam Proses Perbaikan Bengkel/Workshop. Panel Hubung Bagi Tegangan Rendah (PHB-TR) standar PLN Distribusi.",
+    "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+    "condition": "RETURN",
+    "status": "PERBAIKAN"
+  },
+  {
+    "id": "mat-retur-003",
+    "code": "4120473",
+    "sapCode": "4120473",
+    "name": "BOX 164 KVA - BOX;APPMCCB250A+STRIP;AL2MM;1205X420X250",
+    "categoryId": "cat-gardu",
+    "unit": "BH",
+    "specification": "Material Return Kategori Usul Hapus (Afkir/Scrap). Panel Hubung Bagi Tegangan Rendah (PHB-TR) rekondisi tidak ekonomis.",
+    "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+    "condition": "RETURN",
+    "status": "USUL HAPUS"
+  },
+  {
+    "id": "mat-retur-004",
+    "code": "4120474",
+    "sapCode": "4120474",
+    "name": "BOX 197 KVA - BOX;APPMCCB300A+STRIP;AL2MM;1205X420X250",
+    "categoryId": "cat-gardu",
+    "unit": "BH",
+    "specification": "Material Return Standby / Siap Pakai Cadangan Darurat Operasional PLN UP3 Malang.",
+    "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+    "condition": "RETURN",
+    "status": "STANDBY"
+  },
+  {
+    "id": "mat-retur-005",
+    "code": "4120467",
+    "sapCode": "4120467",
+    "name": "BOX 53KVA - BOX;APPMCCB80A+STRIP;AL2MM;1205X420X250",
+    "categoryId": "cat-gardu",
+    "unit": "M",
+    "specification": "Material Return Standby / Siap Pakai Cadangan Darurat Operasional PLN UP3 Malang.",
+    "photoPath": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?auto=format&fit=crop&w=600&q=80",
+    "condition": "RETURN",
+    "status": "STANDBY"
   }
 ];
 
@@ -2893,6 +2953,46 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "reserved": 2,
     "available": 19,
     "sourceAt": "2026-09-12T08:00:00+07:00"
+  },
+  {
+    "materialId": "mat-retur-001",
+    "locationId": "loc-c----",
+    "quantity": 4,
+    "reserved": 0,
+    "available": 4,
+    "sourceAt": "2026-09-12T08:00:00+07:00"
+  },
+  {
+    "materialId": "mat-retur-002",
+    "locationId": "loc-c----",
+    "quantity": 0,
+    "reserved": 0,
+    "available": 0,
+    "sourceAt": "2026-09-12T08:00:00+07:00"
+  },
+  {
+    "materialId": "mat-retur-003",
+    "locationId": "loc-c----",
+    "quantity": 0,
+    "reserved": 0,
+    "available": 0,
+    "sourceAt": "2026-09-12T08:00:00+07:00"
+  },
+  {
+    "materialId": "mat-retur-004",
+    "locationId": "loc-c----",
+    "quantity": 11,
+    "reserved": 0,
+    "available": 11,
+    "sourceAt": "2026-09-12T08:00:00+07:00"
+  },
+  {
+    "materialId": "mat-retur-005",
+    "locationId": "loc-c----",
+    "quantity": 3,
+    "reserved": 0,
+    "available": 3,
+    "sourceAt": "2026-09-12T08:00:00+07:00"
   }
 ];
 
@@ -3651,5 +3751,30 @@ export const clientBarcodeAliases: BarcodeAlias[] = [
     "value": "4190646",
     "targetType": "material",
     "targetId": "mat-csv-151"
+  },
+  {
+    "value": "RETUR-4120470",
+    "targetType": "material",
+    "targetId": "mat-retur-001"
+  },
+  {
+    "value": "RETUR-4120472",
+    "targetType": "material",
+    "targetId": "mat-retur-002"
+  },
+  {
+    "value": "RETUR-4120473",
+    "targetType": "material",
+    "targetId": "mat-retur-003"
+  },
+  {
+    "value": "RETUR-4120474",
+    "targetType": "material",
+    "targetId": "mat-retur-004"
+  },
+  {
+    "value": "RETUR-4120467",
+    "targetType": "material",
+    "targetId": "mat-retur-005"
   }
 ];

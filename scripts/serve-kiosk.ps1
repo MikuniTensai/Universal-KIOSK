@@ -30,6 +30,9 @@ if (-not (Test-Path $DataDir)) {
     New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
 }
 $SyncFile = Join-Path $DataDir "kiosk-sync-state.json"
+$syncCacheVersion = $null
+$syncCacheBytes = $null
+$syncCacheEtag = $null
 
 # 1. Cek apakah server pada port ini sudah berjalan
 try {
@@ -145,7 +148,8 @@ try {
         # Universal CORS Header untuk sinkronisasi antar-port dan LAN
         $response.AddHeader("Access-Control-Allow-Origin", "*")
         $response.AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        $response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept")
+        $response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, If-None-Match")
+        $response.AddHeader("Access-Control-Expose-Headers", "ETag")
 
         if ($request.HttpMethod -eq "OPTIONS") {
             $response.StatusCode = 204
@@ -164,6 +168,7 @@ try {
                     $reader.Close()
 
                     [System.IO.File]::WriteAllText($SyncFile, $body, [System.Text.Encoding]::UTF8)
+                    $syncCacheVersion = $null
                     $respBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true,"message":"Data berhasil disinkronkan ke server"}')
                     $response.ContentType = "application/json; charset=utf-8"
                     $response.StatusCode = 200
@@ -177,16 +182,53 @@ try {
                 $response.OutputStream.Close()
                 continue
             } elseif ($request.HttpMethod -eq "GET") {
-                if (Test-Path $SyncFile) {
-                    $bytes = [System.IO.File]::ReadAllBytes($SyncFile)
+                try {
+                    $response.AddHeader("Cache-Control", "no-cache")
                     $response.ContentType = "application/json; charset=utf-8"
-                    $response.StatusCode = 200
-                    $response.OutputStream.Write($bytes, 0, $bytes.Length)
-                } else {
-                    $emptyBytes = [System.Text.Encoding]::UTF8.GetBytes('{"hasState":false}')
+                    if (Test-Path $SyncFile) {
+                        $fileInfo = Get-Item $SyncFile -ErrorAction Stop
+                        $version = "$($fileInfo.Length):$($fileInfo.LastWriteTimeUtc.Ticks):$($fileInfo.CreationTimeUtc.Ticks)"
+                        if ($syncCacheVersion -cne $version) {
+                            $bytes = [System.IO.File]::ReadAllBytes($SyncFile)
+                            $sha = [System.Security.Cryptography.SHA256]::Create()
+                            try {
+                                $hash = [System.BitConverter]::ToString($sha.ComputeHash($bytes)).Replace('-', '').ToLowerInvariant()
+                            } finally {
+                                $sha.Dispose()
+                            }
+                            $syncCacheBytes = $bytes
+                            $syncCacheEtag = '"' + $hash + '"'
+                            $syncCacheVersion = $version
+                        }
+
+                        $response.AddHeader("ETag", $syncCacheEtag)
+                        $unchanged = $false
+                        foreach ($candidate in ([string]$request.Headers["If-None-Match"] -split ',')) {
+                            $tag = $candidate.Trim() -creplace '^W/', ''
+                            if ($tag -ceq '*' -or $tag -ceq $syncCacheEtag) {
+                                $unchanged = $true
+                                break
+                            }
+                        }
+                        if ($unchanged) {
+                            $response.StatusCode = 304
+                        } else {
+                            $response.StatusCode = 200
+                            $response.OutputStream.Write($syncCacheBytes, 0, $syncCacheBytes.Length)
+                        }
+                    } else {
+                        $syncCacheVersion = $null
+                        $syncCacheBytes = $null
+                        $syncCacheEtag = $null
+                        $emptyBytes = [System.Text.Encoding]::UTF8.GetBytes('{"hasState":false}')
+                        $response.StatusCode = 200
+                        $response.OutputStream.Write($emptyBytes, 0, $emptyBytes.Length)
+                    }
+                } catch {
+                    $errBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":false,"message":"Cannot read sync state"}')
                     $response.ContentType = "application/json; charset=utf-8"
-                    $response.StatusCode = 200
-                    $response.OutputStream.Write($emptyBytes, 0, $emptyBytes.Length)
+                    $response.StatusCode = 500
+                    $response.OutputStream.Write($errBytes, 0, $errBytes.Length)
                 }
                 $response.OutputStream.Close()
                 continue
