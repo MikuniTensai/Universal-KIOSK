@@ -19,6 +19,7 @@ import {
   Delete,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
+import plnLogoImg from '../../assets/pln_logo.webp';
 import './adminConsole.css';
 
 export interface AdminLoginUser {
@@ -257,12 +258,12 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
 
           {/* Brand Title Header */}
           <div className="adms-showcase-brand">
-            <div className="adms-brand-logo-badge">
-              {/* PLN Lightning Bolt Symbol */}
-              <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
-                <path d="M17 2L5 17H16L15 30L27 15H16L17 2Z" fill="#0284c7" />
-                <path d="M16 15H27L15 30L16 17H5L17 2L16 15Z" fill="#f59e0b" opacity="0.85" />
-              </svg>
+            <div className="adms-brand-logo-badge" title="PT PLN (Persero)">
+              <img
+                src={plnLogoImg}
+                alt="Logo PT PLN (Persero)"
+                className="adms-brand-logo-img"
+              />
             </div>
             <div className="adms-brand-info">
               <div className="adms-brand-name">Universal KIOSK</div>
@@ -438,7 +439,7 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
                   <button
                     type="button"
                     onClick={() => setAuthMode('password')}
-                    className="text-xs font-bold text-sky-600 hover:text-sky-800 underline"
+                    className="text-xs font-bold text-sky-700 hover:text-sky-900 underline"
                   >
                     Gunakan Form Email &amp; Password
                   </button>

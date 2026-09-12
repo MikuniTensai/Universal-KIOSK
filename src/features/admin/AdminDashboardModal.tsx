@@ -523,7 +523,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 </div>
 
                 <div className="overflow-x-auto rounded-xl border border-slate-200">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full text-left text-xs min-w-[640px]">
                     <thead className="bg-slate-50 font-bold uppercase text-slate-600 border-b border-slate-200">
                       <tr>
                         <th className="p-3">Kode Material</th>
@@ -591,10 +591,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
           )}
 
-          {/* TAB: STOCK MANAGEMENT */}
+          {/* TAB 1: STOCK & MATERIAL MUTATION */}
           {activeTab === 'stock' && (
             <div className="space-y-6">
-              <div className="flex gap-2 border-b border-slate-200 pb-3">
+              <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
                 <button
                   type="button"
                   onClick={() => { setStockMode('adjust'); setStockError(null); }}
@@ -868,7 +868,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                     <span className="text-xs font-bold text-slate-700 block">Alokasi Rak Gudang & Stok Awal:</span>
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
                         <input
@@ -910,7 +910,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
                   <button
                     type="submit"
-                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95"
+                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 w-full sm:w-auto"
                   >
                     <PlusCircle className="h-4 w-4" />
                     <span>Daftarkan Material & Barcode</span>
@@ -920,7 +920,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
               {/* Material Inventory Table & Delete Actions */}
               <div className="pt-6 border-t border-slate-200 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <h4 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <Boxes className="h-4 w-4 text-amber-600" />
                     <span>Daftar Material Gudang ({activePkg?.materials.length || 0} Item Terdaftar):</span>
@@ -936,7 +936,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
                     const cat = activePkg?.categories.find(c => c.id === m.categoryId);
                     return (
-                      <div key={m.id} className="flex items-center justify-between p-3.5 hover:bg-slate-50 transition gap-4">
+                      <div key={m.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 hover:bg-slate-50 transition gap-3">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
                           <span className="font-mono text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300 shrink-0">
                             {m.code}
@@ -951,7 +951,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                           <button
                             type="button"
                             onClick={() => {
@@ -990,7 +990,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     {catError}
                   </div>
                 )}
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
                     value={newCatName}
@@ -1001,7 +1001,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   />
                   <button
                     type="submit"
-                    className="flex h-12 items-center gap-2 rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 shrink-0"
+                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 shrink-0 w-full sm:w-auto"
                   >
                     <FolderPlus className="h-4 w-4" />
                     <span>Tambah Kategori</span>
@@ -1044,7 +1044,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               )}
 
               {/* Action Toolbar & Stats */}
-              <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-4">
                 <div>
                   <h4 className="text-sm font-black text-slate-800 flex items-center gap-2">
                     <FolderTree className="h-4 w-4 text-amber-600" />
@@ -1055,17 +1055,17 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={handleAdminInitializeAtoZ}
-                    className="flex h-10 items-center gap-1.5 px-3.5 rounded-xl bg-[#FACC15] text-[#0F172A] text-xs font-bold shadow-sm hover:bg-amber-400 active:scale-95 transition"
+                    className="flex h-10 items-center justify-center gap-1.5 px-3.5 rounded-xl bg-[#FACC15] text-[#0F172A] text-xs font-bold shadow-sm hover:bg-amber-400 active:scale-95 transition flex-1 sm:flex-none"
                   >
                     <Sparkles className="h-3.5 w-3.5" />
                     <span>Inisialisasi A s/d Z</span>
                   </button>
                   <button
                     onClick={handleAdminResetDefaults}
-                    className="flex h-10 items-center gap-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 active:scale-95 transition"
+                    className="flex h-10 items-center justify-center gap-1.5 px-3 rounded-xl bg-white border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 active:scale-95 transition flex-1 sm:flex-none"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span>Reset (A-H)</span>
@@ -1288,11 +1288,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleValidatePackage}
                   disabled={!jsonInput.trim()}
-                  className="flex h-12 items-center gap-2 rounded-control bg-slate-900 px-6 text-sm font-bold text-white shadow active:scale-95 disabled:opacity-50"
+                  className="flex h-12 items-center justify-center gap-2 rounded-control bg-slate-900 px-6 text-sm font-bold text-white shadow active:scale-95 disabled:opacity-50 w-full sm:w-auto"
                 >
                   <FileText className="h-4 w-4" />
                   <span>Validasi & Pratinjau Paket</span>
@@ -1301,7 +1301,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 {packagePreview && (
                   <button
                     onClick={handleActivatePackage}
-                    className="flex h-12 items-center gap-2 rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow-md active:scale-95"
+                    className="flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-6 text-sm font-bold text-[#0F172A] shadow-md active:scale-95 w-full sm:w-auto"
                   >
                     <CheckCircle2 className="h-4 w-4" />
                     <span>Aktivasi Paket Sekarang (Atomik)</span>
@@ -1340,7 +1340,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               {packagePreview && (
                 <div className="rounded-control bg-slate-50 p-5 border border-slate-200 space-y-4">
                   <h4 className="text-sm font-bold text-slate-800">Ringkasan Pratinjau Paket Tervalidasi</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                     <div className="bg-white p-3 rounded border border-slate-200">
                       <span className="text-xs text-slate-500">Versi Dataset</span>
                       <p className="font-bold text-slate-900 text-lg">{packagePreview.datasetVersion}</p>
@@ -1376,7 +1376,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   {history.map((pkg) => (
                     <div
                       key={pkg.datasetVersion}
-                      className="flex items-center justify-between rounded-control border border-slate-200 bg-slate-50 p-4"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between rounded-control border border-slate-200 bg-slate-50 p-4 gap-3"
                     >
                       <div>
                         <div className="flex items-center gap-2">
@@ -1394,7 +1394,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
                       <button
                         onClick={() => handleRestore(pkg.datasetVersion)}
-                        className="flex h-11 items-center gap-2 rounded-control bg-white border border-slate-300 px-4 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-100 active:scale-95"
+                        className="flex h-11 items-center justify-center gap-2 rounded-control bg-white border border-slate-300 px-4 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-100 active:scale-95 w-full sm:w-auto"
                       >
                         <RotateCcw className="h-4 w-4 text-amber-600" />
                         <span>Pulihkan (Restore)</span>

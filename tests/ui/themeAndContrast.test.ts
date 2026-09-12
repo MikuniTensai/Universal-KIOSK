@@ -53,4 +53,20 @@ describe('K17 / DESIGN.md: WCAG Color Contrast & Theme Tokens', () => {
     const ratio = getContrastRatio('#FFFFFF', '#FACC15');
     expect(ratio).toBeLessThan(2.0); // Only ~1.53:1
   });
+
+  it('measures PLN Primary Blue #0369A1 on white #FFFFFF satisfies WCAG AA (>= 4.5:1)', () => {
+    const ratio = getContrastRatio('#0369A1', '#FFFFFF');
+    expect(ratio).toBeGreaterThanOrEqual(4.5); // 5.93:1
+    expect(ratio).toBeCloseTo(5.93, 1);
+  });
+
+  it('proves old light sky blue #0284C7 on white #FFFFFF fails WCAG AA normal text (< 4.5:1)', () => {
+    const ratio = getContrastRatio('#0284C7', '#FFFFFF');
+    expect(ratio).toBeLessThan(4.5); // 4.10:1 - fails AA normal text
+  });
+
+  it('measures PLN Active Blue #075985 on white #FFFFFF satisfies WCAG AAA (>= 7:1)', () => {
+    const ratio = getContrastRatio('#075985', '#FFFFFF');
+    expect(ratio).toBeGreaterThanOrEqual(7.0); // 8.42:1
+  });
 });

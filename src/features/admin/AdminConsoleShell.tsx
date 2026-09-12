@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { AdminModeService } from './adminModeService';
 import { AdminLoginUser } from './AdminLoginScreen';
+import plnLogoImg from '../../assets/pln_logo.webp';
 import './adminConsole.css';
 
 export type AdminModuleTab =
@@ -230,10 +231,12 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
         <div className="adms-sidebar-top">
           <div className="adms-sidebar-header">
             <div className="adms-brand-group">
-              <div className="adms-brand-logo" title="PT PLN (Persero)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="#ffffff" />
-                </svg>
+              <div className="adms-brand-logo" title="PT PLN (Persero)" aria-label="Logo PT PLN (Persero)">
+                <img
+                  src={plnLogoImg}
+                  alt="Logo PT PLN (Persero)"
+                  className="adms-brand-logo-img"
+                />
               </div>
               <div className="adms-brand-text">
                 <div className="adms-brand-title">Portal Administrator Gudang PLN</div>
