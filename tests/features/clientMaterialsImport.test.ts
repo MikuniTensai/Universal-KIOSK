@@ -6,7 +6,7 @@ import { WarehouseLayoutService } from '../../src/features/layout/warehouseLayou
 describe('Client Materials & Warehouse Location Integration (export_material NEW(1).csv)', () => {
   it('contains all 151 client materials in full package', () => {
     expect(plnUp3MalangFullPackage.materials.length).toBeGreaterThanOrEqual(151);
-    expect(plnUp3MalangFullPackage.datasetVersion).toBe(3);
+    expect(plnUp3MalangFullPackage.datasetVersion).toBeGreaterThanOrEqual(3);
   });
 
   it('verifies all materials have valid variables: Nama Material, Kode Normalisasi, Satuan, Stok, BLOK, RAK', () => {

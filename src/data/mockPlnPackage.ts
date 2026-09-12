@@ -256,27 +256,15 @@ export const samplePlnPackage: ImportPackage = {
  */
 export const plnUp3MalangFullPackage: ImportPackage = {
   schemaVersion: '1.0',
-  datasetVersion: 3,
+  datasetVersion: 4,
   sourceName: 'PLN ERP SAP Logistik Terpadu UP3 Malang (export_material NEW(1).csv)',
   sourceAt: '2026-09-12T08:00:00+07:00',
   packageHash: 'pln-snapshot-v4-hash-20260912-excel-aligned',
   categories: samplePlnPackage.categories,
-  locations: [
-    ...samplePlnPackage.locations,
-    ...clientLocations,
-  ],
-  materials: [
-    ...samplePlnPackage.materials,
-    ...clientMaterials,
-  ],
-  assets: samplePlnPackage.assets,
-  barcodeAliases: [
-    ...samplePlnPackage.barcodeAliases,
-    ...clientBarcodeAliases,
-  ],
-  stockSnapshots: [
-    ...samplePlnPackage.stockSnapshots,
-    ...clientStockSnapshots,
-  ],
+  locations: clientLocations,
+  materials: clientMaterials,
+  assets: [],
+  barcodeAliases: clientBarcodeAliases,
+  stockSnapshots: clientStockSnapshots,
   contentItems: samplePlnPackage.contentItems,
 };
