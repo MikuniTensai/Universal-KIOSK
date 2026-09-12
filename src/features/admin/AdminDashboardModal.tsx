@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Upload,
   CheckCircle2,
@@ -24,9 +24,11 @@ import {
   Check,
   Settings,
   Download,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import { ImportService, PackagePreviewSummary } from './importService';
+import { CsvImportService, CsvImportStats } from './csvImportService';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import { SyncService } from '../../adapters/storage/syncService';
@@ -87,6 +89,17 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
+
+  // CSV Import & Replace states
+  const [showCsvImportModal, setShowCsvImportModal] = useState<boolean>(false);
+  const [csvText, setCsvText] = useState<string>('');
+  const [csvFileName, setCsvFileName] = useState<string>('');
+  const [csvImportMode, setCsvImportMode] = useState<'replace' | 'merge'>('replace');
+  const [csvImportStats, setCsvImportStats] = useState<CsvImportStats | null>(null);
+  const [csvParsedPackage, setCsvParsedPackage] = useState<ImportPackage | null>(null);
+  const [csvImportError, setCsvImportError] = useState<string | null>(null);
+  const [isProcessingCsv, setIsProcessingCsv] = useState<boolean>(false);
+  const csvFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Settings states
   const [configDraft, setConfigDraft] = useState<KioskConfig>(kioskStorage.getConfig());
@@ -296,6 +309,67 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     setActionSuccessMessage('Berhasil mengekspor database material ke format CSV master Excel SAP.');
+  };
+
+  const processCsvContent = async (rawCsv: string, mode: 'replace' | 'merge') => {
+    if (!rawCsv.trim()) {
+      setCsvImportStats(null);
+      setCsvParsedPackage(null);
+      return;
+    }
+    setIsProcessingCsv(true);
+    setCsvImportError(null);
+    try {
+      const { pkg, stats } = await CsvImportService.createPackageFromCsv(rawCsv, mode, activePkg);
+      if (stats.validRows === 0) {
+        setCsvImportError('Tidak ditemukan baris data material yang valid di dalam file CSV.');
+        setCsvImportStats(null);
+        setCsvParsedPackage(null);
+        return;
+      }
+      setCsvImportStats(stats);
+      setCsvParsedPackage(pkg);
+    } catch (err: any) {
+      setCsvImportError(err.message || 'Gagal memproses file CSV.');
+      setCsvImportStats(null);
+      setCsvParsedPackage(null);
+    } finally {
+      setIsProcessingCsv(false);
+    }
+  };
+
+  const handleCsvFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvFileName(file.name);
+    try {
+      const text = await file.text();
+      setCsvText(text);
+      await processCsvContent(text, csvImportMode);
+    } catch (err: any) {
+      setCsvImportError(err.message || 'Gagal membaca file CSV.');
+    }
+  };
+
+  const handleApplyCsvImport = () => {
+    if (!csvParsedPackage || !csvImportStats) return;
+    try {
+      kioskStorage.activatePackage(csvParsedPackage);
+      WarehouseLayoutService.syncWithPackage(csvParsedPackage);
+      triggerPackageUpdated();
+      setShowCsvImportModal(false);
+      setActionSuccessMessage(
+        csvImportStats.mode === 'replace'
+          ? `Sukses mengganti seluruh database material dengan ${csvImportStats.materialsCount} item dari CSV!`
+          : `Sukses memperbarui dan menggabungkan ${csvImportStats.validRows} item dari CSV ke database!`
+      );
+      setCsvText('');
+      setCsvFileName('');
+      setCsvImportStats(null);
+      setCsvParsedPackage(null);
+    } catch (err: any) {
+      setCsvImportError(err.message || 'Gagal menerapkan data CSV ke database.');
+    }
   };
 
   const handleAddCategory = (e: React.FormEvent) => {
@@ -969,6 +1043,19 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <Download className="h-4 w-4" />
                       <span>Export CSV (Excel SAP)</span>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCsvImportError(null);
+                        setShowCsvImportModal(true);
+                      }}
+                      className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-sky-700 px-3.5 text-xs font-bold text-white shadow-2xs hover:bg-sky-800 active:scale-95 transition shrink-0"
+                      title="Import file CSV untuk mengganti atau memperbarui database stok material"
+                    >
+                      <Upload className="h-4 w-4" />
+                      <span>Import CSV (Ganti/Update Stok)</span>
+                    </button>
                   </div>
 
                   {/* Search Bar & Titik 3 Category Filter for Stock Table */}
@@ -1505,6 +1592,40 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           {/* TAB 1: IMPORT */}
           {activeTab === 'import' && (
             <div className="space-y-6">
+              {/* Card Import CSV Master Excel SAP */}
+              <div className="rounded-xl border-2 border-sky-300 bg-sky-50/80 p-5 shadow-sm">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-200 text-sky-900">
+                        <FileSpreadsheet className="h-3.5 w-3.5 text-sky-700" />
+                        Master Excel SAP CSV
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                        Fitur Baru: Replace All / Merge
+                      </span>
+                    </div>
+                    <h4 className="text-base font-extrabold text-slate-900">
+                      Import & Replace dari File CSV (export_material NEW(1).csv)
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                      Unggah file CSV dari SAP untuk mengganti seluruh database material atau memperbarui kuantitas stok dan zonasi rak (BLOK, RAK, SUB RAK) secara otomatis tanpa format JSON manual.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportError(null);
+                      setShowCsvImportModal(true);
+                    }}
+                    className="shrink-0 flex items-center justify-center gap-2.5 rounded-control bg-[#0369a1] hover:bg-[#0284c7] px-5 py-3.5 text-xs font-bold text-white shadow active:scale-95 transition"
+                  >
+                    <Upload className="h-4 w-4 text-[#FACC15]" />
+                    <span>Buka Dialog Import File CSV</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Preset Paket Data Material Aktual Klien PLN UP3 Malang */}
               <div className="rounded-xl border-2 border-amber-300 bg-amber-50/80 p-5 shadow-sm">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -1942,6 +2063,255 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
               </div>
             </div>
           )}
+
+      {/* Pop-up Modal Import & Replace CSV Master Excel SAP */}
+      {showCsvImportModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowCsvImportModal(false);
+              setCsvImportError(null);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700 border border-sky-300">
+                  <FileSpreadsheet className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Import & Replace Database Material (Excel SAP CSV)
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Ganti seluruh data atau perbarui stok & lokasi material langsung dari file CSV
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCsvImportModal(false);
+                  setCsvImportError(null);
+                }}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto space-y-5">
+              {/* Mode Selection */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                  Pilih Mode Sinkronisasi:
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportMode('replace');
+                      if (csvText) processCsvContent(csvText, 'replace');
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3 ${
+                      csvImportMode === 'replace'
+                        ? 'border-sky-500 bg-sky-50/80 text-sky-950 ring-2 ring-sky-500/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
+                    <div className={`mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
+                      csvImportMode === 'replace' ? 'border-sky-600 bg-sky-600' : 'border-slate-300'
+                    }`}>
+                      {csvImportMode === 'replace' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold flex items-center gap-1.5">
+                        <span>Ganti Seluruh Data (Replace All)</span>
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-200 text-amber-900">Rekomendasi</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                        Menghapus katalog lama dan menggantikannya 100% dengan data dari file CSV baru.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCsvImportMode('merge');
+                      if (csvText) processCsvContent(csvText, 'merge');
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition flex items-start gap-3 ${
+                      csvImportMode === 'merge'
+                        ? 'border-sky-500 bg-sky-50/80 text-sky-950 ring-2 ring-sky-500/20'
+                        : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                    }`}
+                  >
+                    <div className={`mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
+                      csvImportMode === 'merge' ? 'border-sky-600 bg-sky-600' : 'border-slate-300'
+                    }`}>
+                      {csvImportMode === 'merge' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold">Perbarui & Tambah (Merge / Upsert)</div>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                        Memperbarui stok & lokasi material yang cocok, serta menambahkan material baru yang belum ada.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* Upload Input */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                  Unggah File CSV / Master Excel SAP:
+                </label>
+                <div className="border-2 border-dashed border-slate-300 hover:border-sky-400 rounded-2xl p-6 text-center bg-slate-50/50 transition">
+                  <input
+                    ref={csvFileInputRef}
+                    type="file"
+                    accept=".csv,text/csv"
+                    onChange={handleCsvFileUpload}
+                    className="hidden"
+                    id="csv-file-input"
+                  />
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="h-12 w-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shadow-xs">
+                      <Upload className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="csv-file-input"
+                        className="cursor-pointer text-xs font-bold text-[#0369a1] hover:underline"
+                      >
+                        Pilih file CSV dari komputer
+                      </label>
+                      <span className="text-xs text-slate-500"> atau seret file ke sini</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Mendukung format: <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-700">export_material NEW(1).csv</code>
+                    </p>
+                    {csvFileName && (
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <Check className="h-3.5 w-3.5" />
+                        <span>File terpilih: {csvFileName}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Error Box */}
+              {csvImportError && (
+                <div className="rounded-xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-800 flex items-start gap-2.5">
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                  <span>{csvImportError}</span>
+                </div>
+              )}
+
+              {/* Preview Stats */}
+              {csvImportStats && (
+                <div className="space-y-3 rounded-2xl bg-slate-50 border border-slate-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Pratinjau Hasil Pembacaan CSV:
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      {csvImportStats.validRows} Baris Terverifikasi
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                      <span className="text-[11px] text-slate-400">Total Material</span>
+                      <p className="text-base font-extrabold text-slate-900">{csvImportStats.materialsCount}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                      <span className="text-[11px] text-slate-400">Total Stok Fisik</span>
+                      <p className="text-base font-extrabold text-emerald-600">{csvImportStats.totalQuantity}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                      <span className="text-[11px] text-slate-400">Jumlah Lokasi</span>
+                      <p className="text-base font-extrabold text-sky-600">{csvImportStats.locationsCount}</p>
+                    </div>
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                      <span className="text-[11px] text-slate-400">Aksi Database</span>
+                      <p className="text-xs font-extrabold text-amber-700 uppercase mt-0.5">
+                        {csvImportStats.mode === 'replace' ? 'Replace All' : 'Merge Stock'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sample rows table */}
+                  <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-slate-100/70 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
+                        <tr>
+                          <th className="px-3 py-2">No</th>
+                          <th className="px-3 py-2">Nama Material</th>
+                          <th className="px-3 py-2">Normalisasi</th>
+                          <th className="px-3 py-2">Satuan</th>
+                          <th className="px-3 py-2">Stok</th>
+                          <th className="px-3 py-2">BLOK</th>
+                          <th className="px-3 py-2">RAK</th>
+                          <th className="px-3 py-2">SUB RAK</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {csvImportStats.sampleRows.map((r, i) => (
+                          <tr key={i} className="hover:bg-slate-50/80">
+                            <td className="px-3 py-2 font-mono text-slate-500">{r.no}</td>
+                            <td className="px-3 py-2 font-semibold text-slate-800 max-w-[200px] truncate" title={r.name}>{r.name}</td>
+                            <td className="px-3 py-2 font-mono text-slate-600">{r.code || '-'}</td>
+                            <td className="px-3 py-2 text-slate-600">{r.unit}</td>
+                            <td className="px-3 py-2 font-bold text-slate-900">{r.stock}</td>
+                            <td className="px-3 py-2 font-bold text-amber-800">{r.blok}</td>
+                            <td className="px-3 py-2 font-bold text-slate-700">{r.rak}</td>
+                            <td className="px-3 py-2 font-bold text-sky-700">{r.subRak}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between border-t border-slate-200 px-6 py-4 bg-slate-50 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCsvImportModal(false);
+                  setCsvImportError(null);
+                }}
+                className="h-11 px-5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition active:scale-95"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                onClick={handleApplyCsvImport}
+                disabled={!csvParsedPackage || isProcessingCsv}
+                className="h-11 px-6 rounded-xl bg-[#0369a1] hover:bg-[#0284c7] text-xs font-bold text-white shadow active:scale-95 transition disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
+              >
+                <CheckCircle2 className="h-4 w-4 text-[#FACC15]" />
+                <span>
+                  {csvImportMode === 'replace'
+                    ? 'Terapkan & Ganti Total Database'
+                    : 'Terapkan & Perbarui Stok Database'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pop-up Modal Tambah / Sesuaikan Stok Material & Barcode */}
       {showStockModal && (
