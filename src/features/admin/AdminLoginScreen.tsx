@@ -3,7 +3,6 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
-  Info,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
@@ -200,17 +199,6 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
     setActiveSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
-  const handleAutoLogin = () => {
-    AdminAuth.authenticate('123456');
-    const defaultSuper = UserManagementService.getUsers().find(u => u.permissions.includes('*'));
-    onLoginSuccess({
-      email: defaultSuper?.email || 'admin@pln-kiosk.id',
-      role: defaultSuper?.role || 'Super Administrator',
-      name: defaultSuper?.name || 'Administrator Gudang PLN',
-      permissions: defaultSuper?.permissions || ['*'],
-    });
-  };
-
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -398,24 +386,15 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
               </p>
             </div>
 
-            {/* Notice Banner Autodetect */}
+            {/* Notice Banner */}
             <div className="adms-login-notice-banner">
               <div className="adms-notice-icon-wrapper">
-                <Info size={16} strokeWidth={2.4} />
+                <ShieldCheck size={16} strokeWidth={2.4} />
               </div>
               <div className="adms-notice-text">
-                <div className="adms-notice-title">Sesi LAN Terdeteksi (Port {port})</div>
-                <div className="adms-notice-desc">Sistem {warehouseName} aktif otomatis tanpa perlu login manual.</div>
+                <div className="adms-notice-title">Sesi LAN Port {port} Aktif</div>
+                <div className="adms-notice-desc">Silakan masukkan kredensial akun administrator Anda untuk melanjutkan.</div>
               </div>
-              <button
-                type="button"
-                className="adms-banner-direct-btn"
-                onClick={handleAutoLogin}
-                title="Langsung Masuk Dashboard Administrator"
-              >
-                <CheckCircle2 size={13} strokeWidth={2.5} />
-                <span>Masuk Langsung</span>
-              </button>
             </div>
 
             {/* Remote Access via WiFi Guide Link */}

@@ -75,13 +75,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   initialTab = 'stock',
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(
-    bypassPin || standalone ? true : AdminAuth.isAuthenticated()
+    bypassPin ? true : AdminAuth.isAuthenticated()
   );
-  const [currentUser, setCurrentUser] = useState<AdminLoginUser>({
-    name: 'Administrator Gudang PLN',
-    role: 'Super Administrator',
-    email: 'admin@pln-kiosk.id',
-    permissions: ['*'],
+  const [currentUser, setCurrentUser] = useState<AdminLoginUser>(() => {
+    return AdminAuth.getCurrentUser();
   });
   const [activeTab, setActiveTab] = useState<AdminModuleTab>(initialTab);
   const [overviewSearch, setOverviewSearch] = useState('');

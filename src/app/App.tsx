@@ -147,13 +147,13 @@ export const App: React.FC = () => {
   }, [refreshData]);
 
   // Dedicated Admin Mode (Port 5001 / ?mode=admin / LAN Control)
-  // Bypasses PIN, screensaver, and kiosk lockdowns
+  // Menampilkan portal administrator penuh dengan proteksi login kredensial
   if (isDedicatedAdmin) {
     return (
       <AdminDashboardModal
         visible={true}
         standalone={true}
-        bypassPin={true}
+        bypassPin={false}
         onClose={() => {}}
         onPackageUpdated={refreshData}
       />
