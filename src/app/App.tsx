@@ -17,7 +17,6 @@ import { CatalogView } from '../features/catalog/CatalogView';
 import { ScanStandbyView } from '../features/scanner/ScanStandbyView';
 import { AdminDashboardModal } from '../features/admin/AdminDashboardModal';
 import { AdminModeService } from '../features/admin/adminModeService';
-import { NetworkAccessModal } from '../features/network/NetworkAccessModal';
 import { ShutdownMenuModal } from '../features/system/ShutdownMenuModal';
 import { SyncService } from '../adapters/storage/syncService';
 import { ScanResolveResult, ImportPackage, KioskConfig } from '../domain/types';
@@ -36,9 +35,6 @@ export const App: React.FC = () => {
 
   // Admin dashboard modal state
   const [adminModalVisible, setAdminModalVisible] = useState(false);
-
-  // Network access info modal state (WiFi & Dynamic IP LAN Access)
-  const [networkModalVisible, setNetworkModalVisible] = useState(false);
 
   // Shutdown & System Power menu modal state
   const [shutdownModalVisible, setShutdownModalVisible] = useState(false);
@@ -194,11 +190,6 @@ export const App: React.FC = () => {
           onClose={() => setAdminModalVisible(false)}
           onPackageUpdated={refreshData}
         />
-        <NetworkAccessModal
-          visible={networkModalVisible}
-          onClose={() => setNetworkModalVisible(false)}
-          warehouseCode={config.warehouseCode}
-        />
         <ShutdownMenuModal
           isOpen={shutdownModalVisible}
           onClose={() => setShutdownModalVisible(false)}
@@ -227,10 +218,6 @@ export const App: React.FC = () => {
         onOpenAdmin={() => {
           idleTimer.recordActivity();
           setAdminModalVisible(true);
-        }}
-        onOpenNetwork={() => {
-          idleTimer.recordActivity();
-          setNetworkModalVisible(true);
         }}
         onOpenShutdown={() => {
           idleTimer.recordActivity();
@@ -640,12 +627,6 @@ export const App: React.FC = () => {
         onPackageUpdated={refreshData}
       />
 
-      {/* Network Access Guide Modal (WiFi & Dynamic IP Access) */}
-      <NetworkAccessModal
-        visible={networkModalVisible}
-        onClose={() => setNetworkModalVisible(false)}
-        warehouseCode={config.warehouseCode}
-      />
 
       {/* Shutdown & System Power Menu Modal */}
       <ShutdownMenuModal
