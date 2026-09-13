@@ -15,6 +15,8 @@ import {
   ArrowRight,
   ChevronRight,
   Wifi,
+  Users,
+  UserCheck,
 } from 'lucide-react';
 import { AdminModeService } from './adminModeService';
 import { AdminLoginUser } from './AdminLoginScreen';
@@ -32,7 +34,9 @@ export type AdminModuleTab =
   | 'history'
   | 'settings'
   | 'logs'
-  | 'network';
+  | 'network'
+  | 'users'
+  | 'profile';
 
 interface AdminConsoleShellProps {
   activeTab: AdminModuleTab;
@@ -131,6 +135,16 @@ const MODULE_META_MAP: Record<AdminModuleTab, ModuleMeta> = {
     title: 'Akses WiFi & IP Jaringan',
     subtitle: 'Panduan remote control Kiosk & Panel Admin dari HP / Laptop di WiFi yang sama',
     icon: Wifi,
+  },
+  users: {
+    title: 'Manajemen Pengguna (Spatie)',
+    subtitle: 'Kelola peran pengguna dan izin akses Spatie (Wildcard *)',
+    icon: Users,
+  },
+  profile: {
+    title: 'Profil & Ubah Kata Sandi',
+    subtitle: 'Informasi identitas akun dan pembaruan kata sandi otentikasi login',
+    icon: UserCheck,
   },
 };
 
@@ -243,8 +257,18 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
     },
     {
       id: 'system',
-      label: 'SISTEM & DIAGNOSTIK',
+      label: 'SISTEM & PENGGUNA',
       items: [
+        {
+          id: 'users' as AdminModuleTab,
+          label: 'Manajemen Pengguna (Spatie)',
+          icon: Users,
+        },
+        {
+          id: 'profile' as AdminModuleTab,
+          label: 'Profil & Ubah Password',
+          icon: UserCheck,
+        },
         {
           id: 'settings' as AdminModuleTab,
           label: 'Pengaturan Kiosk',
@@ -478,15 +502,22 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
 
             {/* User Profile Pill with Logout */}
             <div className="adms-user-profile-pill">
-              <div className="adms-user-avatar">
-                {currentUser.name.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="adms-user-info hidden md:flex">
-                <span className="adms-user-name">{currentUser.name}</span>
-                <span className="adms-user-role-status">
-                  <span className="adms-online-indicator">{currentUser.role}</span>
-                </span>
-              </div>
+              <button
+                type="button"
+                className="flex items-center gap-2 cursor-pointer text-left hover:opacity-85 transition bg-transparent border-0 p-0"
+                onClick={() => handleSelectTab('profile')}
+                title="Buka Profil & Ubah Kata Sandi"
+              >
+                <div className="adms-user-avatar">
+                  {currentUser.name.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="adms-user-info hidden md:flex">
+                  <span className="adms-user-name">{currentUser.name}</span>
+                  <span className="adms-user-role-status">
+                    <span className="adms-online-indicator">{currentUser.role}</span>
+                  </span>
+                </div>
+              </button>
               <button
                 type="button"
                 className="adms-topbar-logout-btn"

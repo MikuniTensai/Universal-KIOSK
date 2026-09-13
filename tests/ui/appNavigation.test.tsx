@@ -98,13 +98,17 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
       fireEvent.click(plnLogo);
     }
 
-    // PIN modal is displayed
-    expect(screen.getByText(/Masukkan PIN Akses/i)).toBeInTheDocument();
+    // Login form is displayed (direct credentials input)
+    expect(screen.getByLabelText(/Email \/ Username Operator/i)).toBeInTheDocument();
 
-    // Enter correct PIN: 123456
-    ['1', '2', '3', '4', '5', '6'].forEach(digit => {
-      fireEvent.click(screen.getByRole('button', { name: digit }));
+    // Client inputs credentials manually
+    fireEvent.change(screen.getByLabelText(/Email \/ Username Operator/i), {
+      target: { value: 'admin@pln-kiosk.id' },
     });
+    fireEvent.change(screen.getByLabelText(/Kata Sandi \/ PIN Akses/i), {
+      target: { value: '123456' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Masuk Konsol Admin/i }));
 
     // Admin dashboard is displayed
     expect(screen.getByText(/Panel Administrator Kiosk Gudang PLN/i)).toBeInTheDocument();
@@ -124,9 +128,13 @@ describe('Universal-KIOSK UI End-to-End Navigation & Flow', () => {
     for (let i = 0; i < 5; i++) {
       fireEvent.click(plnLogo);
     }
-    ['1', '2', '3', '4', '5', '6'].forEach(digit => {
-      fireEvent.click(screen.getByRole('button', { name: digit }));
+    fireEvent.change(screen.getByLabelText(/Email \/ Username Operator/i), {
+      target: { value: 'admin@pln-kiosk.id' },
     });
+    fireEvent.change(screen.getByLabelText(/Kata Sandi \/ PIN Akses/i), {
+      target: { value: '123456' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Masuk Konsol Admin/i }));
 
     // 1. Test Add Category Tab
     fireEvent.click(screen.getAllByText(/Kelola Kategori/i)[0]);

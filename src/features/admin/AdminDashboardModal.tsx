@@ -26,8 +26,20 @@ import {
   Download,
   FileSpreadsheet,
   ShieldCheck,
+  KeyRound,
+  UserPlus,
+  Users,
+  Eye,
+  EyeOff,
+  Lock,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
+import {
+  UserManagementService,
+  AdminUser,
+  SpatiePermission,
+  SPATIE_AVAILABLE_PERMISSIONS,
+} from './userManagementService';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { CsvImportService, CsvImportStats, CsvImportScope } from './csvImportService';
 import { snapshotManager } from './snapshotManager';
@@ -64,9 +76,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     bypassPin || standalone ? true : AdminAuth.isAuthenticated()
   );
   const [currentUser, setCurrentUser] = useState<AdminLoginUser>({
-    name: 'Administrator',
+    name: 'Administrator Gudang PLN',
     role: 'Super Administrator',
-    email: 'admin@pln-kiosk.internal',
+    email: 'admin@pln-kiosk.id',
+    permissions: ['*'],
   });
   const [activeTab, setActiveTab] = useState<AdminModuleTab>(initialTab);
   const [overviewSearch, setOverviewSearch] = useState('');
@@ -179,6 +192,109 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     isOccupied: boolean;
     materialName?: string | null;
   } | null>(null);
+
+  // User Management (Spatie) states
+  const [usersList, setUsersList] = useState<AdminUser[]>(() => UserManagementService.getUsers());
+  const [showAddUserModal, setShowAddUserModal] = useState<boolean>(false);
+  const [newUserName, setNewUserName] = useState<string>('');
+  const [newUserEmail, setNewUserEmail] = useState<string>('');
+  const [newUserPassword, setNewUserPassword] = useState<string>('');
+  const [newUserRole, setNewUserRole] = useState<string>('Petugas Logistik');
+  const [newUserIsWildcard, setNewUserIsWildcard] = useState<boolean>(true); // Default true: Spatie bisa akses kemana saja
+  const [newUserPermissions, setNewUserPermissions] = useState<SpatiePermission[]>(['dashboard.view', 'stock.view']);
+  const [addUserError, setAddUserError] = useState<string | null>(null);
+  const [addUserSuccess, setAddUserSuccess] = useState<string | null>(null);
+
+  // Profile & Change Password states
+  const [currentPasswordInput, setCurrentPasswordInput] = useState<string>('');
+  const [newPasswordInput, setNewPasswordInput] = useState<string>('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [profileActionError, setProfileActionError] = useState<string | null>(null);
+  const [profileActionSuccess, setProfileActionSuccess] = useState<string | null>(null);
+
+  const handleAddUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddUserError(null);
+    setAddUserSuccess(null);
+
+    const permissionsToAssign: SpatiePermission[] = newUserIsWildcard
+      ? ['*']
+      : newUserPermissions.length > 0
+      ? newUserPermissions
+      : ['dashboard.view', 'stock.view'];
+
+    const res = UserManagementService.addUser({
+      name: newUserName,
+      email: newUserEmail,
+      password: newUserPassword,
+      role: newUserRole,
+      permissions: permissionsToAssign,
+    });
+
+    if (res.success && res.user) {
+      setUsersList(UserManagementService.getUsers());
+      setAddUserSuccess(
+        `Pengguna '${res.user.name}' (${res.user.email}) berhasil ditambahkan dengan akses Spatie ${
+          newUserIsWildcard ? 'Wildcard (* - Bisa Akses Kemana Saja)' : 'Kustom'
+        }!`
+      );
+      setShowAddUserModal(false);
+      setNewUserName('');
+      setNewUserEmail('');
+      setNewUserPassword('');
+      setNewUserRole('Petugas Logistik');
+      setNewUserIsWildcard(true);
+      setNewUserPermissions(['dashboard.view', 'stock.view']);
+    } else {
+      setAddUserError(res.error || 'Gagal menambahkan pengguna baru.');
+    }
+  };
+
+  const handleDeleteUser = (userId: string, userName: string) => {
+    if (window.confirm(`Yakin ingin menghapus pengguna '${userName}'? Tindakan ini tidak dapat dibatalkan.`)) {
+      const res = UserManagementService.deleteUser(userId);
+      if (res.success) {
+        setUsersList(UserManagementService.getUsers());
+        setAddUserSuccess(`Pengguna '${userName}' berhasil dihapus.`);
+      } else {
+        alert(res.error || 'Gagal menghapus pengguna.');
+      }
+    }
+  };
+
+  const handleUpdatePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileActionError(null);
+    setProfileActionSuccess(null);
+
+    if (newPasswordInput !== confirmPasswordInput) {
+      setProfileActionError('Konfirmasi kata sandi baru tidak cocok!');
+      return;
+    }
+
+    if (newPasswordInput.length < 4) {
+      setProfileActionError('Kata sandi baru minimal 4 karakter!');
+      return;
+    }
+
+    const res = UserManagementService.updatePassword(
+      currentUser.email,
+      currentPasswordInput,
+      newPasswordInput
+    );
+
+    if (res.success) {
+      setProfileActionSuccess('Kata sandi berhasil diperbarui! Silakan gunakan kata sandi baru untuk login berikutnya.');
+      setCurrentPasswordInput('');
+      setNewPasswordInput('');
+      setConfirmPasswordInput('');
+      setUsersList(UserManagementService.getUsers());
+    } else {
+      setProfileActionError(res.error || 'Gagal memperbarui kata sandi.');
+    }
+  };
 
   if (!visible && !standalone) return null;
 
@@ -2264,6 +2380,380 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
             </div>
           )}
 
+          {/* TAB: USER MANAGEMENT (SPATIE) */}
+          {activeTab === 'users' && (
+            <div className="space-y-6">
+              {/* Header & Add User Action */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-[#0369a1] border border-sky-200 shadow-xs">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900">
+                      Manajemen Pengguna &amp; Otorisasi Spatie
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Kelola daftar operator, hak akses berbasis perizinan Spatie, dan penetapan role.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAddUserError(null);
+                    setShowAddUserModal(true);
+                  }}
+                  className="flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0369a1] text-white text-xs font-bold shadow-sm hover:bg-sky-800 active:scale-95 transition shrink-0"
+                >
+                  <UserPlus size={16} strokeWidth={2.4} />
+                  <span>Tambah Pengguna (Add User)</span>
+                </button>
+              </div>
+
+              {/* Spatie Wildcard Banner */}
+              <div className="rounded-2xl border border-amber-300 bg-amber-50/80 p-4 sm:p-5 flex items-start gap-3 shadow-2xs">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-amber-900">
+                  <Sparkles size={18} />
+                </div>
+                <div className="text-xs text-amber-950 space-y-1 leading-relaxed">
+                  <div className="font-black text-sm text-amber-900">
+                    Otorisasi Terintegrasi Spatie Role &amp; Permission
+                  </div>
+                  <p>
+                    Pengguna dengan izin <strong>Wildcard (*)</strong> memiliki otoritas <em>Super Administrator</em> yang <strong>bisa akses kemana saja</strong> ke seluruh modul (Manajemen Stok, Klasifikasi Kategori, Tata Letak Gudang Blok A-Z, Impor SAP, Konfigurasi Kiosk, dan Log Diagnostik).
+                  </p>
+                </div>
+              </div>
+
+              {addUserSuccess && (
+                <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-300 p-3.5 px-4 text-xs font-semibold text-emerald-900 animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                    <span>{addUserSuccess}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAddUserSuccess(null)}
+                    className="text-emerald-700 hover:text-emerald-900 font-bold p-1"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* Users Table List */}
+              <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                <div className="border-b border-slate-200 px-6 py-4 bg-slate-50 flex items-center justify-between">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
+                    Daftar Pengguna Terdaftar ({usersList.length} Akun)
+                  </h4>
+                  <span className="text-[11px] font-mono text-slate-500">
+                    Sistem: Spatie v2 &bull; LocalStorage
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-700">
+                    <thead className="border-b border-slate-200 bg-slate-100/70 text-[11px] uppercase font-black tracking-wider text-slate-600">
+                      <tr>
+                        <th className="px-6 py-3.5">Pengguna / Identitas</th>
+                        <th className="px-4 py-3.5">Peran / Role</th>
+                        <th className="px-4 py-3.5">Hak Akses Spatie</th>
+                        <th className="px-4 py-3.5">Tanggal Dibuat</th>
+                        <th className="px-6 py-3.5 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {usersList.map((u) => {
+                        const isWildcard = u.permissions.includes('*');
+                        const isMainAdmin = u.email === 'admin@pln-kiosk.id';
+
+                        return (
+                          <tr key={u.id} className="hover:bg-slate-50/80 transition">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-600 to-sky-800 font-bold text-white text-xs shadow-xs">
+                                  {u.name.slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-slate-900 text-sm">{u.name}</div>
+                                  <div className="font-mono text-xs text-slate-500">{u.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-100/80 text-sky-900 border border-sky-200">
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              {isWildcard ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-amber-100 text-amber-950 border border-amber-300">
+                                  <Sparkles size={13} className="text-amber-600" />
+                                  <span>Bisa Akses Kemana Saja (*)</span>
+                                </span>
+                              ) : (
+                                <div className="flex flex-wrap gap-1 max-w-xs">
+                                  {u.permissions.map((perm) => (
+                                    <span
+                                      key={perm}
+                                      className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-mono border border-slate-200"
+                                    >
+                                      {perm}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 text-slate-500 font-mono text-[11px]">
+                              {new Date(u.createdAt).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              {isMainAdmin ? (
+                                <span
+                                  className="text-[11px] text-slate-400 font-medium italic cursor-not-allowed"
+                                  title="Akun Super Administrator utama dilindungi"
+                                >
+                                  Akun Utama
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteUser(u.id, u.name)}
+                                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 active:scale-95 transition font-bold text-xs"
+                                  title={`Hapus pengguna ${u.name}`}
+                                >
+                                  <Trash2 size={13} />
+                                  <span>Hapus</span>
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: PROFILE & UBAH PASSWORD */}
+          {activeTab === 'profile' && (
+            <div className="space-y-6">
+              {/* Notification Banner */}
+              {profileActionSuccess && (
+                <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-300 p-4 text-xs font-semibold text-emerald-900 animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                    <span>{profileActionSuccess}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setProfileActionSuccess(null)}
+                    className="text-emerald-700 hover:text-emerald-900 font-bold p-1"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
+              {profileActionError && (
+                <div className="flex items-center justify-between rounded-xl bg-rose-50 border border-rose-300 p-4 text-xs font-semibold text-rose-900 animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={16} className="text-rose-600 shrink-0" />
+                    <span>{profileActionError}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setProfileActionError(null)}
+                    className="text-rose-700 hover:text-rose-900 font-bold p-1"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Column: Profil Akun Info */}
+                <div className="lg:col-span-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col justify-between space-y-6">
+                  <div>
+                    <div className="flex items-center gap-4 pb-5 border-b border-slate-200">
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0369a1] to-sky-500 font-black text-white text-xl shadow-md">
+                        {currentUser.name.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-slate-900">{currentUser.name}</h3>
+                        <p className="text-xs font-mono text-slate-500">{currentUser.email}</p>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-900 mt-1">
+                          {currentUser.role}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="pt-5 space-y-4 text-xs">
+                      <div>
+                        <span className="text-slate-400 font-bold uppercase text-[10px] tracking-wider block">
+                          Status Sesi Saat Ini
+                        </span>
+                        <div className="flex items-center gap-2 mt-1 text-slate-800 font-medium">
+                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                          <span>Console Admin Terhubung (Port 5001)</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-slate-400 font-bold uppercase text-[10px] tracking-wider block">
+                          Otoritas Spatie Permissions
+                        </span>
+                        <div className="mt-1.5">
+                          {currentUser.permissions?.includes('*') || currentUser.role.includes('Super') ? (
+                            <div className="rounded-xl bg-amber-50 border border-amber-300 p-3 text-amber-950 font-medium space-y-1">
+                              <div className="font-extrabold text-amber-900 flex items-center gap-1.5">
+                                <Sparkles size={14} className="text-amber-600" />
+                                <span>Wildcard Spatie (*) — Bisa Akses Kemana Saja</span>
+                              </div>
+                              <p className="text-[11px] text-amber-800 leading-relaxed">
+                                Akun ini memiliki izin penuh ke seluruh modul, tata letak, dan pengaturan sistem Universal-KIOSK.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5">
+                              {currentUser.permissions?.map((p) => (
+                                <span
+                                  key={p}
+                                  className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 font-mono text-[11px] border border-slate-200"
+                                >
+                                  {p}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-slate-50 p-4 border border-slate-200 text-xs text-slate-600 space-y-1">
+                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <ShieldCheck size={15} className="text-[#0369a1]" />
+                      <span>Standar Keamanan KIOSK PLN</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Kata sandi disimpan secara aman pada database lokal kiosk. Pastikan Anda mengganti kata sandi secara berkala.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Column: Form Ubah Kata Sandi */}
+                <div className="lg:col-span-7 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+                  <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+                      <KeyRound size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-slate-900">Ubah Kata Sandi Akun</h3>
+                      <p className="text-xs text-slate-500">
+                        Perbarui kata sandi login untuk keamanan akses operasional Anda.
+                      </p>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handleUpdatePassword} className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="profile-current-password"
+                        className="block text-xs font-bold text-slate-700 mb-1.5"
+                      >
+                        Kata Sandi Saat Ini <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="profile-current-password"
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          value={currentPasswordInput}
+                          onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                          placeholder="Masukkan kata sandi saat ini"
+                          className="w-full h-11 px-3.5 pr-10 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1] focus:border-transparent transition"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                          title={showCurrentPassword ? 'Sembunyikan' : 'Tampilkan'}
+                        >
+                          {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="profile-new-password"
+                        className="block text-xs font-bold text-slate-700 mb-1.5"
+                      >
+                        Kata Sandi Baru <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="profile-new-password"
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPasswordInput}
+                          onChange={(e) => setNewPasswordInput(e.target.value)}
+                          placeholder="Masukkan kata sandi baru (minimal 4 karakter)"
+                          className="w-full h-11 px-3.5 pr-10 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1] focus:border-transparent transition"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                          title={showNewPassword ? 'Sembunyikan' : 'Tampilkan'}
+                        >
+                          {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="profile-confirm-password"
+                        className="block text-xs font-bold text-slate-700 mb-1.5"
+                      >
+                        Konfirmasi Kata Sandi Baru <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        id="profile-confirm-password"
+                        type={showNewPassword ? 'text' : 'password'}
+                        value={confirmPasswordInput}
+                        onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                        placeholder="Ulangi kata sandi baru persis sama"
+                        className="w-full h-11 px-3.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1] focus:border-transparent transition"
+                        required
+                      />
+                    </div>
+
+                    <div className="pt-3">
+                      <button
+                        type="submit"
+                        className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-[#0369a1] hover:bg-sky-800 text-white font-black text-xs shadow-md active:scale-95 transition"
+                      >
+                        <Lock size={15} strokeWidth={2.4} />
+                        <span>Simpan Kata Sandi Baru</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
       {/* Pop-up Modal Import & Replace CSV Master Excel SAP */}
       {showCsvImportModal && (
         <div
@@ -3443,6 +3933,217 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <span>Ya, Hapus Slot Ini</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Modal Add User Spatie */}
+      {showAddUserModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowAddUserModal(false);
+              setAddUserError(null);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100 text-[#0369a1]">
+                  <UserPlus size={18} strokeWidth={2.4} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    Tambah Pengguna Baru (Spatie)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Daftarkan akun operator dan atur hak akses modul atau wildcard
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddUserModal(false);
+                  setAddUserError(null);
+                }}
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Form Body */}
+            <form onSubmit={handleAddUser} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs text-slate-800">
+              {addUserError && (
+                <div className="rounded-xl bg-rose-50 border border-rose-300 p-3 text-xs font-semibold text-rose-900 flex items-center gap-2">
+                  <AlertCircle size={16} className="text-rose-600 shrink-0" />
+                  <span>{addUserError}</span>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Nama Lengkap <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newUserName}
+                    onChange={(e) => setNewUserName(e.target.value)}
+                    placeholder="Contoh: Budi Santoso"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Email / Username <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    placeholder="Contoh: budi@pln-kiosk.id"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1]"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Kata Sandi Awal <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={newUserPassword}
+                    onChange={(e) => setNewUserPassword(e.target.value)}
+                    placeholder="Minimal 4 karakter"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1.5">
+                    Peran / Jabatan
+                  </label>
+                  <input
+                    type="text"
+                    value={newUserRole}
+                    onChange={(e) => setNewUserRole(e.target.value)}
+                    placeholder="Contoh: Petugas Logistik"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-300 text-xs font-medium text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1]"
+                  />
+                </div>
+              </div>
+
+              {/* Spatie Permissions Configuration */}
+              <div className="pt-2">
+                <label className="block font-bold text-slate-900 mb-2">
+                  Konfigurasi Hak Akses Spatie
+                </label>
+
+                {/* Wildcard * Option (Bisa Akses Kemana Saja) */}
+                <div
+                  className={`rounded-xl border-2 p-4 transition cursor-pointer ${
+                    newUserIsWildcard
+                      ? 'border-amber-400 bg-amber-50/90 shadow-xs'
+                      : 'border-slate-200 bg-slate-50 hover:bg-slate-100/80'
+                  }`}
+                  onClick={() => setNewUserIsWildcard(!newUserIsWildcard)}
+                >
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newUserIsWildcard}
+                      onChange={(e) => setNewUserIsWildcard(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded-sm text-amber-600 focus:ring-amber-500 border-slate-300"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-sm text-amber-950">
+                          Bisa Akses Kemana Saja (Wildcard `*`)
+                        </span>
+                        <span className="rounded-full bg-amber-200 text-amber-900 text-[10px] font-black px-2 py-0.5">
+                          SUPER ADMIN
+                        </span>
+                      </div>
+                      <p className="text-xs text-amber-900/80 mt-1 leading-relaxed">
+                        Memberikan izin penuh tanpa batas ke seluruh modul sistem (dashboard, stok baru/return, kategori, denah blok A-Z, import SAP, riwayat restore, konfigurasi, dan log).
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Modular Permissions Checklist if Wildcard is OFF */}
+                {!newUserIsWildcard && (
+                  <div className="mt-3 p-4 rounded-xl border border-slate-200 bg-slate-50/80 space-y-3 animate-in fade-in duration-150">
+                    <div className="text-xs font-bold text-slate-700">
+                      Pilih Hak Akses Perizinan Modular:
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                      {SPATIE_AVAILABLE_PERMISSIONS.filter((p) => p.id !== '*').map((perm) => {
+                        const isChecked = newUserPermissions.includes(perm.id);
+                        return (
+                          <label
+                            key={perm.id}
+                            className={`flex items-start gap-2.5 p-2 rounded-lg border text-xs cursor-pointer transition ${
+                              isChecked
+                                ? 'bg-sky-50 border-sky-300 text-sky-950 font-bold'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setNewUserPermissions([...newUserPermissions, perm.id]);
+                                } else {
+                                  setNewUserPermissions(newUserPermissions.filter((p) => p !== perm.id));
+                                }
+                              }}
+                              className="mt-0.5 h-3.5 w-3.5 rounded-sm text-sky-600 focus:ring-sky-500 border-slate-300"
+                            />
+                            <div>
+                              <div className="text-[11px] font-bold">{perm.label}</div>
+                              <div className="text-[10px] text-slate-500 font-normal font-mono">
+                                {perm.id}
+                              </div>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddUserModal(false);
+                    setAddUserError(null);
+                  }}
+                  className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 h-11 px-6 rounded-xl bg-[#0369a1] hover:bg-sky-800 text-white font-black text-xs shadow-md active:scale-95 transition"
+                >
+                  <Check size={16} strokeWidth={2.4} />
+                  <span>Simpan &amp; Daftarkan Pengguna</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

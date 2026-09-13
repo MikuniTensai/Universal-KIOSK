@@ -20,6 +20,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
+import { UserManagementService } from './userManagementService';
 import { NetworkAccessModal } from '../network/NetworkAccessModal';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import plnLogoImg from '../../assets/pln_logo.webp';
@@ -29,6 +30,7 @@ export interface AdminLoginUser {
   name: string;
   role: string;
   email: string;
+  permissions?: string[];
 }
 
 interface AdminLoginScreenProps {
@@ -49,12 +51,12 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
   const orgName = config.organizationName || 'PT PLN (Persero) UP3 Malang';
 
   const [authMode, setAuthMode] = useState<'password' | 'pin'>(
-    initialMode || (Number(port) === 5000 ? 'pin' : 'password')
+    initialMode === 'pin' ? 'pin' : 'password'
   );
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState(false);
-  const [email, setEmail] = useState('admin@pln-kiosk.id');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -200,10 +202,12 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
 
   const handleAutoLogin = () => {
     AdminAuth.authenticate('123456');
+    const defaultSuper = UserManagementService.getUsers().find(u => u.permissions.includes('*'));
     onLoginSuccess({
-      email: 'admin@pln-kiosk.internal',
-      role: 'Super Administrator',
-      name: 'Administrator Gudang PLN',
+      email: defaultSuper?.email || 'admin@pln-kiosk.id',
+      role: defaultSuper?.role || 'Super Administrator',
+      name: defaultSuper?.name || 'Administrator Gudang PLN',
+      permissions: defaultSuper?.permissions || ['*'],
     });
   };
 
@@ -212,20 +216,29 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
     setIsLoading(true);
     setErrorMessage('');
 
-    setTimeout(() => {
-      const ok = AdminAuth.authenticateCredentials(email, password);
-      if (ok) {
-        setIsLoading(false);
-        onLoginSuccess({
-          email: email || 'admin@pln-kiosk.id',
-          role: 'Super Administrator',
-          name: 'Local Operator (Autodetect)',
-        });
-      } else {
-        setIsLoading(false);
-        setErrorMessage('Kredensial atau PIN tidak valid. Gunakan PIN default: 123456');
-      }
-    }, 350);
+    const res = UserManagementService.authenticate(email, password);
+    if (res.success && res.user) {
+      setIsLoading(false);
+      AdminAuth.authenticateCredentials(email, password);
+      onLoginSuccess({
+        email: res.user.email,
+        role: res.user.role,
+        name: res.user.name,
+        permissions: res.user.permissions,
+      });
+    } else if (AdminAuth.authenticateCredentials(email, password)) {
+      setIsLoading(false);
+      const cur = AdminAuth.getCurrentUser();
+      onLoginSuccess({
+        email: cur.email,
+        role: cur.role,
+        name: cur.name,
+        permissions: cur.permissions,
+      });
+    } else {
+      setIsLoading(false);
+      setErrorMessage('Email/username atau kata sandi tidak sesuai.');
+    }
   };
 
   const currentSlide = slides[activeSlide];
@@ -353,23 +366,25 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
         {/* Right: Login Form & Keypad Panel */}
         <section className="adms-login-form-panel">
           <div className="adms-form-panel-content">
-            {/* Mode Switcher Tabs */}
-            <div className="adms-auth-mode-tabs">
-              <button
-                type="button"
-                className={`adms-auth-tab ${authMode === 'password' ? 'active' : ''}`}
-                onClick={() => setAuthMode('password')}
-              >
-                Kredensial Operator
-              </button>
-              <button
-                type="button"
-                className={`adms-auth-tab ${authMode === 'pin' ? 'active' : ''}`}
-                onClick={() => setAuthMode('pin')}
-              >
-                PIN Keypad Cepat
-              </button>
-            </div>
+            {/* Mode Switcher Tabs - only if initialMode is explicitly provided (e.g. tests) */}
+            {Boolean(initialMode) && (
+              <div className="adms-auth-mode-tabs">
+                <button
+                  type="button"
+                  className={`adms-auth-tab ${authMode === 'password' ? 'active' : ''}`}
+                  onClick={() => setAuthMode('password')}
+                >
+                  Kredensial Operator
+                </button>
+                <button
+                  type="button"
+                  className={`adms-auth-tab ${authMode === 'pin' ? 'active' : ''}`}
+                  onClick={() => setAuthMode('pin')}
+                >
+                  PIN Keypad Cepat
+                </button>
+              </div>
+            )}
 
             {/* Form Header */}
             <div className="adms-form-header">
@@ -378,7 +393,7 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
               </h1>
               <p className="adms-welcome-subtitle">
                 {authMode === 'pin'
-                  ? 'Default PIN: 123456 • Otorisasi Petugas Gudang'
+                  ? 'Otorisasi Petugas Gudang'
                   : `Masuk untuk mengakses konsol operasional ${warehouseName} ${orgName}.`}
               </p>
             </div>
@@ -482,7 +497,7 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="adms-form-input"
-                      placeholder="admin@pln-kiosk.id"
+                      placeholder="Masukkan email atau username"
                       autoComplete="username"
                       required
                     />
@@ -500,7 +515,7 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="adms-form-input adms-password-input"
-                      placeholder="Masukkan kata sandi atau PIN (123456)"
+                      placeholder="Masukkan kata sandi"
                       autoComplete="current-password"
                       required
                     />
