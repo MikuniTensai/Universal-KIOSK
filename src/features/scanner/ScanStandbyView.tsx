@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Scan, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2, MapPin, Sparkles, BookOpen, ShieldCheck, Smartphone, Layers } from 'lucide-react';
+import { Scan, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2, MapPin, Sparkles, BookOpen, ShieldCheck, Layers } from 'lucide-react';
 import { ScanResolveResult, ImportPackage } from '../../domain/types';
 import { ContentService } from '../programs/contentService';
 import { WarehouseMiniMap } from '../../shared/ui/WarehouseMiniMap';
-import { MobileHandoverModal } from '../../shared/ui/MobileHandoverModal';
 import { getCategoryIcon } from '../../shared/utils/categoryIcons';
 
 interface ScanStandbyViewProps {
@@ -26,7 +25,6 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
   const [manualCode, setManualCode] = useState('');
   const [recentScans, setRecentScans] = useState<ScanResolveResult[]>([]);
   const [selectedScan, setSelectedScan] = useState<ScanResolveResult | null>(null);
-  const [mobileModalVisible, setMobileModalVisible] = useState(false);
 
   const presetList = useMemo(() => {
     const list: { label: string; code: string; isCustom?: boolean }[] = [
@@ -98,13 +96,6 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
-              <button
-                onClick={() => setMobileModalVisible(true)}
-                className="flex h-12 sm:h-14 items-center justify-center gap-2 rounded-xl bg-sky-700 text-white px-4 sm:px-5 text-sm sm:text-base font-bold shadow-md hover:bg-sky-800 active:scale-95 transition-all flex-1 sm:flex-initial"
-              >
-                <Smartphone className="h-5 w-5 text-sky-200" />
-                <span>Bawa ke HP</span>
-              </button>
               <button
                 onClick={onClearScanResult}
                 className="flex h-12 sm:h-14 items-center justify-center gap-2 rounded-xl bg-[#FACC15] px-4 sm:px-6 text-sm sm:text-base font-bold text-[#0F172A] shadow-md active:scale-95 hover:bg-amber-400 transition-all flex-1 sm:flex-initial"
@@ -282,13 +273,6 @@ export const ScanStandbyView: React.FC<ScanStandbyViewProps> = ({
               </div>
             )}
           </div>
-
-          {/* Mobile Handover Modal (QR Code) */}
-          <MobileHandoverModal
-            material={mat}
-            visible={mobileModalVisible}
-            onClose={() => setMobileModalVisible(false)}
-          />
         </div>
       );
     } else {

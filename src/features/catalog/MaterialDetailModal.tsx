@@ -1,24 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MaterialWithStock } from '../../domain/types';
-import { X, MapPin, Scan, Smartphone, Layers, Boxes, Sparkles, ShieldCheck, Wrench, Trash2, Clock } from 'lucide-react';
+import { X, MapPin, Layers, Boxes, Sparkles, ShieldCheck, Wrench, Trash2, Clock } from 'lucide-react';
 import { WarehouseMiniMap } from '../../shared/ui/WarehouseMiniMap';
-import { MobileHandoverModal } from '../../shared/ui/MobileHandoverModal';
 import { getCategoryIcon } from '../../shared/utils/categoryIcons';
 import { ContentService } from '../programs/contentService';
 
 interface MaterialDetailModalProps {
   material: MaterialWithStock | null;
   onClose: () => void;
-  onScanAnother: () => void;
+  onScanAnother?: () => void;
 }
 
 export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
   material,
   onClose,
-  onScanAnother,
 }) => {
-  const [mobileModalVisible, setMobileModalVisible] = useState(false);
-
   if (!material) return null;
 
   const primaryLoc = material.locations[0]?.location;
@@ -247,40 +243,15 @@ export const MaterialDetailModal: React.FC<MaterialDetailModalProps> = ({
         </div>
 
         {/* Modal Footer Controls (Kiosk Optimized, Touch Friendly) */}
-        <div className="flex flex-wrap items-center justify-between border-t border-slate-200 bg-slate-50 p-4 gap-3">
-          <div className="flex gap-2.5">
-            <button
-              onClick={onScanAnother}
-              className="flex h-12 items-center gap-2 rounded-xl bg-[#FACC15] px-5 text-sm font-black text-[#0F172A] shadow-md transition active:scale-95 hover:bg-[#EAB308]"
-            >
-              <Scan className="h-4 w-4" />
-              <span>Scan Material Lain</span>
-            </button>
-
-            <button
-              onClick={() => setMobileModalVisible(true)}
-              className="flex h-12 items-center gap-2 rounded-xl bg-sky-700 text-white px-4 text-sm font-bold shadow-md transition active:scale-95 hover:bg-sky-800"
-            >
-              <Smartphone className="h-4 w-4 text-sky-200" />
-              <span>Bawa ke HP</span>
-            </button>
-          </div>
-
+        <div className="flex items-center justify-end border-t border-slate-200 bg-slate-50 p-4">
           <button
             onClick={onClose}
-            className="flex h-12 items-center justify-center rounded-xl bg-white border border-slate-300 px-6 text-sm font-bold text-slate-700 shadow-xs transition active:scale-95 hover:bg-slate-100"
+            className="flex h-12 min-w-[120px] items-center justify-center rounded-xl bg-[#FACC15] px-8 text-sm font-black text-[#0F172A] shadow-md transition active:scale-95 hover:bg-[#EAB308]"
           >
             Tutup
           </button>
         </div>
       </div>
-
-      {/* Mobile Handover Modal (QR Code) */}
-      <MobileHandoverModal
-        material={material}
-        visible={mobileModalVisible}
-        onClose={() => setMobileModalVisible(false)}
-      />
     </div>
   );
 };
