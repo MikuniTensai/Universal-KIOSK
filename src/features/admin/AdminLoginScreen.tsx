@@ -509,7 +509,7 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
                   </div>
                 </div>
 
-                {/* Remember Me & Forgot Password */}
+                {/* Remember Me */}
                 <div className="adms-form-options-row">
                   <label className="adms-remember-label">
                     <input
@@ -520,16 +520,6 @@ export const AdminLoginScreen: React.FC<AdminLoginScreenProps> = ({
                     />
                     <span className="adms-remember-text">Ingat saya pada perangkat ini</span>
                   </label>
-                  <a
-                    href="#forgot"
-                    className="adms-forgot-link"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      alert('Default PIN administrator gudang: 123456');
-                    }}
-                  >
-                    Lupa PIN?
-                  </a>
                 </div>
 
                 {/* Submit Button */}

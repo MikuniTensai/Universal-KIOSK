@@ -10,6 +10,8 @@ dist-ssr/
 edge-profile/
 *.pid
 data-runtime/
+backup.sql
+*.sql
 
 # Logs
 *.log
