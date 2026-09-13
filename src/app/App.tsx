@@ -19,6 +19,7 @@ import { AdminDashboardModal } from '../features/admin/AdminDashboardModal';
 import { AdminModeService } from '../features/admin/adminModeService';
 import { ShutdownMenuModal } from '../features/system/ShutdownMenuModal';
 import { SyncService } from '../adapters/storage/syncService';
+import { SqlBackupService } from '../features/admin/sqlBackupService';
 import { ScanResolveResult, ImportPackage, KioskConfig } from '../domain/types';
 import { WALLPAPER_PRESETS, DEFAULT_CARD_PHOTOS } from '../data/mockPlnPackage';
 
@@ -48,6 +49,13 @@ export const App: React.FC = () => {
   const refreshData = useCallback(() => {
     setActivePackage(kioskStorage.getActivePackage());
     setConfig(kioskStorage.getConfig());
+  }, []);
+
+  // Otomatis cadangkan database backup.sql setiap awal aplikasi berjalan
+  useEffect(() => {
+    SqlBackupService.performStartupAutoBackup().catch((e) => {
+      console.warn('[App] Gagal menjalankan auto-backup awal aplikasi:', e);
+    });
   }, []);
 
   // 1. Activity & Idle Timer setup

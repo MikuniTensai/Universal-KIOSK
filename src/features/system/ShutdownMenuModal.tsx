@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Power, RotateCw, LogOut, X, AlertTriangle, Monitor } from 'lucide-react';
+import { SqlBackupService } from '../admin/sqlBackupService';
 
 interface ShutdownMenuModalProps {
   isOpen: boolean;
@@ -50,6 +51,12 @@ export const ShutdownMenuModal: React.FC<ShutdownMenuModalProps> = ({
   const handleSelectAction = (action: ActionType) => {
     setPendingAction(action);
     setCountdown(5);
+    if (action === 'shutdown') {
+      // Mulai auto-backup SQL di awal hitungan mundur agar siap
+      SqlBackupService.performShutdownAutoBackup().catch((e) => {
+        console.warn('[ShutdownMenuModal] Gagal prime auto-backup SQL:', e);
+      });
+    }
   };
 
   const handleCancelAction = () => {
@@ -68,6 +75,13 @@ export const ShutdownMenuModal: React.FC<ShutdownMenuModalProps> = ({
     if (action === 'shutdown') {
       endpoint = '/api/system/shutdown';
       msg = 'Mematikan komputer Windows...';
+      try {
+        SqlBackupService.performShutdownAutoBackup().catch((e) => {
+          console.warn('[ShutdownMenuModal] Gagal auto-backup SQL sebelum shutdown:', e);
+        });
+      } catch (err) {
+        console.warn('[ShutdownMenuModal] Gagal auto-backup SQL sebelum shutdown:', err);
+      }
     } else if (action === 'restart') {
       endpoint = '/api/system/restart';
       msg = 'Memulai ulang (restart) komputer...';
@@ -198,6 +212,12 @@ export const ShutdownMenuModal: React.FC<ShutdownMenuModalProps> = ({
                 Tindakan akan otomatis dijalankan dalam{' '}
                 <span className="font-bold text-red-600 text-lg">{countdown}</span> detik.
               </p>
+              {pendingAction === 'shutdown' && (
+                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Auto-backup database backup.sql aktif sebelum shutdown</span>
+                </div>
+              )}
             </div>
 
             {statusMessage ? (

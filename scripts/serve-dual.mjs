@@ -200,6 +200,24 @@ function createServerHandler(portName, portNumber) {
       return;
     }
 
+    // 2.05 API: Backup SQL Disk Writer
+    if (pathname === '/api/system/backup-sql') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const backupPath = path.join(__dirname, '..', 'backup.sql');
+          fs.writeFileSync(backupPath, body, 'utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'backup.sql berhasil disimpan ke disk.', path: backupPath }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: e.message }));
+        }
+      });
+      return;
+    }
+
     // 2.1 API: System Control (Shutdown, Restart, Exit Kiosk)
     if (pathname === '/api/system/shutdown') {
       res.writeHead(200, { 'Content-Type': 'application/json' });

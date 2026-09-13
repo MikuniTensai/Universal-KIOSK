@@ -32,6 +32,7 @@ import {
   Eye,
   EyeOff,
   Lock,
+  Database,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import {
@@ -40,6 +41,7 @@ import {
   SpatiePermission,
   SPATIE_AVAILABLE_PERMISSIONS,
 } from './userManagementService';
+import { SqlBackupService, AutoBackupMeta } from './sqlBackupService';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { CsvImportService, CsvImportStats, CsvImportScope } from './csvImportService';
 import { snapshotManager } from './snapshotManager';
@@ -213,6 +215,75 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
   const [profileActionError, setProfileActionError] = useState<string | null>(null);
   const [profileActionSuccess, setProfileActionSuccess] = useState<string | null>(null);
+
+  // SQL Backup (backup.sql) states
+  const [startupBackupMeta, setStartupBackupMeta] = useState<AutoBackupMeta | null>(() =>
+    SqlBackupService.getAutoBackupMeta('startup')
+  );
+  const [shutdownBackupMeta, setShutdownBackupMeta] = useState<AutoBackupMeta | null>(() =>
+    SqlBackupService.getAutoBackupMeta('shutdown')
+  );
+  const [showSqlRestoreModal, setShowSqlRestoreModal] = useState<boolean>(false);
+  const [sqlRestoreInput, setSqlRestoreInput] = useState<string>('');
+  const [sqlRestoreFileName, setSqlRestoreFileName] = useState<string>('');
+  const [sqlRestoreSuccess, setSqlRestoreSuccess] = useState<string | null>(null);
+  const [sqlRestoreError, setSqlRestoreError] = useState<string | null>(null);
+  const [isProcessingSqlRestore, setIsProcessingSqlRestore] = useState<boolean>(false);
+  const sqlFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleDownloadSqlBackup = () => {
+    SqlBackupService.downloadSqlFile('backup.sql');
+    setStartupBackupMeta(SqlBackupService.getAutoBackupMeta('startup'));
+    setShutdownBackupMeta(SqlBackupService.getAutoBackupMeta('shutdown'));
+  };
+
+  const handleSqlFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSqlRestoreFileName(file.name);
+    setSqlRestoreError(null);
+    setSqlRestoreSuccess(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result;
+      if (typeof content === 'string') {
+        setSqlRestoreInput(content);
+      }
+    };
+    reader.onerror = () => {
+      setSqlRestoreError('Gagal membaca berkas file SQL.');
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExecuteSqlRestore = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSqlRestoreError(null);
+    setSqlRestoreSuccess(null);
+    setIsProcessingSqlRestore(true);
+
+    try {
+      const res = SqlBackupService.restoreFromSql(sqlRestoreInput);
+      if (res.success) {
+        setSqlRestoreSuccess(res.message);
+        triggerPackageUpdated();
+        setTimeout(() => {
+          setShowSqlRestoreModal(false);
+          setSqlRestoreInput('');
+          setSqlRestoreFileName('');
+          setSqlRestoreSuccess(null);
+        }, 1200);
+      } else {
+        setSqlRestoreError(res.message || res.error || 'Gagal memulihkan database dari SQL.');
+      }
+    } catch (err) {
+      setSqlRestoreError(err instanceof Error ? err.message : 'Terjadi kesalahan saat memulihkan database.');
+    } finally {
+      setIsProcessingSqlRestore(false);
+    }
+  };
 
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -2313,6 +2384,92 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </div>
                   </div>
                 </div>
+                {/* Cadangan & Pemulihan Database (backup.sql) */}
+                <div className="xl:col-span-2 rounded-2xl border-2 border-sky-200 bg-gradient-to-r from-sky-50/70 via-white to-amber-50/40 p-5 sm:p-6 space-y-4 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0369a1] text-white shadow-xs">
+                        <Database className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h5 className="font-extrabold text-sm text-slate-900">
+                            Cadangan &amp; Pemulihan Database (backup.sql)
+                          </h5>
+                          <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-black text-emerald-800 uppercase tracking-wider">
+                            Auto-Backup Aktif
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Format skrip SQL standar SQLite/ANSI lengkap (DDL &amp; DML seluruh tabel, material, rak, dan konfigurasi).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleDownloadSqlBackup}
+                        className="flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0369a1] hover:bg-sky-800 active:scale-95 text-white text-xs font-bold shadow-xs transition"
+                        title="Unduh berkas backup.sql ke perangkat ini"
+                      >
+                        <Download size={15} strokeWidth={2.4} />
+                        <span>Unduh backup.sql</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSqlRestoreError(null);
+                          setSqlRestoreSuccess(null);
+                          setShowSqlRestoreModal(true);
+                        }}
+                        className="flex items-center justify-center gap-2 h-11 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 text-xs font-bold shadow-xs transition"
+                        title="Pulihkan data dari berkas backup.sql"
+                      >
+                        <RotateCcw size={15} strokeWidth={2.2} />
+                        <span>Restore SQL</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Auto-Backup Status Indicators */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-1 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                          <span>Backup Otomatis Awal Aplikasi (Startup)</span>
+                        </span>
+                        <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                          Tiap App Dibuka
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        {startupBackupMeta
+                          ? `Terakhir: ${new Date(startupBackupMeta.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(startupBackupMeta.timestamp).toLocaleTimeString('id-ID')} (${(startupBackupMeta.sizeBytes / 1024).toFixed(1)} KB)`
+                          : 'Aktif otomatis pada setiap awal aplikasi berjalan.'}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-1 shadow-2xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          <span className="h-2.5 w-2.5 rounded-full bg-amber-500 inline-block" />
+                          <span>Backup Otomatis Sebelum Shutdown</span>
+                        </span>
+                        <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                          Pra-Matikan Kiosk
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        {shutdownBackupMeta
+                          ? `Terakhir: ${new Date(shutdownBackupMeta.timestamp).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })} ${new Date(shutdownBackupMeta.timestamp).toLocaleTimeString('id-ID')} (${(shutdownBackupMeta.sizeBytes / 1024).toFixed(1)} KB)`
+                          : 'Aktif otomatis sesaat sebelum konfirmasi shutdown kiosk.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Action Button Simpan */}
@@ -4141,6 +4298,141 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 >
                   <Check size={16} strokeWidth={2.4} />
                   <span>Simpan &amp; Daftarkan Pengguna</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Restore backup.sql */}
+      {showSqlRestoreModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowSqlRestoreModal(false);
+              setSqlRestoreError(null);
+              setSqlRestoreSuccess(null);
+            }
+          }}
+        >
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden my-auto max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100 text-[#0369a1]">
+                  <RotateCcw size={18} strokeWidth={2.4} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    Pulihkan Database dari backup.sql
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Unggah atau tempel skrip SQL cadangan untuk memulihkan seluruh data gudang
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSqlRestoreModal(false);
+                  setSqlRestoreError(null);
+                  setSqlRestoreSuccess(null);
+                }}
+                className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Form Body */}
+            <form onSubmit={handleExecuteSqlRestore} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs text-slate-800">
+              {sqlRestoreError && (
+                <div className="rounded-xl bg-rose-50 border border-rose-300 p-3 text-xs font-semibold text-rose-900 flex items-center gap-2">
+                  <AlertCircle size={16} className="text-rose-600 shrink-0" />
+                  <span>{sqlRestoreError}</span>
+                </div>
+              )}
+
+              {sqlRestoreSuccess && (
+                <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-3 text-xs font-semibold text-emerald-900 flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                  <span>{sqlRestoreSuccess}</span>
+                </div>
+              )}
+
+              {/* Upload File Input */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Pilih File backup.sql (.sql):
+                </label>
+                <input
+                  type="file"
+                  ref={sqlFileInputRef}
+                  accept=".sql,text/plain"
+                  onChange={handleSqlFileSelect}
+                  className="hidden"
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => sqlFileInputRef.current?.click()}
+                    className="flex items-center gap-2 h-11 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 font-bold text-xs text-slate-700 shadow-2xs transition"
+                  >
+                    <Upload size={15} />
+                    <span>Pilih Berkas .sql...</span>
+                  </button>
+                  {sqlRestoreFileName && (
+                    <span className="font-mono text-xs text-sky-800 bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-lg">
+                      {sqlRestoreFileName}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Textarea for SQL Script */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Atau Tempel (Paste) Perintah Skrip SQL:
+                </label>
+                <textarea
+                  rows={8}
+                  value={sqlRestoreInput}
+                  onChange={(e) => setSqlRestoreInput(e.target.value)}
+                  placeholder="-- Tempel skrip SQL di sini (INSERT INTO materials, categories, dll)..."
+                  className="w-full rounded-xl border border-slate-300 p-3 font-mono text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0369a1]"
+                  required
+                />
+              </div>
+
+              <div className="rounded-xl bg-amber-50 border border-amber-300 p-3 text-xs text-amber-900 flex items-start gap-2">
+                <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <p>
+                  <strong>Perhatian:</strong> Pemulihan database akan memperbarui master data materiil, kategori, lokasi rak, dan snapshot stok saat ini sesuai isi berkas backup.sql.
+                </p>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSqlRestoreModal(false);
+                    setSqlRestoreError(null);
+                    setSqlRestoreSuccess(null);
+                  }}
+                  className="h-11 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={!sqlRestoreInput.trim() || isProcessingSqlRestore}
+                  className="flex items-center gap-2 h-11 px-6 rounded-xl bg-[#0369a1] hover:bg-sky-800 disabled:opacity-50 text-white font-black text-xs shadow-md active:scale-95 transition"
+                >
+                  <RotateCcw size={16} strokeWidth={2.4} />
+                  <span>{isProcessingSqlRestore ? 'Memproses...' : 'Eksekusi Pemulihan Database'}</span>
                 </button>
               </div>
             </form>

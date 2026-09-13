@@ -59,6 +59,26 @@ describe('Kiosk Shutdown & System Power Menu', () => {
     expect(screen.getByText(/Mematikan komputer Windows/i)).toBeInTheDocument();
   });
 
+  it('triggers SqlBackupService auto-backup and displays badge before executing shutdown', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<ShutdownMenuModal isOpen={true} onClose={vi.fn()} />);
+
+    fireEvent.click(screen.getByText(/Matikan Komputer \(Shutdown\)/i));
+
+    // Auto-backup badge is visible
+    expect(screen.getByText(/Auto-backup database backup.sql aktif sebelum shutdown/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Ya, Matikan Sekarang/i }));
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/system/backup-sql',
+      expect.objectContaining({ method: 'POST' })
+    );
+    expect(fetchMock).toHaveBeenCalledWith('/api/system/shutdown', { method: 'POST' });
+  });
+
   it('triggers /api/system/restart when Ya, Restart Sekarang is clicked', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal('fetch', fetchMock);
