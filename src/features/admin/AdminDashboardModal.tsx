@@ -44,6 +44,7 @@ import {
 import { SqlBackupService, AutoBackupMeta } from './sqlBackupService';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { CsvImportService, CsvImportStats, CsvImportScope } from './csvImportService';
+import { StockConsistencyService, StockAuditReport } from './stockConsistencyService';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import { SyncService } from '../../adapters/storage/syncService';
@@ -88,6 +89,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [stockSelectedCategory, setStockSelectedCategory] = useState<string>('all');
   const [showStockCategoryMenu, setShowStockCategoryMenu] = useState<boolean>(false);
   const [showStockModal, setShowStockModal] = useState<boolean>(false);
+  const [showStockAuditModal, setShowStockAuditModal] = useState<boolean>(false);
+  const [stockAuditReport, setStockAuditReport] = useState<StockAuditReport | null>(null);
+  const [reconcileSuccessMsg, setReconcileSuccessMsg] = useState<string | null>(null);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
 
   const triggerPackageUpdated = () => {
@@ -784,6 +788,23 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const logs = kioskStorage.getLogs();
   const activePkg = kioskStorage.getActivePackage();
 
+  const liveStockAudit = StockConsistencyService.auditPackage(activePkg);
+
+  const handleOpenStockAuditModal = () => {
+    const report = StockConsistencyService.auditPackage(kioskStorage.getActivePackage());
+    setStockAuditReport(report);
+    setReconcileSuccessMsg(null);
+    setShowStockAuditModal(true);
+  };
+
+  const handleRunReconcile = () => {
+    const result = kioskStorage.reconcileAllPackages();
+    triggerPackageUpdated();
+    const updatedReport = StockConsistencyService.auditPackage(kioskStorage.getActivePackage());
+    setStockAuditReport(updatedReport);
+    setReconcileSuccessMsg(`Berhasil merekonsiliasi ${result.repairedCount} item data stok. Seluruh stok kartu katalog dan pop-up detail kini 100% selaras dan identik dengan master Excel SAP!`);
+  };
+
   const getMaterialLocationInfo = (materialId: string, pkg?: ImportPackage | null) => {
     const snapshots = pkg?.stockSnapshots.filter(s => s.materialId === materialId) || [];
     const totalQty = snapshots.reduce((sum, s) => sum + (s.quantity || 0), 0);
@@ -1408,6 +1429,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <Upload className="h-4 w-4" />
                       <span>Import CSV ({stockConditionTab === 'return' ? 'Katalog Return' : 'Katalog Baru'})</span>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={handleOpenStockAuditModal}
+                      className={`flex h-10 items-center justify-center gap-1.5 rounded-xl border px-3.5 text-xs font-bold transition shadow-2xs shrink-0 ${
+                        liveStockAudit.hasDiscrepancy
+                          ? 'bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100'
+                          : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                      }`}
+                      title="Periksa keselarasan stok SAP antara tampilan kartu katalog dan detail material"
+                    >
+                      <ShieldCheck className={`h-4 w-4 ${liveStockAudit.hasDiscrepancy ? 'text-amber-600' : 'text-emerald-600'}`} />
+                      <span>Checker Keselarasan Stok</span>
+                      {liveStockAudit.hasDiscrepancy && (
+                        <span className="ml-1 px-1.5 py-0.5 rounded-md bg-rose-600 text-white text-[10px] font-black animate-pulse">
+                          {liveStockAudit.discrepantCount}
+                        </span>
+                      )}
+                    </button>
                   </div>
 
                   {/* Search Bar & Titik 3 Category Filter for Stock Table */}
@@ -1509,6 +1549,32 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                       <X className="h-3 w-3" />
                     </button>
                   </span>
+                </div>
+              )}
+
+              {liveStockAudit.hasDiscrepancy && (
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs text-amber-950 shadow-xs animate-in fade-in">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-200/80 text-amber-900 shrink-0">
+                      <AlertTriangle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900">
+                        Peringatan Keselarasan Stok: Terdeteksi {liveStockAudit.discrepantCount} material dengan cadangan fiktif (legacy reserved).
+                      </p>
+                      <p className="text-slate-600 text-[11px] mt-0.5">
+                        Potongan cadangan 10% menyebabkan jumlah pada Kartu Katalog tampil lebih sedikit dari detail fisik SAP.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOpenStockAuditModal}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FACC15] hover:bg-amber-400 text-slate-950 font-black text-xs shadow-2xs transition active:scale-95"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <span>Buka Checker & Selaraskan</span>
+                  </button>
                 </div>
               )}
 
@@ -4438,6 +4504,162 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       )}
         </AdminConsoleShell>
       </div>
+
+      {/* Modal Checker & Rekonsiliasi Keselarasan Stok SAP */}
+      {showStockAuditModal && stockAuditReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="relative w-full max-w-3xl rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-xs ${
+                  stockAuditReport.hasDiscrepancy ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                }`}>
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    Checker Keselarasan Stok SAP (PLN UP3 Malang)
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Memeriksa keselarasan antara stok fisik SAP, tampilan kartu katalog, dan pop-up detail material
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowStockAuditModal(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200/80 text-slate-700 hover:bg-slate-300 active:scale-95 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-5 flex-1">
+              {/* Success Notification if reconciled */}
+              {reconcileSuccessMsg && (
+                <div className="flex items-center gap-2.5 rounded-xl bg-emerald-50 border border-emerald-300 p-4 text-xs font-bold text-emerald-950 shadow-xs">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                  <span>{reconcileSuccessMsg}</span>
+                </div>
+              )}
+
+              {/* Status KPI Cards */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <span className="text-[11px] font-bold text-slate-400 block uppercase">Total Material</span>
+                  <span className="text-xl font-black text-slate-900">{stockAuditReport.totalMaterials}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+                  <span className="text-[11px] font-bold text-emerald-700 block uppercase">Stok Selaras 100%</span>
+                  <span className="text-xl font-black text-emerald-900">{stockAuditReport.cleanSnapshotsCount}</span>
+                </div>
+                <div className={`p-3.5 rounded-2xl border ${
+                  stockAuditReport.hasDiscrepancy ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <span className={`text-[11px] font-bold block uppercase ${
+                    stockAuditReport.hasDiscrepancy ? 'text-rose-700' : 'text-slate-400'
+                  }`}>
+                    Perlu Penyelarasan
+                  </span>
+                  <span className={`text-xl font-black ${
+                    stockAuditReport.hasDiscrepancy ? 'text-rose-900' : 'text-slate-700'
+                  }`}>
+                    {stockAuditReport.discrepantCount}
+                  </span>
+                </div>
+              </div>
+
+              {!stockAuditReport.hasDiscrepancy ? (
+                <div className="p-6 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-center space-y-2">
+                  <CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" />
+                  <h4 className="text-sm font-black text-emerald-950">Seluruh Data Stok Selaras 1:1!</h4>
+                  <p className="text-xs text-emerald-800 max-w-md mx-auto">
+                    Tidak ditemukan cadangan fiktif maupun ketimpangan data. Tampilan Pertama (Kartu Katalog) dan Tampilan Kedua (Detail Material) sudah 100% sinkron dengan master stok fisik Excel SAP.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-xs text-amber-950 space-y-1">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0" />
+                      <span>Ditemukan {stockAuditReport.discrepantCount} data stok dengan potongan cadangan fiktif (Reserved):</span>
+                    </p>
+                    <p className="text-slate-700 text-[11px]">
+                      Material di bawah memiliki nilai cadangan lama yang memotong stok tampil pada kartu katalog. Klik tombol <strong>"Selaraskan Semua Stok 1:1"</strong> untuk menghapus potongan cadangan dan menjadikan seluruh stok fisik siap pakai.
+                    </p>
+                  </div>
+
+                  {/* Discrepancy Table */}
+                  <div className="rounded-2xl border border-slate-200 overflow-hidden">
+                    <div className="max-h-60 overflow-y-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-slate-100 text-slate-700 font-bold sticky top-0 border-b border-slate-200">
+                          <tr>
+                            <th className="px-3.5 py-2.5">No</th>
+                            <th className="px-3.5 py-2.5">Nama Material</th>
+                            <th className="px-3.5 py-2.5">Normalisasi</th>
+                            <th className="px-3.5 py-2.5 text-center">Stok Fisik SAP</th>
+                            <th className="px-3.5 py-2.5 text-center">Cadangan Lama</th>
+                            <th className="px-3.5 py-2.5 text-center">Stok Tampil Lama</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 font-medium">
+                          {stockAuditReport.discrepancies.map((item, idx) => (
+                            <tr key={`${item.materialId}-${idx}`} className="hover:bg-slate-50">
+                              <td className="px-3.5 py-2 text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                              <td className="px-3.5 py-2 font-bold text-slate-900 max-w-xs truncate" title={item.materialName}>
+                                {item.materialName}
+                              </td>
+                              <td className="px-3.5 py-2 font-mono text-[11px] text-slate-600">{item.materialCode}</td>
+                              <td className="px-3.5 py-2 text-center font-bold text-emerald-800 bg-emerald-50/50">
+                                {item.quantity}
+                              </td>
+                              <td className="px-3.5 py-2 text-center font-bold text-rose-700 bg-rose-50/50">
+                                -{item.reserved}
+                              </td>
+                              <td className="px-3.5 py-2 text-center font-bold text-amber-900">
+                                {item.available}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-6 py-4">
+              <span className="text-xs text-slate-500 font-medium">
+                Gudang Aris Munandar &bull; PT PLN (Persero) UP3 Malang
+              </span>
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowStockAuditModal(false)}
+                  className="h-10 px-5 rounded-xl border border-slate-300 font-bold text-slate-700 text-xs hover:bg-slate-100 active:scale-95 transition"
+                >
+                  Tutup
+                </button>
+                {stockAuditReport.hasDiscrepancy && (
+                  <button
+                    type="button"
+                    onClick={handleRunReconcile}
+                    className="flex items-center gap-2 h-10 px-6 rounded-xl bg-[#FACC15] hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md active:scale-95 transition"
+                  >
+                    <Sparkles className="h-4 w-4 text-slate-950" />
+                    <span>Selaraskan Semua Stok 1:1</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Network Access Guide Modal */}
       <NetworkAccessModal

@@ -1774,8 +1774,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-004",
     "locationId": "loc-c----",
     "quantity": 11,
-    "reserved": 1,
-    "available": 10,
+    "reserved": 0,
+    "available": 11,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -1806,8 +1806,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-008",
     "locationId": "loc-c----",
     "quantity": 125,
-    "reserved": 12,
-    "available": 113,
+    "reserved": 0,
+    "available": 125,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -1830,16 +1830,16 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-011",
     "locationId": "loc-b-h-h12",
     "quantity": 1000,
-    "reserved": 100,
-    "available": 900,
+    "reserved": 0,
+    "available": 1000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-012",
     "locationId": "loc-b-h-h12",
     "quantity": 25,
-    "reserved": 2,
-    "available": 23,
+    "reserved": 0,
+    "available": 25,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -1870,8 +1870,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-016",
     "locationId": "loc-b-h-h14",
     "quantity": 90,
-    "reserved": 9,
-    "available": 81,
+    "reserved": 0,
+    "available": 90,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -1894,8 +1894,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-019",
     "locationId": "loc-b-h-h14",
     "quantity": 100,
-    "reserved": 10,
-    "available": 90,
+    "reserved": 0,
+    "available": 100,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -1942,40 +1942,40 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-025",
     "locationId": "loc-d----",
     "quantity": 14000,
-    "reserved": 1400,
-    "available": 12600,
+    "reserved": 0,
+    "available": 14000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-026",
     "locationId": "loc-c----",
     "quantity": 45000,
-    "reserved": 4500,
-    "available": 40500,
+    "reserved": 0,
+    "available": 45000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-027",
     "locationId": "loc-c----",
     "quantity": 3000,
-    "reserved": 300,
-    "available": 2700,
+    "reserved": 0,
+    "available": 3000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-028",
     "locationId": "loc-c----",
     "quantity": 5000,
-    "reserved": 500,
-    "available": 4500,
+    "reserved": 0,
+    "available": 5000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-029",
     "locationId": "loc-c----",
     "quantity": 7300,
-    "reserved": 730,
-    "available": 6570,
+    "reserved": 0,
+    "available": 7300,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -1990,16 +1990,16 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-031",
     "locationId": "loc-c----",
     "quantity": 1500,
-    "reserved": 150,
-    "available": 1350,
+    "reserved": 0,
+    "available": 1500,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-032",
     "locationId": "loc-c----",
     "quantity": 3000,
-    "reserved": 300,
-    "available": 2700,
+    "reserved": 0,
+    "available": 3000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2022,32 +2022,32 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-035",
     "locationId": "loc-b-g-g12",
     "quantity": 200,
-    "reserved": 20,
-    "available": 180,
+    "reserved": 0,
+    "available": 200,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-036",
     "locationId": "loc-b-g-g12",
     "quantity": 2000,
-    "reserved": 200,
-    "available": 1800,
+    "reserved": 0,
+    "available": 2000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-037",
     "locationId": "loc-b-g-g12",
     "quantity": 1000,
-    "reserved": 100,
-    "available": 900,
+    "reserved": 0,
+    "available": 1000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-038",
     "locationId": "loc-b-g-g12",
     "quantity": 1000,
-    "reserved": 100,
-    "available": 900,
+    "reserved": 0,
+    "available": 1000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2070,8 +2070,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-041",
     "locationId": "loc-b-g-g12",
     "quantity": 500,
-    "reserved": 50,
-    "available": 450,
+    "reserved": 0,
+    "available": 500,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2086,24 +2086,24 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-043",
     "locationId": "loc-b-g-g12",
     "quantity": 400,
-    "reserved": 40,
-    "available": 360,
+    "reserved": 0,
+    "available": 400,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-044",
     "locationId": "loc-b-g-g12",
     "quantity": 300,
-    "reserved": 30,
-    "available": 270,
+    "reserved": 0,
+    "available": 300,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-045",
     "locationId": "loc-b-g-g12",
     "quantity": 100,
-    "reserved": 10,
-    "available": 90,
+    "reserved": 0,
+    "available": 100,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2118,8 +2118,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-047",
     "locationId": "loc-b-g-g12",
     "quantity": 100,
-    "reserved": 10,
-    "available": 90,
+    "reserved": 0,
+    "available": 100,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2150,8 +2150,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-051",
     "locationId": "loc-b-g-g12",
     "quantity": 500,
-    "reserved": 50,
-    "available": 450,
+    "reserved": 0,
+    "available": 500,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2166,56 +2166,56 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-053",
     "locationId": "loc-e----",
     "quantity": 2000,
-    "reserved": 200,
-    "available": 1800,
+    "reserved": 0,
+    "available": 2000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-054",
     "locationId": "loc-e----",
     "quantity": 996,
-    "reserved": 99,
-    "available": 897,
+    "reserved": 0,
+    "available": 996,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-055",
     "locationId": "loc-b-i-i11",
     "quantity": 2000,
-    "reserved": 200,
-    "available": 1800,
+    "reserved": 0,
+    "available": 2000,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-056",
     "locationId": "loc-b-i-i11",
     "quantity": 500,
-    "reserved": 50,
-    "available": 450,
+    "reserved": 0,
+    "available": 500,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-057",
     "locationId": "loc-b-i-i11",
     "quantity": 1500,
-    "reserved": 150,
-    "available": 1350,
+    "reserved": 0,
+    "available": 1500,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-058",
     "locationId": "loc-b-i-i11",
     "quantity": 400,
-    "reserved": 40,
-    "available": 360,
+    "reserved": 0,
+    "available": 400,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-059",
     "locationId": "loc-b-i-i11",
     "quantity": 1500,
-    "reserved": 150,
-    "available": 1350,
+    "reserved": 0,
+    "available": 1500,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2246,24 +2246,24 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-063",
     "locationId": "loc-b-i-i11",
     "quantity": 30,
-    "reserved": 3,
-    "available": 27,
+    "reserved": 0,
+    "available": 30,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-064",
     "locationId": "loc-b-i-i11",
     "quantity": 800,
-    "reserved": 80,
-    "available": 720,
+    "reserved": 0,
+    "available": 800,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-065",
     "locationId": "loc-b-i-i11",
     "quantity": 300,
-    "reserved": 30,
-    "available": 270,
+    "reserved": 0,
+    "available": 300,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2286,48 +2286,48 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-068",
     "locationId": "loc-b-i-i11",
     "quantity": 50,
-    "reserved": 5,
-    "available": 45,
+    "reserved": 0,
+    "available": 50,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-069",
     "locationId": "loc-b-i-i11",
     "quantity": 50,
-    "reserved": 5,
-    "available": 45,
+    "reserved": 0,
+    "available": 50,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-070",
     "locationId": "loc-b-i-i11",
     "quantity": 50,
-    "reserved": 5,
-    "available": 45,
+    "reserved": 0,
+    "available": 50,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-071",
     "locationId": "loc-b-i-i11",
     "quantity": 50,
-    "reserved": 5,
-    "available": 45,
+    "reserved": 0,
+    "available": 50,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-072",
     "locationId": "loc-b-i-i11",
     "quantity": 50,
-    "reserved": 5,
-    "available": 45,
+    "reserved": 0,
+    "available": 50,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-073",
     "locationId": "loc-b-i-i11",
     "quantity": 50,
-    "reserved": 5,
-    "available": 45,
+    "reserved": 0,
+    "available": 50,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2350,96 +2350,96 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-076",
     "locationId": "loc-b-i-i13",
     "quantity": 45,
-    "reserved": 4,
-    "available": 41,
+    "reserved": 0,
+    "available": 45,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-077",
     "locationId": "loc-b-i-i13",
     "quantity": 45,
-    "reserved": 4,
-    "available": 41,
+    "reserved": 0,
+    "available": 45,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-078",
     "locationId": "loc-b-i-i13",
     "quantity": 481,
-    "reserved": 48,
-    "available": 433,
+    "reserved": 0,
+    "available": 481,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-079",
     "locationId": "loc-b-i-i13",
     "quantity": 350,
-    "reserved": 35,
-    "available": 315,
+    "reserved": 0,
+    "available": 350,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-080",
     "locationId": "loc-b-i-i13",
     "quantity": 355,
-    "reserved": 35,
-    "available": 320,
+    "reserved": 0,
+    "available": 355,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-081",
     "locationId": "loc-b-i-i13",
     "quantity": 253,
-    "reserved": 25,
-    "available": 228,
+    "reserved": 0,
+    "available": 253,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-082",
     "locationId": "loc-b-i-i13",
     "quantity": 265,
-    "reserved": 26,
-    "available": 239,
+    "reserved": 0,
+    "available": 265,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-083",
     "locationId": "loc-b-i-i13",
     "quantity": 654,
-    "reserved": 65,
-    "available": 589,
+    "reserved": 0,
+    "available": 654,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-084",
     "locationId": "loc-b-i-i13",
     "quantity": 1119,
-    "reserved": 111,
-    "available": 1008,
+    "reserved": 0,
+    "available": 1119,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-085",
     "locationId": "loc-b-i-i13",
     "quantity": 496,
-    "reserved": 49,
-    "available": 447,
+    "reserved": 0,
+    "available": 496,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-086",
     "locationId": "loc-b-i-i13",
     "quantity": 1489,
-    "reserved": 148,
-    "available": 1341,
+    "reserved": 0,
+    "available": 1489,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-087",
     "locationId": "loc-b-i-i13",
     "quantity": 323,
-    "reserved": 32,
-    "available": 291,
+    "reserved": 0,
+    "available": 323,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2462,48 +2462,48 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-090",
     "locationId": "loc-b-i-i13",
     "quantity": 300,
-    "reserved": 30,
-    "available": 270,
+    "reserved": 0,
+    "available": 300,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-091",
     "locationId": "loc-b-i-i13",
     "quantity": 590,
-    "reserved": 59,
-    "available": 531,
+    "reserved": 0,
+    "available": 590,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-092",
     "locationId": "loc-b-i-i13",
     "quantity": 600,
-    "reserved": 60,
-    "available": 540,
+    "reserved": 0,
+    "available": 600,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-093",
     "locationId": "loc-b-i-i13",
     "quantity": 410,
-    "reserved": 41,
-    "available": 369,
+    "reserved": 0,
+    "available": 410,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-094",
     "locationId": "loc-b-i-i13",
     "quantity": 420,
-    "reserved": 42,
-    "available": 378,
+    "reserved": 0,
+    "available": 420,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-095",
     "locationId": "loc-b-i-i13",
     "quantity": 350,
-    "reserved": 35,
-    "available": 315,
+    "reserved": 0,
+    "available": 350,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2518,32 +2518,32 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-097",
     "locationId": "loc-b-i-i13",
     "quantity": 310,
-    "reserved": 31,
-    "available": 279,
+    "reserved": 0,
+    "available": 310,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-098",
     "locationId": "loc-b-i-i13",
     "quantity": 270,
-    "reserved": 27,
-    "available": 243,
+    "reserved": 0,
+    "available": 270,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-099",
     "locationId": "loc-b-i-i13",
     "quantity": 270,
-    "reserved": 27,
-    "available": 243,
+    "reserved": 0,
+    "available": 270,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-100",
     "locationId": "loc-b-i-i13",
     "quantity": 95,
-    "reserved": 9,
-    "available": 86,
+    "reserved": 0,
+    "available": 95,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2574,48 +2574,48 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-104",
     "locationId": "loc-b-i-i13",
     "quantity": 204,
-    "reserved": 20,
-    "available": 184,
+    "reserved": 0,
+    "available": 204,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-105",
     "locationId": "loc-b-i-i13",
     "quantity": 15,
-    "reserved": 1,
-    "available": 14,
+    "reserved": 0,
+    "available": 15,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-106",
     "locationId": "loc-b-i-i13",
     "quantity": 44,
-    "reserved": 4,
-    "available": 40,
+    "reserved": 0,
+    "available": 44,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-107",
     "locationId": "loc-a-a-a11",
     "quantity": 1550,
-    "reserved": 155,
-    "available": 1395,
+    "reserved": 0,
+    "available": 1550,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-108",
     "locationId": "loc-a-a-a12",
     "quantity": 419,
-    "reserved": 41,
-    "available": 378,
+    "reserved": 0,
+    "available": 419,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-109",
     "locationId": "loc-a-a-a13",
     "quantity": 48,
-    "reserved": 4,
-    "available": 44,
+    "reserved": 0,
+    "available": 48,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2630,80 +2630,80 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-111",
     "locationId": "loc-a-a-a15",
     "quantity": 265,
-    "reserved": 26,
-    "available": 239,
+    "reserved": 0,
+    "available": 265,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-112",
     "locationId": "loc-a-a-a11",
     "quantity": 533,
-    "reserved": 53,
-    "available": 480,
+    "reserved": 0,
+    "available": 533,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-113",
     "locationId": "loc-a-a-a12",
     "quantity": 1736,
-    "reserved": 173,
-    "available": 1563,
+    "reserved": 0,
+    "available": 1736,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-114",
     "locationId": "loc-a-a-a13",
     "quantity": 80,
-    "reserved": 8,
-    "available": 72,
+    "reserved": 0,
+    "available": 80,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-115",
     "locationId": "loc-a-a-a14",
     "quantity": 4728,
-    "reserved": 472,
-    "available": 4256,
+    "reserved": 0,
+    "available": 4728,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-116",
     "locationId": "loc-b-e-e12",
     "quantity": 171,
-    "reserved": 17,
-    "available": 154,
+    "reserved": 0,
+    "available": 171,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-117",
     "locationId": "loc-b-e-e12",
     "quantity": 150,
-    "reserved": 15,
-    "available": 135,
+    "reserved": 0,
+    "available": 150,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-118",
     "locationId": "loc-b-e-e12",
     "quantity": 317,
-    "reserved": 31,
-    "available": 286,
+    "reserved": 0,
+    "available": 317,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-119",
     "locationId": "loc-b-e-e12",
     "quantity": 173,
-    "reserved": 17,
-    "available": 156,
+    "reserved": 0,
+    "available": 173,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-120",
     "locationId": "loc-b-e-e12",
     "quantity": 188,
-    "reserved": 18,
-    "available": 170,
+    "reserved": 0,
+    "available": 188,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2718,24 +2718,24 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-122",
     "locationId": "loc-b-e-e12",
     "quantity": 27,
-    "reserved": 2,
-    "available": 25,
+    "reserved": 0,
+    "available": 27,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-123",
     "locationId": "loc-b-e-e12",
     "quantity": 28,
-    "reserved": 2,
-    "available": 26,
+    "reserved": 0,
+    "available": 28,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-124",
     "locationId": "loc-b-e-e13",
     "quantity": 26,
-    "reserved": 2,
-    "available": 24,
+    "reserved": 0,
+    "available": 26,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2766,8 +2766,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-128",
     "locationId": "loc-b-e-e12",
     "quantity": 16,
-    "reserved": 1,
-    "available": 15,
+    "reserved": 0,
+    "available": 16,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2798,48 +2798,48 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-132",
     "locationId": "loc-b-e-e12",
     "quantity": 14444,
-    "reserved": 1444,
-    "available": 13000,
+    "reserved": 0,
+    "available": 14444,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-133",
     "locationId": "loc-a-c-c11",
     "quantity": 204,
-    "reserved": 20,
-    "available": 184,
+    "reserved": 0,
+    "available": 204,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-134",
     "locationId": "loc-a-c-c12",
     "quantity": 618,
-    "reserved": 61,
-    "available": 557,
+    "reserved": 0,
+    "available": 618,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-135",
     "locationId": "loc-a-c-c13",
     "quantity": 455,
-    "reserved": 45,
-    "available": 410,
+    "reserved": 0,
+    "available": 455,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-136",
     "locationId": "loc-b-e-e13",
     "quantity": 620,
-    "reserved": 62,
-    "available": 558,
+    "reserved": 0,
+    "available": 620,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-137",
     "locationId": "loc-b-e-e13",
     "quantity": 69,
-    "reserved": 6,
-    "available": 63,
+    "reserved": 0,
+    "available": 69,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2870,24 +2870,24 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-141",
     "locationId": "loc-c----",
     "quantity": 187,
-    "reserved": 18,
-    "available": 169,
+    "reserved": 0,
+    "available": 187,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-142",
     "locationId": "loc-c----",
     "quantity": 19,
-    "reserved": 1,
-    "available": 18,
+    "reserved": 0,
+    "available": 19,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
     "materialId": "mat-csv-143",
     "locationId": "loc-c----",
     "quantity": 1965,
-    "reserved": 196,
-    "available": 1769,
+    "reserved": 0,
+    "available": 1965,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {
@@ -2950,8 +2950,8 @@ export const clientStockSnapshots: StockSnapshot[] = [
     "materialId": "mat-csv-151",
     "locationId": "loc-b-e-e13",
     "quantity": 21,
-    "reserved": 2,
-    "available": 19,
+    "reserved": 0,
+    "available": 21,
     "sourceAt": "2026-09-12T08:00:00+07:00"
   },
   {

@@ -177,7 +177,7 @@ export const MaterialCard = React.memo(function MaterialCard({ material, onClick
             ) : (
               <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
                 <PackageCheck className="h-3.5 w-3.5" />
-                Tersedia: {material.totalAvailable ?? material.totalQuantity} {material.unit}
+                Stok: {material.totalQuantity} {material.unit}
               </span>
             )}
           </div>

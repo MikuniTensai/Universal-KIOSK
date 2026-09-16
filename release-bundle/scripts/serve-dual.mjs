@@ -2,7 +2,9 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
+import { createSyncStateReader, matchesEtag } from './sync-state.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,6 +20,7 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 const syncFile = path.resolve(dataDir, 'kiosk-sync-state.json');
+const syncStateReader = createSyncStateReader(syncFile);
 
 // Simpan PID untuk shutdown instan
 const pidFile = path.resolve(__dirname, 'server.pid');
@@ -133,7 +136,8 @@ function createServerHandler(portName, portNumber) {
     // Universal CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, If-None-Match');
+    res.setHeader('Access-Control-Expose-Headers', 'ETag');
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204);
@@ -154,6 +158,7 @@ function createServerHandler(portName, portNumber) {
         req.on('end', () => {
           try {
             fs.writeFileSync(syncFile, body, 'utf8');
+            syncStateReader.invalidate();
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: true, message: 'Data synced successfully' }));
           } catch (err) {
@@ -163,13 +168,20 @@ function createServerHandler(portName, portNumber) {
         });
         return;
       } else if (req.method === 'GET') {
-        if (fs.existsSync(syncFile)) {
-          const content = fs.readFileSync(syncFile, 'utf8');
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(content);
-        } else {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ hasState: false }));
+        try {
+          const { content, etag } = syncStateReader.read();
+          res.setHeader('Cache-Control', 'no-cache');
+          if (etag) res.setHeader('ETag', etag);
+          if (matchesEtag(req.headers['if-none-match'], etag)) {
+            res.writeHead(304);
+            res.end();
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(content);
+          }
+        } catch (err) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: err.message }));
         }
         return;
       }
@@ -185,6 +197,62 @@ function createServerHandler(portName, portNumber) {
           localIps: netInfo.allIps,
         })
       );
+      return;
+    }
+
+    // 2.05 API: Backup SQL Disk Writer
+    if (pathname === '/api/system/backup-sql') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const backupPath = path.join(__dirname, '..', 'backup.sql');
+          fs.writeFileSync(backupPath, body, 'utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'backup.sql berhasil disimpan ke disk.', path: backupPath }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: e.message }));
+        }
+      });
+      return;
+    }
+
+    // 2.1 API: System Control (Shutdown, Restart, Exit Kiosk)
+    if (pathname === '/api/system/shutdown') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Menjalankan shutdown komputer...' }));
+      setTimeout(() => {
+        if (process.platform === 'win32') {
+          exec('shutdown.exe /s /t 1 /c "Dimatikan oleh Kiosk PLN"');
+        } else {
+          exec('shutdown -h now');
+        }
+      }, 500);
+      return;
+    }
+
+    if (pathname === '/api/system/restart') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Menjalankan restart komputer...' }));
+      setTimeout(() => {
+        if (process.platform === 'win32') {
+          exec('shutdown.exe /r /t 1 /c "Dimulai ulang oleh Kiosk PLN"');
+        } else {
+          exec('reboot');
+        }
+      }, 500);
+      return;
+    }
+
+    if (pathname === '/api/system/exit-kiosk') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Menutup aplikasi Kiosk PLN...' }));
+      setTimeout(() => {
+        if (process.platform === 'win32') {
+          exec('taskkill /F /IM msedge.exe');
+        }
+      }, 500);
       return;
     }
 

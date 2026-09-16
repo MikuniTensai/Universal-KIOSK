@@ -321,8 +321,8 @@ export class CsvImportService {
         status,
       });
 
-      const reserved = row.stock > 5 ? Math.floor(row.stock * 0.1) : 0;
-      const available = row.stock - reserved;
+      const reserved = 0;
+      const available = row.stock;
 
       stockSnapshots.push({
         materialId: matId,

@@ -1,5 +1,6 @@
 import { ImportPackage, KioskConfig, DiagnosticLog, Category, Material, Location, StockSnapshot, BarcodeAlias } from '../../domain/types';
 import { defaultKioskConfig, samplePlnPackage, plnUp3MalangFullPackage } from '../../data/mockPlnPackage';
+import { StockConsistencyService } from '../../features/admin/stockConsistencyService';
 
 const STORAGE_KEYS = {
   ACTIVE_PACKAGE: 'kiosk_active_package_v1',
@@ -240,6 +241,43 @@ export class KioskStorage {
     const { baruPkg, returnPkg } = splitPackageByCondition(pkg);
     this.packageBaru = baruPkg;
     this.packageReturn = returnPkg;
+  }
+
+  /**
+   * Rekonsiliasi Keselarasan Stok:
+   * Menyelaraskan seluruh data stok pada packageBaru dan packageReturn sehingga
+   * reserved = 0 dan available = quantity (1:1 dengan master SAP fisik).
+   */
+  public reconcileAllPackages(): { repairedCount: number } {
+    let totalRepaired = 0;
+    if (this.packageBaru) {
+      const { healedPkg, repairedCount } = StockConsistencyService.reconcilePackage(this.packageBaru);
+      if (repairedCount > 0) {
+        this.packageBaru = healedPkg;
+        totalRepaired += repairedCount;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(STORAGE_KEYS.PACKAGE_BARU, JSON.stringify(this.packageBaru));
+        }
+      }
+    }
+
+    if (this.packageReturn) {
+      const { healedPkg, repairedCount } = StockConsistencyService.reconcilePackage(this.packageReturn);
+      if (repairedCount > 0) {
+        this.packageReturn = healedPkg;
+        totalRepaired += repairedCount;
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem(STORAGE_KEYS.PACKAGE_RETURN, JSON.stringify(this.packageReturn));
+        }
+      }
+    }
+
+    if (totalRepaired > 0) {
+      this.syncActivePackage();
+      this.addLog('info', 'Reconciliation', `Rekonsiliasi stok berhasil: ${totalRepaired} item diselaraskan 1:1.`);
+    }
+
+    return { repairedCount: totalRepaired };
   }
 
   /**
