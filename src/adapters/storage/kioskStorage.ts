@@ -241,6 +241,12 @@ export class KioskStorage {
     const { baruPkg, returnPkg } = splitPackageByCondition(pkg);
     this.packageBaru = baruPkg;
     this.packageReturn = returnPkg;
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_PACKAGE, JSON.stringify(this.activePackage));
+      localStorage.setItem(STORAGE_KEYS.PACKAGE_BARU, JSON.stringify(this.packageBaru));
+      localStorage.setItem(STORAGE_KEYS.PACKAGE_RETURN, JSON.stringify(this.packageReturn));
+    }
   }
 
   /**
@@ -484,19 +490,38 @@ export class KioskStorage {
     let targetLocationId = params.locationId;
 
     if (!targetLocationId && (params.zone || params.rack || params.bin)) {
-      const newLoc: Location = {
-        id: 'loc-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5),
-        warehouseCode: this.config.warehouseCode,
-        zone: params.zone?.trim() || 'Zona A',
-        rack: params.rack?.trim() || 'Rak 01',
-        bin: params.bin?.trim() || 'Bin 01',
-      };
-      targetPkg.locations = [...targetPkg.locations, newLoc];
-      targetLocationId = newLoc.id;
+      const z = params.zone?.trim() || 'Zona A';
+      const r = params.rack?.trim() || 'Rak 01';
+      const b = params.bin?.trim() || 'Bin 01';
+
+      // Cari apakah sudah ada lokasi dengan koordinat zone, rack, bin yang sama persis
+      const existingLoc = targetPkg.locations.find(
+        l => (l.zone || '').trim().toLowerCase() === z.toLowerCase() &&
+             (l.rack || '').trim().toLowerCase() === r.toLowerCase() &&
+             (l.bin || '').trim().toLowerCase() === b.toLowerCase()
+      );
+
+      if (existingLoc) {
+        targetLocationId = existingLoc.id;
+      } else {
+        const newLoc: Location = {
+          id: 'loc-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 5),
+          warehouseCode: this.config.warehouseCode,
+          zone: z,
+          rack: r,
+          bin: b,
+        };
+        targetPkg.locations = [...targetPkg.locations, newLoc];
+        targetLocationId = newLoc.id;
+      }
     }
 
+    const materialSnapshots = targetPkg.stockSnapshots.filter(s => s.materialId === params.materialId);
+
     if (!targetLocationId) {
-      if (targetPkg.locations.length > 0) {
+      if (materialSnapshots.length > 0 && materialSnapshots[0].locationId) {
+        targetLocationId = materialSnapshots[0].locationId;
+      } else if (targetPkg.locations.length > 0) {
         targetLocationId = targetPkg.locations[0].id;
       } else {
         const defaultLoc: Location = {
@@ -523,67 +548,238 @@ export class KioskStorage {
       const newQty = params.setExact
         ? Math.max(0, params.quantityDelta)
         : Math.max(0, (existing.quantity || 0) + params.quantityDelta);
-      const reserved = existing.reserved || 0;
-      const newAvailable = Math.max(0, newQty - reserved);
 
       updatedSnapshot = {
         ...existing,
-        quantity: newQty,
-        available: newAvailable,
-        sourceAt: nowIso,
-      };
-
-      targetPkg.stockSnapshots[existingIndex] = updatedSnapshot;
-    } else {
-      const newQty = Math.max(0, params.quantityDelta);
-      updatedSnapshot = {
-        materialId: params.materialId,
-        locationId: targetLocationId,
         quantity: newQty,
         reserved: 0,
         available: newQty,
         sourceAt: nowIso,
       };
-      targetPkg.stockSnapshots.push(updatedSnapshot);
+
+      targetPkg.stockSnapshots[existingIndex] = updatedSnapshot;
+
+      // Jika setExact diminta tanpa locationId spesifik dan material memiliki snapshot duplikat lama di lokasi lain, bersihkan snapshot duplikat tersebut
+      if (params.setExact && !params.locationId && materialSnapshots.length > 1) {
+        targetPkg.stockSnapshots = targetPkg.stockSnapshots.filter(
+          s => s.materialId !== params.materialId || s.locationId === targetLocationId
+        );
+      }
+    } else {
+      // Jika snapshot pada targetLocationId belum ada:
+      if (params.setExact && !params.locationId && materialSnapshots.length > 0) {
+        // Mode setExact tanpa lokasi spesifik: pindahkan/perbarui snapshot yang sudah ada ke targetLocationId dengan kuantitas pasti
+        const newQty = Math.max(0, params.quantityDelta);
+        updatedSnapshot = {
+          materialId: params.materialId,
+          locationId: targetLocationId,
+          quantity: newQty,
+          reserved: 0,
+          available: newQty,
+          sourceAt: nowIso,
+        };
+        targetPkg.stockSnapshots = targetPkg.stockSnapshots.filter(s => s.materialId !== params.materialId);
+        targetPkg.stockSnapshots.push(updatedSnapshot);
+      } else {
+        // Mode incremental atau targetLocationId spesifik:
+        const newQty = Math.max(0, params.quantityDelta);
+        updatedSnapshot = {
+          materialId: params.materialId,
+          locationId: targetLocationId,
+          quantity: newQty,
+          reserved: 0,
+          available: newQty,
+          sourceAt: nowIso,
+        };
+        targetPkg.stockSnapshots.push(updatedSnapshot);
+      }
     }
 
+    // Sinkronkan snapshot dan lokasi ke activePackage
     if (this.activePackage && this.activePackage !== targetPkg) {
-      const apIndex = this.activePackage.stockSnapshots.findIndex(
-        s => s.materialId === params.materialId && s.locationId === targetLocationId
-      );
-      if (apIndex >= 0) {
-        this.activePackage.stockSnapshots[apIndex] = updatedSnapshot;
-      } else {
+      if (params.setExact && !params.locationId) {
+        this.activePackage.stockSnapshots = this.activePackage.stockSnapshots.filter(s => s.materialId !== params.materialId);
         this.activePackage.stockSnapshots.push(updatedSnapshot);
-      }
-      if (params.zone || params.rack || params.bin) {
-        if (!this.activePackage.locations.some(l => l.id === targetLocationId)) {
-          const loc = targetPkg.locations.find(l => l.id === targetLocationId);
-          if (loc) this.activePackage.locations.push(loc);
+      } else {
+        const apIndex = this.activePackage.stockSnapshots.findIndex(
+          s => s.materialId === params.materialId && s.locationId === targetLocationId
+        );
+        if (apIndex >= 0) {
+          this.activePackage.stockSnapshots[apIndex] = updatedSnapshot;
+        } else {
+          this.activePackage.stockSnapshots.push(updatedSnapshot);
         }
+      }
+
+      const loc = targetPkg.locations.find(l => l.id === targetLocationId);
+      if (loc && !this.activePackage.locations.some(l => l.id === targetLocationId)) {
+        this.activePackage.locations.push(loc);
       }
     }
 
+    // Sinkronkan ke activePackageDirectReference (untuk cache in-place)
     if (this.activePackageDirectReference) {
-      const dirIndex = this.activePackageDirectReference.stockSnapshots.findIndex(
-        s => s.materialId === params.materialId && s.locationId === targetLocationId
-      );
-      if (dirIndex >= 0) {
-        this.activePackageDirectReference.stockSnapshots[dirIndex] = updatedSnapshot;
-      } else {
+      if (params.setExact && !params.locationId) {
+        this.activePackageDirectReference.stockSnapshots = this.activePackageDirectReference.stockSnapshots.filter(s => s.materialId !== params.materialId);
         this.activePackageDirectReference.stockSnapshots.push(updatedSnapshot);
-      }
-      if (params.zone || params.rack || params.bin) {
-        if (!this.activePackageDirectReference.locations.some(l => l.id === targetLocationId)) {
-          const loc = targetPkg.locations.find(l => l.id === targetLocationId);
-          if (loc) this.activePackageDirectReference.locations.push(loc);
+      } else {
+        const dirIndex = this.activePackageDirectReference.stockSnapshots.findIndex(
+          s => s.materialId === params.materialId && s.locationId === targetLocationId
+        );
+        if (dirIndex >= 0) {
+          this.activePackageDirectReference.stockSnapshots[dirIndex] = updatedSnapshot;
+        } else {
+          this.activePackageDirectReference.stockSnapshots.push(updatedSnapshot);
         }
+      }
+
+      const loc = targetPkg.locations.find(l => l.id === targetLocationId);
+      if (loc && !this.activePackageDirectReference.locations.some(l => l.id === targetLocationId)) {
+        this.activePackageDirectReference.locations.push(loc);
       }
     }
 
     this.persistActivePackage();
     this.addLog('info', 'Storage', `Stok material "${material.name}" diperbarui: ${updatedSnapshot.quantity} ${material.unit}`);
     return updatedSnapshot;
+  }
+
+  /**
+   * Memperbarui seluruh field material, kondisi, status retur, barcode, lokasi, dan stok (Full CRUD)
+   */
+  public updateMaterial(params: {
+    materialId: string;
+    name?: string;
+    code?: string;
+    sapCode?: string | null;
+    unit?: string;
+    specification?: string | null;
+    categoryId?: string;
+    photoPath?: string | null;
+    condition?: 'BARU' | 'RETURN';
+    status?: string;
+    zone?: string;
+    rack?: string;
+    bin?: string;
+    locationId?: string;
+    quantityDelta?: number;
+    setExactQuantity?: boolean;
+    barcode?: string;
+  }): { material: Material; snapshot: StockSnapshot } {
+    let sourcePkg = this.packageBaru?.materials.some(m => m.id === params.materialId)
+      ? this.packageBaru
+      : this.packageReturn;
+
+    if (!sourcePkg) sourcePkg = this.packageBaru;
+    if (!sourcePkg) throw new Error('Tidak ada paket data aktif.');
+
+    const matIndex = sourcePkg.materials.findIndex(m => m.id === params.materialId);
+    if (matIndex < 0) {
+      throw new Error(`Material dengan ID "${params.materialId}" tidak ditemukan.`);
+    }
+
+    const material = sourcePkg.materials[matIndex];
+    const targetCondition = params.condition || material.condition || 'BARU';
+    const isMovingCondition = targetCondition !== (material.condition || 'BARU');
+
+    // 1. Update basic fields
+    if (params.name !== undefined && params.name.trim()) {
+      material.name = params.name.trim();
+    }
+    if (params.code !== undefined && params.code.trim()) {
+      material.code = params.code.trim();
+    }
+    if (params.sapCode !== undefined) {
+      material.sapCode = params.sapCode?.trim() || null;
+    }
+    if (params.unit !== undefined && params.unit.trim()) {
+      material.unit = params.unit.trim();
+    }
+    if (params.specification !== undefined) {
+      material.specification = params.specification?.trim() || null;
+    }
+    if (params.categoryId !== undefined && params.categoryId.trim()) {
+      material.categoryId = params.categoryId.trim();
+    }
+    if (params.photoPath !== undefined) {
+      material.photoPath = params.photoPath?.trim() || null;
+    }
+    if (params.status !== undefined) {
+      material.status = params.status;
+    }
+    material.condition = targetCondition;
+
+    // 2. Perpindahan database jika kondisi berubah (BARU <-> RETURN)
+    let destPkg = sourcePkg;
+    if (isMovingCondition) {
+      destPkg = targetCondition === 'RETURN' ? this.packageReturn! : this.packageBaru!;
+      if (!destPkg) throw new Error(`Target database untuk kondisi ${targetCondition} tidak tersedia.`);
+
+      // Hapus dari source
+      sourcePkg.materials = sourcePkg.materials.filter(m => m.id !== params.materialId);
+      const movingSnapshots = sourcePkg.stockSnapshots.filter(s => s.materialId === params.materialId);
+      sourcePkg.stockSnapshots = sourcePkg.stockSnapshots.filter(s => s.materialId !== params.materialId);
+      const movingAliases = sourcePkg.barcodeAliases.filter(a => a.targetType === 'material' && a.targetId === params.materialId);
+      sourcePkg.barcodeAliases = sourcePkg.barcodeAliases.filter(a => !(a.targetType === 'material' && a.targetId === params.materialId));
+
+      // Tambahkan ke dest
+      destPkg.materials = [...destPkg.materials, material];
+      destPkg.stockSnapshots = [...destPkg.stockSnapshots, ...movingSnapshots];
+      destPkg.barcodeAliases = [...destPkg.barcodeAliases, ...movingAliases];
+    }
+
+    // 3. Update Barcode Alias
+    if (params.barcode && params.barcode.trim()) {
+      const bVal = params.barcode.trim();
+      const existingAlias = destPkg.barcodeAliases.find(a => a.targetType === 'material' && a.targetId === material.id);
+      if (existingAlias) {
+        existingAlias.value = bVal;
+      } else {
+        destPkg.barcodeAliases.push({
+          value: bVal,
+          targetType: 'material',
+          targetId: material.id,
+        });
+      }
+    }
+
+    // 4. Update Stock & Location
+    const hasStockDelta = params.quantityDelta !== undefined;
+    const hasLocation = params.locationId || params.zone || params.rack || params.bin;
+
+    let snapshot: StockSnapshot;
+    if (hasStockDelta || hasLocation) {
+      snapshot = this.addOrAdjustStock({
+        materialId: material.id,
+        locationId: params.locationId,
+        zone: params.zone,
+        rack: params.rack,
+        bin: params.bin,
+        quantityDelta: params.quantityDelta !== undefined ? params.quantityDelta : 0,
+        setExact: params.setExactQuantity !== undefined ? params.setExactQuantity : true,
+        categoryId: material.categoryId,
+        photoPath: material.photoPath || undefined,
+      });
+    } else {
+      const s = destPkg.stockSnapshots.find(snap => snap.materialId === material.id);
+      if (s) {
+        snapshot = s;
+      } else {
+        snapshot = {
+          materialId: material.id,
+          locationId: destPkg.locations[0]?.id || 'loc-default',
+          quantity: 0,
+          reserved: 0,
+          available: 0,
+          sourceAt: new Date().toISOString(),
+        };
+        destPkg.stockSnapshots.push(snapshot);
+      }
+    }
+
+    this.persistActivePackage();
+    this.addLog('info', 'Storage', `Data katalog material "${material.name}" (${material.code}) berhasil diperbarui (CRUD).`);
+    return { material, snapshot };
   }
 
   public updateMaterialCategory(materialId: string, categoryId: string): void {

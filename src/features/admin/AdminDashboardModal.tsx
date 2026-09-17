@@ -33,6 +33,9 @@ import {
   EyeOff,
   Lock,
   Database,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Edit3,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import {
@@ -93,8 +96,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [stockAuditReport, setStockAuditReport] = useState<StockAuditReport | null>(null);
   const [reconcileSuccessMsg, setReconcileSuccessMsg] = useState<string | null>(null);
   const [showNetworkModal, setShowNetworkModal] = useState(false);
+  const [, setStorageRevision] = useState<number>(0);
 
   const triggerPackageUpdated = () => {
+    setStorageRevision((r) => r + 1);
     onPackageUpdated?.();
     SyncService.pushState().catch(() => {});
   };
@@ -124,16 +129,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [configDraft, setConfigDraft] = useState<KioskConfig>(kioskStorage.getConfig());
   const [configErrors, setConfigErrors] = useState<string[]>([]);
 
-  // Stock Management states
+  // Stock Management & Material CRUD states
   const [stockMode, setStockMode] = useState<'adjust' | 'new-material'>('adjust');
   const [adjustMatId, setAdjustMatId] = useState<string>('');
-  const [stockDeltaInput, setStockDeltaInput] = useState<number>(10);
-  const [isExactStock, setIsExactStock] = useState<boolean>(false);
-  const [adjustZone, setAdjustZone] = useState<string>('Blok A');
-  const [adjustRack, setAdjustRack] = useState<string>('A.1');
-  const [adjustBin, setAdjustBin] = useState<string>('A.1.1');
+  const [adjustName, setAdjustName] = useState<string>('');
+  const [adjustCode, setAdjustCode] = useState<string>('');
+  const [adjustSapCode, setAdjustSapCode] = useState<string>('');
+  const [adjustUnit, setAdjustUnit] = useState<string>('Unit');
+  const [adjustCondition, setAdjustCondition] = useState<'BARU' | 'RETURN'>('BARU');
+  const [adjustStatus, setAdjustStatus] = useState<string>('Baru');
+  const [adjustSpecification, setAdjustSpecification] = useState<string>('');
+  const [adjustBarcode, setAdjustBarcode] = useState<string>('');
   const [adjustCategory, setAdjustCategory] = useState<string>('');
   const [adjustPhotoPath, setAdjustPhotoPath] = useState<string>('');
+  const [adjustZone, setAdjustZone] = useState<string>('Blok A');
+  const [adjustRack, setAdjustRack] = useState<string>('Rak 01');
+  const [adjustBin, setAdjustBin] = useState<string>('Bin 01');
+  const [stockDeltaInput, setStockDeltaInput] = useState<number>(10);
+  const [isExactStock, setIsExactStock] = useState<boolean>(true);
+  const [stockMutationType, setStockMutationType] = useState<'in' | 'out' | 'exact'>('exact');
   const [stockError, setStockError] = useState<string | null>(null);
 
   // New Material states (persis format master Excel: nama material, stok, blok, rak, sub rak)
@@ -444,26 +458,63 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setStockError(null);
     try {
       const activePkg = kioskStorage.getActivePackage();
-      const targetId = adjustMatId || activePkg?.materials[0]?.id;
+      const currentTabMaterials = stockConditionTab === 'return' ? kioskStorage.getPackageReturn().materials : kioskStorage.getPackageBaru().materials;
+      const targetId = adjustMatId || currentTabMaterials[0]?.id || activePkg?.materials[0]?.id;
       if (!targetId) {
         setStockError('Pilih material terlebih dahulu.');
         return;
       }
-      kioskStorage.addOrAdjustStock({
+
+      const qtyNum = Number(stockDeltaInput);
+      if (isNaN(qtyNum)) {
+        setStockError('Kuantitas stok harus berupa angka valid.');
+        return;
+      }
+
+      let finalDelta = qtyNum;
+      let setExact = isExactStock;
+
+      if (stockMutationType === 'in') {
+        finalDelta = Math.abs(qtyNum);
+        setExact = false;
+      } else if (stockMutationType === 'out') {
+        finalDelta = -Math.abs(qtyNum);
+        setExact = false;
+      } else {
+        finalDelta = Math.max(0, qtyNum);
+        setExact = true;
+      }
+
+      const result = kioskStorage.updateMaterial({
         materialId: targetId,
+        name: adjustName.trim() || undefined,
+        code: adjustCode.trim() || undefined,
+        sapCode: adjustSapCode.trim() || null,
+        unit: adjustUnit.trim() || undefined,
+        specification: adjustSpecification.trim() || null,
+        categoryId: adjustCategory || undefined,
+        photoPath: adjustPhotoPath,
+        condition: adjustCondition,
+        status: adjustCondition === 'RETURN' ? adjustStatus : 'Baru',
         zone: adjustZone,
         rack: adjustRack,
         bin: adjustBin,
-        quantityDelta: Number(stockDeltaInput),
-        setExact: isExactStock,
-        categoryId: adjustCategory || undefined,
-        photoPath: adjustPhotoPath,
+        quantityDelta: finalDelta,
+        setExactQuantity: setExact,
+        barcode: adjustBarcode.trim() || undefined,
       });
-      setActionSuccessMessage('Stok, kategori, dan foto material berhasil diperbarui.');
+
+      const actionText = stockMutationType === 'in'
+        ? `Stok masuk (+${finalDelta})`
+        : stockMutationType === 'out'
+        ? `Pengeluaran stok (${finalDelta})`
+        : `Stok ditetapkan menjadi ${finalDelta}`;
+
+      setActionSuccessMessage(`Material "${result.material.name}" (${result.material.code}) berhasil diperbarui: ${actionText}.`);
       setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
-      setStockError(err.message || 'Gagal memperbarui stok.');
+      setStockError(err.message || 'Gagal memperbarui material.');
     }
   };
 
@@ -837,6 +888,43 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     }
 
     return { totalQty, blokDisplay, rakDisplay, subRakDisplay, locObj };
+  };
+
+  const populateAdjustForm = (matId: string) => {
+    const pkg = stockConditionTab === 'return' ? kioskStorage.getPackageReturn() : kioskStorage.getPackageBaru();
+    const fallbackPkg = kioskStorage.getActivePackage();
+    const mat = pkg.materials.find(m => m.id === matId) || fallbackPkg?.materials.find(m => m.id === matId);
+    if (!mat) return;
+
+    const { totalQty, blokDisplay, rakDisplay, subRakDisplay, locObj } = getMaterialLocationInfo(mat.id, pkg);
+    const barcodeAlias = (pkg.barcodeAliases || fallbackPkg?.barcodeAliases || []).find(
+      a => a.targetType === 'material' && a.targetId === mat.id
+    );
+
+    setAdjustMatId(mat.id);
+    setAdjustName(mat.name);
+    setAdjustCode(mat.code);
+    setAdjustSapCode(mat.sapCode || '');
+    setAdjustUnit(mat.unit || 'Unit');
+    setAdjustCategory(mat.categoryId);
+    setAdjustCondition(mat.condition || (stockConditionTab === 'return' ? 'RETURN' : 'BARU'));
+    setAdjustStatus(mat.status || (mat.condition === 'RETURN' ? 'STANDBY' : 'Baru'));
+    setAdjustSpecification(mat.specification || '');
+    setAdjustPhotoPath(mat.photoPath || '');
+    setAdjustBarcode(barcodeAlias?.value || mat.code);
+
+    const safeBlok = blokDisplay !== '-' ? (blokDisplay.startsWith('Blok') ? blokDisplay : `Blok ${blokDisplay}`) : 'Blok A';
+    const safeRak = rakDisplay !== '-' ? (rakDisplay.startsWith('Rak') ? rakDisplay : `Rak ${rakDisplay}`) : 'Rak 01';
+    const safeBin = subRakDisplay !== '-' ? (subRakDisplay.startsWith('Sub') || subRakDisplay.startsWith('Bin') ? subRakDisplay : `Bin ${subRakDisplay}`) : 'Bin 01';
+
+    setAdjustZone(locObj?.zone || safeBlok);
+    setAdjustRack(locObj?.rack || safeRak);
+    setAdjustBin(locObj?.bin || safeBin);
+
+    setStockDeltaInput(totalQty);
+    setStockMutationType('exact');
+    setIsExactStock(true);
+    setStockError(null);
   };
 
   const pkgBaru = kioskStorage.getPackageBaru();
@@ -1417,15 +1505,19 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     <button
                       type="button"
                       onClick={() => {
+                        const firstMat = currentTabPkg.materials[0];
+                        if (firstMat) {
+                          populateAdjustForm(firstMat.id);
+                        }
                         setStockMode('adjust');
                         setStockError(null);
                         setShowStockModal(true);
                       }}
                       className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-white border border-slate-300 px-3.5 text-xs font-bold text-slate-700 hover:bg-slate-50 active:scale-95 transition shadow-2xs shrink-0"
-                      title="Buka pop-up penyesuaian stok material"
+                      title="Buka pop-up penyesuaian stok material & edit katalog"
                     >
                       <Boxes className="h-4 w-4 text-amber-600" />
-                      <span>Penyesuaian Stok</span>
+                      <span>Penyesuaian Stok / Edit</span>
                     </button>
 
                     <button
@@ -1691,13 +1783,12 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setAdjustMatId(m.id);
-                                    setAdjustCategory(m.categoryId);
-                                    setAdjustPhotoPath(m.photoPath || '');
+                                    populateAdjustForm(m.id);
                                     setStockMode('adjust');
                                     setShowStockModal(true);
                                   }}
                                   className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 font-bold hover:bg-sky-100 text-[11px] transition"
+                                  title={`Sesuaikan stok dan edit katalog ${m.name}`}
                                 >
                                   Sesuaikan
                                 </button>
@@ -3436,239 +3527,501 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
 
               {stockMode === 'adjust' ? (
                 <form onSubmit={handleAdjustStock} className="space-y-4">
+                  {/* 1. Pemilihan Material */}
                   <div>
                     <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Pilih Material:
+                      Pilih Material yang Ingin Disesuaikan / Diubah:
                     </label>
                     <select
-                      value={adjustMatId || (activePkg?.materials[0]?.id ?? '')}
+                      value={adjustMatId || (currentTabPkg.materials[0]?.id ?? '')}
                       onChange={(e) => {
-                        const nextId = e.target.value;
-                        setAdjustMatId(nextId);
-                        const selectedMat = activePkg?.materials.find(m => m.id === nextId);
-                        if (selectedMat) {
-                          setAdjustCategory(selectedMat.categoryId);
-                          setAdjustPhotoPath(selectedMat.photoPath || '');
-                        }
+                        populateAdjustForm(e.target.value);
                       }}
                       className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
                     >
-                      {activePkg?.materials.map(m => (
+                      {currentTabPkg.materials.map(m => (
                         <option key={m.id} value={m.id}>
-                          [{m.code}] {m.name} ({m.unit})
+                          [{m.code}] {m.name} ({m.unit || 'Unit'}) {m.sapCode ? `• SAP: ${m.sapCode}` : ''}
                         </option>
                       ))}
                     </select>
                   </div>
 
+                  {/* 2. Ringkasan Material Aktif & Status Saat Ini */}
                   {(() => {
-                    const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
-                    const mat = activePkg?.materials.find(m => m.id === currentMatId);
-                    if (!mat) return null;
-                    const matStocks = activePkg?.stockSnapshots.filter(s => s.materialId === mat.id) || [];
-                    const totalQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
-                    const currentCategory = activePkg?.categories.find(c => c.id === (adjustCategory || mat.categoryId));
-                    const activePhoto = adjustPhotoPath || mat.photoPath;
+                    const currentMat = currentTabPkg.materials.find(m => m.id === (adjustMatId || currentTabPkg.materials[0]?.id))
+                      || activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id));
+                    if (!currentMat) return null;
+                    const matStocks = (adjustCondition === 'RETURN' ? pkgReturn : pkgBaru).stockSnapshots.filter(s => s.materialId === currentMat.id);
+                    const currentQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
+                    const currentCategory = activePkg?.categories.find(c => c.id === (adjustCategory || currentMat.categoryId));
+                    const activePhoto = adjustPhotoPath || currentMat.photoPath;
+
+                    const numInput = Math.abs(Number(stockDeltaInput) || 0);
+                    let predictedQty = currentQty;
+                    if (stockMutationType === 'in') {
+                      predictedQty = currentQty + numInput;
+                    } else if (stockMutationType === 'out') {
+                      predictedQty = Math.max(0, currentQty - numInput);
+                    } else {
+                      predictedQty = Math.max(0, Number(stockDeltaInput) || 0);
+                    }
+
                     return (
-                      <div className="rounded-xl bg-amber-50/70 p-4 border border-amber-200 text-xs text-amber-900 flex items-start gap-3.5">
-                        <div className="h-16 w-16 rounded-xl border border-amber-300/80 bg-white overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
-                          {activePhoto ? (
-                            <img
-                              src={activePhoto}
-                              alt={mat.name}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <Boxes className="h-8 w-8 text-amber-600" />
-                          )}
+                      <div className="space-y-4">
+                        <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 text-xs flex items-start gap-3.5">
+                          <div className="h-16 w-16 rounded-xl border border-slate-300 bg-white overflow-hidden shrink-0 shadow-2xs flex items-center justify-center">
+                            {activePhoto ? (
+                              <img
+                                src={activePhoto}
+                                alt={currentMat.name}
+                                className="h-full w-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = ContentService.getFallbackImage();
+                                }}
+                              />
+                            ) : (
+                              <Boxes className="h-8 w-8 text-slate-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-sm text-slate-900">{currentMat.name}</span>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                adjustCondition === 'RETURN'
+                                  ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                                  : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              }`}>
+                                {adjustCondition === 'RETURN' ? `RETURN (${adjustStatus})` : 'BARU'}
+                              </span>
+                            </div>
+                            <p className="text-slate-600">
+                              Kode: <strong className="font-mono text-slate-800">{adjustCode || currentMat.code}</strong>
+                              {(adjustSapCode || currentMat.sapCode) && (
+                                <> • SAP: <strong className="font-mono text-slate-800">{adjustSapCode || currentMat.sapCode}</strong></>
+                              )}
+                            </p>
+                            <p className="text-slate-600">
+                              Kategori: <strong className="text-sky-800">{currentCategory?.name || currentMat.categoryId}</strong>
+                            </p>
+                            <p className="text-slate-600">
+                              Stok Saat Ini: <strong className="text-emerald-700 text-sm font-black">{currentQty} {adjustUnit || currentMat.unit || 'Unit'}</strong>
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1 space-y-1">
-                          <p className="font-bold text-sm text-[#0F172A]">{mat.name}</p>
-                          <p>Kode: <strong className="font-mono">{mat.code}</strong> {mat.sapCode ? `• SAP: ${mat.sapCode}` : ''}</p>
-                          <p>Kategori: <strong className="text-sky-800 font-semibold">{currentCategory?.name || mat.categoryId}</strong></p>
-                          <p>Total Stok: <strong className="text-emerald-700 text-sm">{totalQty} {mat.unit}</strong></p>
+
+                        {/* 3. Pilihan Mutasi Stok (IN / OUT / EDIT JUMLAH PASTI) */}
+                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-3">
+                          <label className="block text-xs font-bold uppercase text-slate-700">
+                            Pilih Operasi Mutasi Stok:
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStockMutationType('in');
+                                setIsExactStock(false);
+                                if (stockMutationType === 'exact') {
+                                  setStockDeltaInput(1);
+                                }
+                              }}
+                              className={`h-11 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
+                                stockMutationType === 'in'
+                                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
+                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
+                              <ArrowDownLeft className="h-4 w-4" />
+                              <span>+ Stok Masuk (IN)</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStockMutationType('out');
+                                setIsExactStock(false);
+                                if (stockMutationType === 'exact') {
+                                  setStockDeltaInput(1);
+                                }
+                              }}
+                              className={`h-11 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
+                                stockMutationType === 'out'
+                                  ? 'bg-rose-600 text-white border-rose-700 shadow-sm'
+                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
+                              <ArrowUpRight className="h-4 w-4" />
+                              <span>- Stok Keluar (OUT)</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setStockMutationType('exact');
+                                setIsExactStock(true);
+                                setStockDeltaInput(currentQty);
+                              }}
+                              className={`h-11 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
+                                stockMutationType === 'exact'
+                                  ? 'bg-[#0369a1] text-white border-sky-800 shadow-sm'
+                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                              }`}
+                            >
+                              <Edit3 className="h-4 w-4" />
+                              <span>= Edit Jumlah (Opname)</span>
+                            </button>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
+                              {stockMutationType === 'in'
+                                ? 'Jumlah Penambahan Stok Masuk (+):'
+                                : stockMutationType === 'out'
+                                ? 'Jumlah Pengeluaran Stok Keluar (-):'
+                                : 'Tetapkan Nilai Stok Pasti (Hasil Stock Opname):'}
+                            </label>
+                            <input
+                              type="number"
+                              min={stockMutationType === 'out' ? 1 : 0}
+                              value={stockDeltaInput}
+                              onChange={(e) => setStockDeltaInput(e.target.value === '' ? 0 : Number(e.target.value))}
+                              className="w-full h-11 rounded-xl border border-slate-300 px-3 text-base font-black text-slate-900 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                              placeholder={stockMutationType === 'exact' ? `Stok saat ini ${currentQty}` : 'Masukkan jumlah...'}
+                            />
+                          </div>
+
+                          {/* Live preview kalkulasi stok */}
+                          <div className={`p-2.5 rounded-lg text-xs font-medium border ${
+                            stockMutationType === 'in'
+                              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                              : stockMutationType === 'out'
+                              ? 'bg-rose-50 text-rose-900 border-rose-200'
+                              : 'bg-sky-50 text-sky-900 border-sky-200'
+                          }`}>
+                            {stockMutationType === 'in' && (
+                              <span>
+                                📥 <strong>Mutasi Masuk:</strong> Stok Awal: <strong>{currentQty}</strong> + Masuk: <strong>{numInput}</strong> ➜ Estimasi Stok Akhir: <strong className="text-emerald-700 font-bold">{predictedQty} {adjustUnit || currentMat.unit || 'Unit'}</strong>
+                              </span>
+                            )}
+                            {stockMutationType === 'out' && (
+                              <span>
+                                📤 <strong>Mutasi Keluar:</strong> Stok Awal: <strong>{currentQty}</strong> - Keluar: <strong>{numInput}</strong> ➜ Estimasi Stok Akhir: <strong className="text-rose-700 font-bold">{predictedQty} {adjustUnit || currentMat.unit || 'Unit'}</strong> {currentQty - numInput < 0 ? '(Anti-negatif diterapkan: sisa 0)' : ''}
+                              </span>
+                            )}
+                            {stockMutationType === 'exact' && (
+                              <span>
+                                ✏️ <strong>Stock Opname:</strong> Stok Awal: <strong>{currentQty}</strong> diubah langsung menjadi ➜ Estimasi Stok Akhir: <strong className="text-sky-800 font-bold">{predictedQty} {adjustUnit || currentMat.unit || 'Unit'}</strong>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 4. Edit Detail Katalog Material (CRUD Lengkap) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                          <span className="text-xs font-bold uppercase text-slate-700 block">
+                            Informasi Katalog & Spesifikasi Material:
+                          </span>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Nama Material <span className="text-rose-500">*</span>:
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={adjustName}
+                                onChange={(e) => setAdjustName(e.target.value)}
+                                placeholder="Nama Material"
+                                className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Satuan (Unit) <span className="text-rose-500">*</span>:
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={adjustUnit}
+                                onChange={(e) => setAdjustUnit(e.target.value)}
+                                placeholder="PCS / MTR / SET / ROLL / UNIT"
+                                className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Kode Material <span className="text-rose-500">*</span>:
+                              </label>
+                              <input
+                                type="text"
+                                required
+                                value={adjustCode}
+                                onChange={(e) => setAdjustCode(e.target.value)}
+                                placeholder="Contoh: CON-001"
+                                className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-mono text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Kode SAP (Nomor Material SAP):
+                              </label>
+                              <input
+                                type="text"
+                                value={adjustSapCode}
+                                onChange={(e) => setAdjustSapCode(e.target.value)}
+                                placeholder="Contoh: 10029381"
+                                className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-mono text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {/* Kondisi Material */}
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Kondisi Material:
+                              </label>
+                              <div className="grid grid-cols-2 gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAdjustCondition('BARU');
+                                    setAdjustStatus('Baru');
+                                  }}
+                                  className={`h-10 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
+                                    adjustCondition === 'BARU'
+                                      ? 'bg-sky-50 border-sky-600 text-sky-900'
+                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <span className="w-2 h-2 rounded-full bg-sky-500" />
+                                  <span>Material Baru</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setAdjustCondition('RETURN');
+                                    if (adjustStatus === 'Baru' || !adjustStatus) {
+                                      setAdjustStatus('STANDBY');
+                                    }
+                                  }}
+                                  className={`h-10 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
+                                    adjustCondition === 'RETURN'
+                                      ? 'bg-amber-50 border-amber-600 text-amber-900'
+                                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                                  <span>Material Return</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Status Retur jika RETURN */}
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                {adjustCondition === 'RETURN' ? 'Status Retur:' : 'Status Material:'}
+                              </label>
+                              {adjustCondition === 'RETURN' ? (
+                                <select
+                                  value={adjustStatus}
+                                  onChange={(e) => setAdjustStatus(e.target.value)}
+                                  className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                                >
+                                  <option value="STANDBY">STANDBY (Siap Pakai)</option>
+                                  <option value="DISMANTLE">DISMANTLE (Bongkaran)</option>
+                                  <option value="REPAIR">REPAIR (Perbaikan)</option>
+                                  <option value="RUSAK">RUSAK (Afkir)</option>
+                                </select>
+                              ) : (
+                                <input
+                                  type="text"
+                                  disabled
+                                  value="Baru"
+                                  className="w-full h-10 rounded-xl border border-slate-200 px-3 text-xs bg-slate-100 text-slate-500 cursor-not-allowed"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Kategori Material */}
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-[11px] font-bold text-slate-600">
+                                Kategori Material:
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowStockModal(false);
+                                  setActiveTab('categories');
+                                }}
+                                className="text-[10px] font-bold text-sky-600 hover:text-sky-700 hover:underline"
+                              >
+                                + Kelola Kategori
+                              </button>
+                            </div>
+                            <select
+                              value={adjustCategory}
+                              onChange={(e) => setAdjustCategory(e.target.value)}
+                              className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                            >
+                              {activePkg?.categories.map(c => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Lokasi Gudang */}
+                          <div className="rounded-xl border border-slate-200 bg-white p-3 space-y-2">
+                            <span className="text-[11px] font-bold text-slate-700 block">Lokasi Rak Penyimpanan di Gudang:</span>
+                            <div className="grid grid-cols-3 gap-2.5">
+                              <div>
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Zona / Blok</label>
+                                <input
+                                  type="text"
+                                  value={adjustZone}
+                                  onChange={(e) => setAdjustZone(e.target.value)}
+                                  placeholder="Blok A"
+                                  className="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs bg-white focus:border-[#0369a1] focus:outline-none"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Rak</label>
+                                <input
+                                  type="text"
+                                  value={adjustRack}
+                                  onChange={(e) => setAdjustRack(e.target.value)}
+                                  placeholder="Rak 01"
+                                  className="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs bg-white focus:border-[#0369a1] focus:outline-none"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">Bin / Sub-rak</label>
+                                <input
+                                  type="text"
+                                  value={adjustBin}
+                                  onChange={(e) => setAdjustBin(e.target.value)}
+                                  placeholder="Bin 01"
+                                  className="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs bg-white focus:border-[#0369a1] focus:outline-none"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Barcode & Spesifikasi */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Barcode / QR Code Scanner:
+                              </label>
+                              <input
+                                type="text"
+                                value={adjustBarcode}
+                                onChange={(e) => setAdjustBarcode(e.target.value)}
+                                placeholder="Scan atau ketik barcode..."
+                                className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white font-mono text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                                Spesifikasi Teknis / Keterangan:
+                              </label>
+                              <input
+                                type="text"
+                                value={adjustSpecification}
+                                onChange={(e) => setAdjustSpecification(e.target.value)}
+                                placeholder="Contoh: 24kV, 630A, tembaga murni"
+                                className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Foto / Gambar Material */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                              Foto / Gambar Produk:
+                            </label>
+                            <div className="flex items-center gap-3 p-2.5 bg-white border border-slate-200 rounded-xl">
+                              <div className="h-14 w-14 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
+                                {adjustPhotoPath ? (
+                                  <img
+                                    src={adjustPhotoPath}
+                                    alt="Foto Produk"
+                                    className="h-full w-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = ContentService.getFallbackImage();
+                                    }}
+                                  />
+                                ) : (
+                                  <ImageIcon className="h-6 w-6 text-slate-400" />
+                                )}
+                              </div>
+                              <div className="flex-1 space-y-1.5">
+                                <input
+                                  type="text"
+                                  value={adjustPhotoPath}
+                                  onChange={(e) => setAdjustPhotoPath(e.target.value)}
+                                  placeholder="Tempel tautan URL gambar..."
+                                  className="w-full h-8 rounded-lg border border-slate-300 px-2.5 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
+                                />
+                                <div className="flex items-center gap-2">
+                                  <label className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[11px] transition shadow-2xs">
+                                    <Upload className="h-3 w-3 text-sky-600" />
+                                    <span>Unggah Foto</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          const reader = new FileReader();
+                                          reader.onload = (evt) => {
+                                            if (typeof evt.target?.result === 'string') {
+                                              setAdjustPhotoPath(evt.target.result);
+                                            }
+                                          };
+                                          reader.readAsDataURL(file);
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                  {adjustPhotoPath && (
+                                    <button
+                                      type="button"
+                                      onClick={() => setAdjustPhotoPath('')}
+                                      className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline"
+                                    >
+                                      Hapus Foto
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );
                   })()}
 
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-bold uppercase text-slate-600">
-                        Kategori Material:
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowStockModal(false);
-                          setActiveTab('categories');
-                        }}
-                        className="text-[11px] font-bold text-sky-600 hover:text-sky-700 hover:underline flex items-center gap-1"
-                      >
-                        + Kelola Kategori
-                      </button>
-                    </div>
-                    <select
-                      value={adjustCategory || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.categoryId ?? '')}
-                      onChange={(e) => setAdjustCategory(e.target.value)}
-                      className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm bg-white font-medium text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                    >
-                      {activePkg?.categories.map(c => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Foto / Gambar Material */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                      Foto / Gambar Produk:
-                    </label>
-                    <div className="flex items-center gap-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                      <div className="h-16 w-16 rounded-lg border border-slate-200 bg-white overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
-                        {adjustPhotoPath || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.photoPath) ? (
-                          <img
-                            src={adjustPhotoPath || (activePkg?.materials.find(m => m.id === (adjustMatId || activePkg?.materials[0]?.id))?.photoPath || '')}
-                            alt="Foto Produk"
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = ContentService.getFallbackImage();
-                            }}
-                          />
-                        ) : (
-                          <ImageIcon className="h-6 w-6 text-slate-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 space-y-1.5">
-                        <input
-                          type="text"
-                          value={adjustPhotoPath}
-                          onChange={(e) => setAdjustPhotoPath(e.target.value)}
-                          placeholder="Tempel tautan URL gambar..."
-                          className="w-full h-8 rounded-lg border border-slate-300 px-2.5 text-xs bg-white text-slate-800 focus:border-[#0369a1] focus:outline-none"
-                        />
-                        <div className="flex items-center gap-2">
-                          <label className="cursor-pointer inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[11px] transition shadow-2xs">
-                            <Upload className="h-3 w-3 text-sky-600" />
-                            <span>Unggah Foto</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  const reader = new FileReader();
-                                  reader.onload = (evt) => {
-                                    if (typeof evt.target?.result === 'string') {
-                                      setAdjustPhotoPath(evt.target.result);
-                                    }
-                                  };
-                                  reader.readAsDataURL(file);
-                                }
-                              }}
-                            />
-                          </label>
-                          {adjustPhotoPath && (
-                            <button
-                              type="button"
-                              onClick={() => setAdjustPhotoPath('')}
-                              className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline"
-                            >
-                              Hapus Foto
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        Metode Penyesuaian:
-                      </label>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setIsExactStock(false)}
-                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
-                            !isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                          }`}
-                        >
-                          + Tambah / - Kurang
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsExactStock(true)}
-                          className={`flex-1 min-h-[42px] py-2 rounded-xl text-xs font-bold border transition ${
-                            isExactStock ? 'bg-[#FACC15] text-[#0F172A] border-amber-400 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                          }`}
-                        >
-                          Tetapkan Nilai
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                        {isExactStock ? 'Nilai Stok Pasti:' : 'Jumlah Penambahan (+/-):'}
-                      </label>
-                      <input
-                        type="number"
-                        value={stockDeltaInput}
-                        onChange={(e) => setStockDeltaInput(Number(e.target.value))}
-                        className="w-full h-11 rounded-xl border border-slate-300 px-3 text-sm font-bold text-slate-800 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        placeholder={isExactStock ? "contoh: 50" : "contoh: 10 atau -5"}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                    <span className="text-xs font-bold text-slate-700 block">Lokasi Rak Penyimpanan di Gudang:</span>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Zona</label>
-                        <input
-                          type="text"
-                          value={adjustZone}
-                          onChange={(e) => setAdjustZone(e.target.value)}
-                          placeholder="Zona A"
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Rak</label>
-                        <input
-                          type="text"
-                          value={adjustRack}
-                          onChange={(e) => setAdjustRack(e.target.value)}
-                          placeholder="Rak 01"
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Bin / Kotak</label>
-                        <input
-                          type="text"
-                          value={adjustBin}
-                          onChange={(e) => setAdjustBin(e.target.value)}
-                          placeholder="Bin 01"
-                          className="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs bg-white focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
+                  {/* Tombol Aksi */}
                   <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
                       type="submit"
                       className="flex-1 flex h-12 items-center justify-center gap-2 rounded-control bg-[#FACC15] px-8 text-sm font-bold text-[#0F172A] shadow-md transition active:scale-95 hover:bg-amber-400"
                     >
                       <CheckCircle2 className="h-4 w-4" />
-                      <span>Simpan Perubahan Stok</span>
+                      <span>Simpan Perubahan Katalog & Stok</span>
                     </button>
 
                     <button
@@ -3680,8 +4033,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     </button>
 
                     {(() => {
-                      const currentMatId = adjustMatId || activePkg?.materials[0]?.id;
-                      const mat = activePkg?.materials.find(m => m.id === currentMatId);
+                      const currentMatId = adjustMatId || currentTabPkg.materials[0]?.id;
+                      const mat = currentTabPkg.materials.find(m => m.id === currentMatId) || activePkg?.materials.find(m => m.id === currentMatId);
                       if (!mat) return null;
                       return (
                         <button
@@ -3693,7 +4046,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           title={`Hapus material ${mat.name} dari database`}
                         >
                           <Trash2 className="h-4 w-4 text-rose-600" />
-                          <span>Hapus Material Ini</span>
+                          <span>Hapus Material</span>
                         </button>
                       );
                     })()}
