@@ -160,6 +160,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setStockConditionTab('return');
     } else if (activeTab === 'stock-baru' || activeTab === 'stock') {
       setStockConditionTab('baru');
+    } else if (activeTab === 'stock-audit') {
+      const report = StockConsistencyService.auditPackage(kioskStorage.getActivePackage());
+      setStockAuditReport(report);
+      setShowStockAuditModal(true);
     }
   }, [activeTab]);
 
@@ -1284,7 +1288,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           )}
 
           {/* TAB 1: STOCK & MATERIAL MUTATION (Dukungan Katalog Baru & Return) */}
-          {(activeTab === 'stock' || activeTab === 'stock-baru' || activeTab === 'stock-return') && (
+          {(activeTab === 'stock' || activeTab === 'stock-baru' || activeTab === 'stock-return' || activeTab === 'stock-audit') && (
             <div className="space-y-4">
               {/* Sub-Katalog Switcher: Baru vs Return */}
               <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
@@ -1335,8 +1339,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   </div>
                 </div>
 
-                {/* Filter Status Retur (hanya saat mode Return aktif) */}
-                {stockConditionTab === 'return' && (
+                {/* Right side: Button Checker & Selaraskan Stok + Filter Status Retur */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleOpenStockAuditModal}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs transition active:scale-95 shrink-0"
+                    title="Buka Checker Keselarasan Stok SAP 1:1"
+                  >
+                    <ShieldCheck className="h-4 w-4 text-emerald-200" />
+                    <span>Checker &amp; Selaraskan Stok (1:1 SAP)</span>
+                    {liveStockAudit.hasDiscrepancy && (
+                      <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                        {liveStockAudit.discrepantCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Filter Status Retur (hanya saat mode Return aktif) */}
+                  {stockConditionTab === 'return' && (
                   <div className="flex flex-wrap items-center gap-1.5 text-xs">
                     <span className="text-[11px] font-bold text-amber-900 mr-1">Status Retur:</span>
                     {(['all', 'GARANSI', 'PERBAIKAN', 'USUL HAPUS', 'STANDBY'] as const).map((st) => {
@@ -1359,6 +1380,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     })}
                   </div>
                 )}
+                </div>
               </div>
 
               <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-3.5">
@@ -3385,6 +3407,24 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                   }`}
                 >
                   2. Tambah Material Baru
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowStockModal(false);
+                    setStockError(null);
+                    handleOpenStockAuditModal();
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-black bg-emerald-100 text-emerald-950 border border-emerald-300 hover:bg-emerald-200 transition flex items-center gap-1.5 ml-auto"
+                  title="Buka Checker Keselarasan Stok SAP 1:1"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
+                  <span>3. Checker &amp; Selaraskan Stok (1:1 SAP)</span>
+                  {liveStockAudit.hasDiscrepancy && (
+                    <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                      {liveStockAudit.discrepantCount}
+                    </span>
+                  )}
                 </button>
               </div>
 

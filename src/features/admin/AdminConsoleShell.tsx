@@ -17,6 +17,7 @@ import {
   Wifi,
   Users,
   UserCheck,
+  ShieldCheck,
 } from 'lucide-react';
 import { AdminModeService } from './adminModeService';
 import { AdminLoginUser } from './AdminLoginScreen';
@@ -28,6 +29,7 @@ export type AdminModuleTab =
   | 'stock'
   | 'stock-baru'
   | 'stock-return'
+  | 'stock-audit'
   | 'categories'
   | 'locations'
   | 'import'
@@ -100,6 +102,11 @@ const MODULE_META_MAP: Record<AdminModuleTab, ModuleMeta> = {
     title: 'Manajemen Stok Material (Return)',
     subtitle: 'Inventaris stok material retur: Garansi, Perbaikan, Usul Hapus, dan Standby',
     icon: Boxes,
+  },
+  'stock-audit': {
+    title: 'Checker Keselarasan Stok (1:1 SAP)',
+    subtitle: 'Audit dan sinkronisasi stok fisik master SAP dengan kartu katalog dan detail material',
+    icon: ShieldCheck,
   },
   categories: {
     title: 'Klasifikasi Kategori Logistik',
@@ -217,6 +224,12 @@ export const AdminConsoleShell: React.FC<AdminConsoleShellProps> = ({
               label: 'Return',
               tag: 'RETURN',
               color: '#f59e0b',
+            },
+            {
+              id: 'stock-audit' as AdminModuleTab,
+              label: 'Checker Stok',
+              tag: '1:1 SAP',
+              color: '#10b981',
             },
           ],
         },
