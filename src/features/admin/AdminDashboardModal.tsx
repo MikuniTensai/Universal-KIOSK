@@ -33,9 +33,6 @@ import {
   EyeOff,
   Lock,
   Database,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Edit3,
 } from 'lucide-react';
 import { AdminAuth } from './adminAuth';
 import {
@@ -145,9 +142,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [adjustZone, setAdjustZone] = useState<string>('Blok A');
   const [adjustRack, setAdjustRack] = useState<string>('Rak 01');
   const [adjustBin, setAdjustBin] = useState<string>('Bin 01');
-  const [stockDeltaInput, setStockDeltaInput] = useState<number>(10);
-  const [isExactStock, setIsExactStock] = useState<boolean>(true);
-  const [stockMutationType, setStockMutationType] = useState<'in' | 'out' | 'exact'>('exact');
+  // String agar input bisa dikosongkan saat mengetik tanpa langsung berubah jadi 0.
+  const [stockQtyInput, setStockQtyInput] = useState<string>('');
   const [stockError, setStockError] = useState<string | null>(null);
 
   // New Material states (persis format master Excel: nama material, stok, blok, rak, sub rak)
@@ -465,24 +461,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         return;
       }
 
-      const qtyNum = Number(stockDeltaInput);
-      if (isNaN(qtyNum)) {
-        setStockError('Kuantitas stok harus berupa angka valid.');
+      const qtyNum = Number(stockQtyInput);
+      if (stockQtyInput.trim() === '' || isNaN(qtyNum)) {
+        setStockError('Isi jumlah stok dengan angka.');
         return;
       }
-
-      let finalDelta = qtyNum;
-      let setExact = isExactStock;
-
-      if (stockMutationType === 'in') {
-        finalDelta = Math.abs(qtyNum);
-        setExact = false;
-      } else if (stockMutationType === 'out') {
-        finalDelta = -Math.abs(qtyNum);
-        setExact = false;
-      } else {
-        finalDelta = Math.max(0, qtyNum);
-        setExact = true;
+      if (qtyNum < 0) {
+        setStockError('Jumlah stok tidak boleh negatif.');
+        return;
       }
 
       const result = kioskStorage.updateMaterial({
@@ -499,18 +485,12 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         zone: adjustZone,
         rack: adjustRack,
         bin: adjustBin,
-        quantityDelta: finalDelta,
-        setExactQuantity: setExact,
+        quantityDelta: qtyNum,
+        setExactQuantity: true,
         barcode: adjustBarcode.trim() || undefined,
       });
 
-      const actionText = stockMutationType === 'in'
-        ? `Stok masuk (+${finalDelta})`
-        : stockMutationType === 'out'
-        ? `Pengeluaran stok (${finalDelta})`
-        : `Stok ditetapkan menjadi ${finalDelta}`;
-
-      setActionSuccessMessage(`Material "${result.material.name}" (${result.material.code}) berhasil diperbarui: ${actionText}.`);
+      setActionSuccessMessage(`Material "${result.material.name}" (${result.material.code}) berhasil diperbarui: stok sekarang ${qtyNum} ${result.material.unit || 'Unit'}.`);
       setShowStockModal(false);
       triggerPackageUpdated();
     } catch (err: any) {
@@ -896,7 +876,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     const mat = pkg.materials.find(m => m.id === matId) || fallbackPkg?.materials.find(m => m.id === matId);
     if (!mat) return;
 
-    const { totalQty, blokDisplay, rakDisplay, subRakDisplay, locObj } = getMaterialLocationInfo(mat.id, pkg);
+    // Material dari ringkasan dashboard bisa berada di paket kondisi lain; ambil stok dari paket asalnya
+    // supaya angka awal di input sama dengan stok sebenarnya.
+    const stockPkg = pkg.materials.some(m => m.id === mat.id) ? pkg : fallbackPkg;
+    const { totalQty, blokDisplay, rakDisplay, subRakDisplay, locObj } = getMaterialLocationInfo(mat.id, stockPkg);
     const barcodeAlias = (pkg.barcodeAliases || fallbackPkg?.barcodeAliases || []).find(
       a => a.targetType === 'material' && a.targetId === mat.id
     );
@@ -921,9 +904,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setAdjustRack(locObj?.rack || safeRak);
     setAdjustBin(locObj?.bin || safeBin);
 
-    setStockDeltaInput(totalQty);
-    setStockMutationType('exact');
-    setIsExactStock(true);
+    setStockQtyInput(String(totalQty));
     setStockError(null);
   };
 
@@ -1018,7 +999,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                 <button
                   type="button"
                   className="adms-action-pill"
-                  onClick={() => { setActiveTab('stock'); setStockMode('adjust'); setShowStockModal(true); }}
+                  onClick={() => {
+                    const firstMatId = adjustMatId || currentTabPkg.materials[0]?.id;
+                    if (firstMatId) populateAdjustForm(firstMatId);
+                    setActiveTab('stock');
+                    setStockMode('adjust');
+                    setShowStockModal(true);
+                  }}
                 >
                   <Boxes size={15} strokeWidth={2} />
                   <span>Penyesuaian Cepat Stok</span>
@@ -1339,7 +1326,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      setAdjustMatId(mat.id);
+                                      populateAdjustForm(mat.id);
                                       setActiveTab('stock');
                                       setStockMode('adjust');
                                       setShowStockModal(true);
@@ -3556,16 +3543,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                     const currentQty = matStocks.reduce((sum, s) => sum + (s.quantity || 0), 0);
                     const currentCategory = activePkg?.categories.find(c => c.id === (adjustCategory || currentMat.categoryId));
                     const activePhoto = adjustPhotoPath || currentMat.photoPath;
-
-                    const numInput = Math.abs(Number(stockDeltaInput) || 0);
-                    let predictedQty = currentQty;
-                    if (stockMutationType === 'in') {
-                      predictedQty = currentQty + numInput;
-                    } else if (stockMutationType === 'out') {
-                      predictedQty = Math.max(0, currentQty - numInput);
-                    } else {
-                      predictedQty = Math.max(0, Number(stockDeltaInput) || 0);
-                    }
+                    const unitLabel = adjustUnit || currentMat.unit || 'Unit';
 
                     return (
                       <div className="space-y-4">
@@ -3610,110 +3588,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
                           </div>
                         </div>
 
-                        {/* 3. Pilihan Mutasi Stok (IN / OUT / EDIT JUMLAH PASTI) */}
-                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-3">
-                          <label className="block text-xs font-bold uppercase text-slate-700">
-                            Pilih Operasi Mutasi Stok:
+                        {/* 3. Jumlah stok baru: angka yang diisi langsung menggantikan stok saat ini */}
+                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2">
+                          <label htmlFor="adjust-stock-qty" className="block text-xs font-bold uppercase text-slate-700">
+                            Jumlah Stok ({unitLabel}):
                           </label>
-                          <div className="grid grid-cols-3 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setStockMutationType('in');
-                                setIsExactStock(false);
-                                if (stockMutationType === 'exact') {
-                                  setStockDeltaInput(1);
-                                }
-                              }}
-                              className={`h-11 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
-                                stockMutationType === 'in'
-                                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm'
-                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                              }`}
-                            >
-                              <ArrowDownLeft className="h-4 w-4" />
-                              <span>+ Stok Masuk (IN)</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setStockMutationType('out');
-                                setIsExactStock(false);
-                                if (stockMutationType === 'exact') {
-                                  setStockDeltaInput(1);
-                                }
-                              }}
-                              className={`h-11 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
-                                stockMutationType === 'out'
-                                  ? 'bg-rose-600 text-white border-rose-700 shadow-sm'
-                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                              }`}
-                            >
-                              <ArrowUpRight className="h-4 w-4" />
-                              <span>- Stok Keluar (OUT)</span>
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setStockMutationType('exact');
-                                setIsExactStock(true);
-                                setStockDeltaInput(currentQty);
-                              }}
-                              className={`h-11 flex items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition border ${
-                                stockMutationType === 'exact'
-                                  ? 'bg-[#0369a1] text-white border-sky-800 shadow-sm'
-                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                              }`}
-                            >
-                              <Edit3 className="h-4 w-4" />
-                              <span>= Edit Jumlah (Opname)</span>
-                            </button>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-bold uppercase text-slate-600 mb-1">
-                              {stockMutationType === 'in'
-                                ? 'Jumlah Penambahan Stok Masuk (+):'
-                                : stockMutationType === 'out'
-                                ? 'Jumlah Pengeluaran Stok Keluar (-):'
-                                : 'Tetapkan Nilai Stok Pasti (Hasil Stock Opname):'}
-                            </label>
-                            <input
-                              type="number"
-                              min={stockMutationType === 'out' ? 1 : 0}
-                              value={stockDeltaInput}
-                              onChange={(e) => setStockDeltaInput(e.target.value === '' ? 0 : Number(e.target.value))}
-                              className="w-full h-11 rounded-xl border border-slate-300 px-3 text-base font-black text-slate-900 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
-                              placeholder={stockMutationType === 'exact' ? `Stok saat ini ${currentQty}` : 'Masukkan jumlah...'}
-                            />
-                          </div>
-
-                          {/* Live preview kalkulasi stok */}
-                          <div className={`p-2.5 rounded-lg text-xs font-medium border ${
-                            stockMutationType === 'in'
-                              ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
-                              : stockMutationType === 'out'
-                              ? 'bg-rose-50 text-rose-900 border-rose-200'
-                              : 'bg-sky-50 text-sky-900 border-sky-200'
-                          }`}>
-                            {stockMutationType === 'in' && (
-                              <span>
-                                📥 <strong>Mutasi Masuk:</strong> Stok Awal: <strong>{currentQty}</strong> + Masuk: <strong>{numInput}</strong> ➜ Estimasi Stok Akhir: <strong className="text-emerald-700 font-bold">{predictedQty} {adjustUnit || currentMat.unit || 'Unit'}</strong>
-                              </span>
-                            )}
-                            {stockMutationType === 'out' && (
-                              <span>
-                                📤 <strong>Mutasi Keluar:</strong> Stok Awal: <strong>{currentQty}</strong> - Keluar: <strong>{numInput}</strong> ➜ Estimasi Stok Akhir: <strong className="text-rose-700 font-bold">{predictedQty} {adjustUnit || currentMat.unit || 'Unit'}</strong> {currentQty - numInput < 0 ? '(Anti-negatif diterapkan: sisa 0)' : ''}
-                              </span>
-                            )}
-                            {stockMutationType === 'exact' && (
-                              <span>
-                                ✏️ <strong>Stock Opname:</strong> Stok Awal: <strong>{currentQty}</strong> diubah langsung menjadi ➜ Estimasi Stok Akhir: <strong className="text-sky-800 font-bold">{predictedQty} {adjustUnit || currentMat.unit || 'Unit'}</strong>
-                              </span>
-                            )}
-                          </div>
+                          <input
+                            id="adjust-stock-qty"
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            required
+                            value={stockQtyInput}
+                            onChange={(e) => setStockQtyInput(e.target.value)}
+                            className="w-full h-11 rounded-xl border border-slate-300 px-3 text-base font-black text-slate-900 focus:border-[#0369a1] focus:ring-2 focus:ring-[#0369a1]/20 focus:outline-none"
+                            placeholder={`Stok saat ini ${currentQty}`}
+                          />
+                          <p className="text-xs text-slate-600">
+                            Stok saat ini <strong className="text-slate-900">{currentQty} {unitLabel}</strong>. Angka di atas akan menjadi stok baru setelah disimpan.
+                          </p>
                         </div>
 
                         {/* 4. Edit Detail Katalog Material (CRUD Lengkap) */}
