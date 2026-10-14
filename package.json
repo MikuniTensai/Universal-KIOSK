@@ -11,7 +11,8 @@
     "serve": "node scripts/serve-dual.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "e2e run"
   },
   "dependencies": {
     "@types/qrcode": "^1.5.6",
@@ -23,6 +24,8 @@
     "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
+    "@ai-sdk/openai": "^4.0.92",
+    "@e2e-dev/web": "^0.14.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
@@ -30,12 +33,15 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "ai": "^7.0.138",
     "autoprefixer": "^10.4.20",
+    "e2e": "^0.20.0",
     "jsdom": "^26.0.0",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "zod": "^4.1.8"
   }
 }
