@@ -45,6 +45,7 @@ import { SqlBackupService, AutoBackupMeta } from './sqlBackupService';
 import { ImportService, PackagePreviewSummary } from './importService';
 import { CsvImportService, CsvImportStats, CsvImportScope } from './csvImportService';
 import { StockConsistencyService, StockAuditReport } from './stockConsistencyService';
+import { matchesMaterialSearch } from './materialSearch';
 import { snapshotManager } from './snapshotManager';
 import { kioskStorage } from '../../adapters/storage/kioskStorage';
 import { SyncService } from '../../adapters/storage/syncService';
@@ -929,37 +930,16 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     }
 
     // 3. Filter Pencarian Teks
-    if (!stockSearch) return true;
-    const q = stockSearch.toLowerCase().trim();
-    const { blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, currentTabPkg);
-    return (
-      m.name.toLowerCase().includes(q) ||
-      m.code.toLowerCase().includes(q) ||
-      (m.sapCode ? m.sapCode.toLowerCase().includes(q) : false) ||
-      m.unit.toLowerCase().includes(q) ||
-      blokDisplay.toLowerCase().includes(q) ||
-      rakDisplay.toLowerCase().includes(q) ||
-      subRakDisplay.toLowerCase().includes(q) ||
-      (m.status ? m.status.toLowerCase().includes(q) : false)
-    );
+    if (!stockSearch.trim()) return true;
+    return matchesMaterialSearch(m, getMaterialLocationInfo(m.id, currentTabPkg), stockSearch);
   });
 
   const overviewFilteredMaterials = (activePkg?.materials || []).filter((m) => {
     if (overviewSelectedCategory !== 'all' && m.categoryId !== overviewSelectedCategory) {
       return false;
     }
-    if (!overviewSearch) return true;
-    const q = overviewSearch.toLowerCase().trim();
-    const { blokDisplay, rakDisplay, subRakDisplay } = getMaterialLocationInfo(m.id, activePkg);
-    return (
-      m.name.toLowerCase().includes(q) ||
-      m.code.toLowerCase().includes(q) ||
-      (m.sapCode ? m.sapCode.toLowerCase().includes(q) : false) ||
-      m.unit.toLowerCase().includes(q) ||
-      blokDisplay.toLowerCase().includes(q) ||
-      rakDisplay.toLowerCase().includes(q) ||
-      subRakDisplay.toLowerCase().includes(q)
-    );
+    if (!overviewSearch.trim()) return true;
+    return matchesMaterialSearch(m, getMaterialLocationInfo(m.id, activePkg), overviewSearch);
   });
 
   return (
